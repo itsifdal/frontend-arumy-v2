@@ -109,9 +109,9 @@ export default function DashboardApp() {
   const [teachers, setTeachers] = useState('');
   // Get Teacher Data
   useEffect(() => {
-    axios.get(`${process.env.REACT_APP_BASE_URL}/api/teacher`).then((response) => {
+    /* axios.get(`${process.env.REACT_APP_BASE_URL}/api/teacher`).then((response) => {
         setTeachers(response.data);
-    });
+    }); */
   }, []);
 
   // ##ROOM
@@ -198,7 +198,7 @@ export default function DashboardApp() {
               {Array.isArray(teachers)
                 ? teachers.map((option) => (
                 <MenuItem key={option.id} value={option.id}>
-                  {option.nama_pengajar}
+                  {option?.nama_pengajar}
                 </MenuItem>
               )) : null}
           </TextField>
@@ -261,7 +261,7 @@ export default function DashboardApp() {
                     <TableCell align="left" component="td" >
                       <Stack direction="row" alignItems="center" spacing={2}>
                         <Typography variant="subtitle2" noWrap>
-                          {booking.teacher.nama_pengajar}
+                          {booking?.teacher?.nama_pengajar}
                         </Typography>
                       </Stack>
                     </TableCell>
