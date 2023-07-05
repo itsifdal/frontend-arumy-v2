@@ -235,9 +235,9 @@ export default function DashboardApp() {
                   <TableRow>
                     <TableCell>RUANGAN</TableCell>
                     <TableCell>TEACHER</TableCell>
-                    <TableCell>JENIS</TableCell>
-                    <TableCell>DURASI</TableCell>
-                    <TableCell>STATUS</TableCell>
+                    <TableCell align="center">JENIS</TableCell>
+                    <TableCell align="center">DURASI</TableCell>
+                    <TableCell align="center">STATUS</TableCell>
                     <TableCell>TGL KELAS</TableCell>
                     <TableCell>JAM BOOKING</TableCell>
                   </TableRow>
@@ -249,7 +249,7 @@ export default function DashboardApp() {
                     hover
                     tabIndex={-1}
                     role="checkbox"
-                    key={booking.id}
+                    key={booking.booking_id}
                   >
                     <TableCell align="left" component="td" >
                       <Stack direction="row" alignItems="center" spacing={2}>
@@ -265,15 +265,15 @@ export default function DashboardApp() {
                         </Typography>
                       </Stack>
                     </TableCell>
-                    <TableCell align="" component="td">
+                    <TableCell align="center" component="td">
                       {booking.jenis_kelas === 'group' ? (
                         <Badge badgeContent={booking.jenis_kelas} color="success" />
                       ):(
                         <Badge badgeContent={booking.jenis_kelas} color="primary" />
                       )}
                     </TableCell>
-                    <TableCell align="">{booking.durasi} Menit </TableCell>
-                    <TableCell align="">
+                    <TableCell align="center">{booking.durasi} Menit </TableCell>
+                    <TableCell align="center">
                       {booking.status === 'pending' ? (
                         <Badge badgeContent={booking.status} color="warning" />
                       ): null}
