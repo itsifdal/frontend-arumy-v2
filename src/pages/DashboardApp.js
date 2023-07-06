@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import Moment from 'moment';
 // material
 import {
-  Link,
   Badge,
   Card,
   Table,
@@ -26,7 +25,6 @@ import {
 import axios from 'axios';
 import Page from '../components/Page';
 import Scrollbar from '../components/Scrollbar';
-import Iconify from '../components/Iconify';
 // sections
 import {
   AppWidgetSummary
@@ -109,9 +107,9 @@ export default function DashboardApp() {
   const [teachers, setTeachers] = useState('');
   // Get Teacher Data
   useEffect(() => {
-    /* axios.get(`${process.env.REACT_APP_BASE_URL}/api/teacher`).then((response) => {
+    axios.get(`${process.env.REACT_APP_BASE_URL}/api/teacher`).then((response) => {
         setTeachers(response.data);
-    }); */
+    });
   }, []);
 
   // ##ROOM
@@ -249,7 +247,7 @@ export default function DashboardApp() {
                     hover
                     tabIndex={-1}
                     role="checkbox"
-                    key={booking.booking_id}
+                    key={booking.id}
                   >
                     <TableCell align="left" component="td" >
                       <Stack direction="row" alignItems="center" spacing={2}>
