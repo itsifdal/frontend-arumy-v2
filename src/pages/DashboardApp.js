@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import Moment from 'moment';
 // material
 import {
-  Link,
   Badge,
   Card,
   Table,
@@ -26,7 +25,6 @@ import {
 import axios from 'axios';
 import Page from '../components/Page';
 import Scrollbar from '../components/Scrollbar';
-import Iconify from '../components/Iconify';
 // sections
 import {
   AppWidgetSummary
@@ -109,9 +107,9 @@ export default function DashboardApp() {
   const [teachers, setTeachers] = useState('');
   // Get Teacher Data
   useEffect(() => {
-    /* axios.get(`${process.env.REACT_APP_BASE_URL}/api/teacher`).then((response) => {
+    axios.get(`${process.env.REACT_APP_BASE_URL}/api/teacher`).then((response) => {
         setTeachers(response.data);
-    }); */
+    });
   }, []);
 
   // ##ROOM
@@ -235,9 +233,9 @@ export default function DashboardApp() {
                   <TableRow>
                     <TableCell>RUANGAN</TableCell>
                     <TableCell>TEACHER</TableCell>
-                    <TableCell>JENIS</TableCell>
-                    <TableCell>DURASI</TableCell>
-                    <TableCell>STATUS</TableCell>
+                    <TableCell align="center">JENIS</TableCell>
+                    <TableCell align="center">DURASI</TableCell>
+                    <TableCell align="center">STATUS</TableCell>
                     <TableCell>TGL KELAS</TableCell>
                     <TableCell>JAM BOOKING</TableCell>
                   </TableRow>
@@ -265,15 +263,15 @@ export default function DashboardApp() {
                         </Typography>
                       </Stack>
                     </TableCell>
-                    <TableCell align="" component="td">
+                    <TableCell align="center" component="td">
                       {booking.jenis_kelas === 'group' ? (
                         <Badge badgeContent={booking.jenis_kelas} color="success" />
                       ):(
                         <Badge badgeContent={booking.jenis_kelas} color="primary" />
                       )}
                     </TableCell>
-                    <TableCell align="">{booking.durasi} Menit </TableCell>
-                    <TableCell align="">
+                    <TableCell align="center">{booking.durasi} Menit </TableCell>
+                    <TableCell align="center">
                       {booking.status === 'pending' ? (
                         <Badge badgeContent={booking.status} color="warning" />
                       ): null}
