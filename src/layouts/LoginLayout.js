@@ -34,7 +34,7 @@ const LoginLayout = forwardRef(({ children }, ref) => (
         }}>
           {children}
         </Card>
-        <img src={IMAGES.LOGO_WHITE} alt="logo login" style={{height: '86px', width: '369px'}} />
+        <img src={IMAGES.LOGIN_LOGO} alt="logo login" />
       </Stack>
     </Box>
   </Box>
