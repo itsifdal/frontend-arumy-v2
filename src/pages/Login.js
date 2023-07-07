@@ -1,10 +1,12 @@
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import axios from 'axios';
+import { useMutation } from "react-query";
 // @mui
-import { IconButton, InputAdornment, Link, Typography, FormControl, TextField, Button } from '@mui/material';
+import { IconButton, InputAdornment, Link, Typography, FormControl, TextField } from '@mui/material';
+import { LoadingButton } from '@mui/lab';
 
 // components
-import axios from 'axios';
 import Collapse from '@mui/material/Collapse';
 import Alert from '@mui/material/Alert';
 import Iconify from '../components/Iconify';
@@ -22,6 +24,12 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [user, setUser]         = useState('');
 
+  const submitLogin = useMutation(({ email, password }) => {
+    const data = { email, password };
+    // send the email and password to the server
+    return axios.post(`${process.env.REACT_APP_BASE_URL}/api/login`, data);
+  });
+
   useEffect(() => {
     const loggedInUser = localStorage.getItem("user");
     if (loggedInUser) {
@@ -38,20 +46,21 @@ export default function Login() {
   const handleSubmit = async e => {
     e.preventDefault();
     const data = { email, password };
-    // send the email and password to the server
-    await axios.post(`${process.env.REACT_APP_BASE_URL}/api/login`, data
-      ).then(res => {
+    submitLogin.mutate(data, {
+      onSuccess: (res) => {
         navigate('/dashboard/app', { replace: true });
         // set the state of the user
         setUser(res.data);
         // store the user in localStorage
         localStorage.setItem("user", JSON.stringify(res.data));
-      }).catch((error) => {
+      },
+      onError: (error) => {
         if (error.res) {
           console.log(error.res.status);
         }
         setOpenAlert(true)
-      });
+      }
+    })
   };
 
   return (
@@ -99,7 +108,7 @@ export default function Login() {
             Forgot password?
           </Link>
 
-          <Button variant="contained" type="submit" onClick={handleSubmit} size="large" color="warning">Login</Button>
+          <LoadingButton loading={submitLogin.isLoading} variant="contained" type="submit" onClick={handleSubmit} size="large" color="warning">Login</LoadingButton>
         </FormControl>
       </LoginLayout>
     </Page>
