@@ -1,16 +1,17 @@
 import PropTypes from 'prop-types';
 import { useEffect, useState } from 'react';
-import { Link as RouterLink, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 // material
 import { styled } from '@mui/material/styles';
-import { Box, Link, Drawer, Typography} from '@mui/material';
+import { Box, Drawer} from '@mui/material';
 // hooks
 import useResponsive from '../../hooks/useResponsive';
 // components
 import Iconify from '../../components/Iconify';
-import Logo from '../../components/Logo';
 import Scrollbar from '../../components/Scrollbar';
 import NavSection from '../../components/NavSection';
+import AccountPopover from './AccountPopover';
+import IMAGES from '../../constant/images';
 
 // ----------------------------------------------------------------------
 
@@ -23,14 +24,6 @@ const RootStyle = styled('div')(({ theme }) => ({
   },
 }));
 
-const AccountStyle = styled('div')(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  padding: theme.spacing(2, 2.5),
-  borderRadius: Number(theme.shape.borderRadius) * 1.5,
-  backgroundColor: theme.palette.grey[500_12],
-}));
-
 // ----------------------------------------------------------------------
 
 DashboardSidebar.propTypes = {
@@ -41,30 +34,30 @@ DashboardSidebar.propTypes = {
 const getIcon = (name) => <Iconify icon={name} width={22} height={22} />;
 
 const navConfigAdmin = [
-  // {
-  //   title: 'dashboard',
-  //   path: '/dashboard/app',
-  //   icon: getIcon('eva:pie-chart-2-fill'),
-  // },
+  {
+    title: 'dashboard',
+    path: '/dashboard/app',
+    icon: getIcon('mdi:dots-grid'),
+  },
   {
     title: 'user',
     path: '/dashboard/user',
-    icon: getIcon('eva:people-fill'),
+    icon: getIcon('solar:user-bold'),
   },
   {
-    title: 'Ruangan',
+    title: 'rooms',
     path: '/dashboard/room',
-    icon: getIcon('eva:people-fill'),
+    icon: getIcon('material-symbols:meeting-room'),
   },
   {
     title: 'booking',
     path: '/dashboard/booking',
-    icon: getIcon('eva:shopping-bag-fill'),
+    icon: getIcon('ion:time'),
   },
   {
     title: 'post',
     path: '/dashboard/post',
-    icon: getIcon('eva:file-text-fill'),
+    icon: getIcon('fa6-solid:paper-plane'),
   }
 ];
 
@@ -72,17 +65,17 @@ const navConfigNonAdmin = [
   {
     title: 'dashboard',
     path: '/dashboard/app',
-    icon: getIcon('eva:pie-chart-2-fill'),
+    icon: getIcon('mdi:dots-grid'),
   },
   {
     title: 'booking',
     path: '/dashboard/booking',
-    icon: getIcon('eva:shopping-bag-fill'),
+    icon: getIcon('ion:time'),
   },
   {
     title: 'post',
     path: '/dashboard/post',
-    icon: getIcon('eva:file-text-fill'),
+    icon: getIcon('fa6-solid:paper-plane'),
   }
 ];
 
@@ -123,24 +116,15 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
       }}
     >
       <Box sx={{ px: 2.5, py: 3, display: 'inline-flex' }}>
-        <Logo />
+        <img src={IMAGES.LOGIN_LOGO} alt="logo login" />
       </Box>
-
-      <Box sx={{ mb: 5, mx: 2.5 }}>
-        <Link underline="none" component={RouterLink} to="#">
-          <AccountStyle>
-            <Box sx={{ ml: 2 }}>
-              <Typography variant="subtitle2" sx={{ color: 'text.primary' }}>
-                Arumy Booking Room
-              </Typography>
-            </Box>
-          </AccountStyle>
-        </Link>
-      </Box>
-      
       
       {nav}
+
       <Box sx={{ flexGrow: 1 }} />
+      <Box sx={{ my: 2, display: 'flex', justifyContent: 'center' }}>
+        <AccountPopover />
+      </Box>
       
     </Scrollbar>
   );

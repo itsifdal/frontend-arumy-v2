@@ -1,8 +1,7 @@
 import { useRef, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 // @mui
-import { alpha } from '@mui/material/styles';
-import { Box, Divider, Typography, MenuItem, Avatar, IconButton } from '@mui/material';
+import { Typography, MenuItem, Avatar, Button, Stack } from '@mui/material';
 // components
 import axios from 'axios';
 import MenuPopover from '../../components/MenuPopover';
@@ -47,31 +46,31 @@ export default function AccountPopover() {
 
   return (
     <>
-      <IconButton
+      <Button
         ref={anchorRef}
         onClick={handleOpen}
+        fullWidth
         sx={{
-          p: 0,
-          ...(open && {
-            '&:before': {
-              zIndex: 1,
-              content: "''",
-              width: '100%',
-              height: '100%',
-              borderRadius: '50%',
-              position: 'absolute',
-              bgcolor: (theme) => alpha(theme.palette.grey[900], 0.8),
-            },
-          }),
+          justifyContent: 'flex-start',
+          maxWidth: '230px',
+          gap: 2,
+          p: 1
         }}
       >
-        <Avatar src={account.photoURL} alt="photoURL" />
-      </IconButton>
+        <Avatar src={account.photoURL} alt="photoURL" sx={{ width: 51, height: 51 }} />
+        <Stack>
+          <Typography noWrap sx={{fontWeight: '700', fontSize: '20px'}}>{user?.name}</Typography>
+          <Typography noWrap sx={{fontSize: '16px'}}>{user?.role}</Typography>
+        </Stack>
+      </Button>
 
       <MenuPopover
+        noArrow
         open={Boolean(open)}
         anchorEl={open}
         onClose={handleClose}
+        anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+        transformOrigin={{ vertical: 'bottom', horizontal: 'left' }}
         sx={{
           p: 0,
           mt: 1.5,
@@ -82,16 +81,6 @@ export default function AccountPopover() {
           },
         }}
       >
-        <Box sx={{ my: 1.5, px: 2.5 }}>
-            { user ? (
-              <Typography variant="subtitle2" noWrap>{user.name}</Typography>
-            ) : (  
-              <Typography variant="subtitle2" noWrap> - </Typography>
-            )}
-        </Box>
-
-        <Divider sx={{ borderStyle: 'dashed' }} />
-
         <MenuItem onClick={onLogout} sx={{ m: 1 }}>
           Logout
         </MenuItem>
