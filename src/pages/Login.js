@@ -58,7 +58,7 @@ export default function Login() {
         if (error.res) {
           console.log(error.res.status);
         }
-        setOpenAlert(true)
+        setOpenAlert(true);
       }
     })
   };
@@ -76,7 +76,7 @@ export default function Login() {
           <Typography align="center" sx={{ color: 'text.secondary' }}>Enter your details below.</Typography>
         )}
 
-        <FormControl fullWidth >
+        <FormControl fullWidth>
           <Collapse in={openAlert}>
             <Alert
               severity="error"

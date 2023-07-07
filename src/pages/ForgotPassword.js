@@ -1,16 +1,14 @@
 import { useState } from 'react';
 // form
-import { useForm } from 'react-hook-form';
+import { useMutation } from "react-query";
 // @mui
-import { Stack, Typography } from '@mui/material';
+import { Typography, FormControl, TextField } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 // components
 import axios from 'axios';
 import Collapse from '@mui/material/Collapse';
 import Alert from '@mui/material/Alert';
 import Page from '../components/Page';
-// sections
-import { FormProvider, RHFTextField } from '../components/hook-form';
 
 import LoginLayout from '../layouts/LoginLayout';
 
@@ -23,30 +21,23 @@ export default function ForgotPassword() {
   const [openAlert, setOpenAlert] = useState(false);
   const [openAlert500, setOpenAlert500] = useState(false);
 
-  const defaultValues = {
-    email: '',
-    remember: true,
-  };
-
-  const methods = useForm({
-    defaultValues,
+  const submitForgotPassword = useMutation(({ email }) => {
+    const data = { email };
+    return axios.post(`${process.env.REACT_APP_BASE_URL}/api/forgotpassword`, data);
   });
-
-  const {
-    handleSubmit,
-    formState: { isSubmitting },
-  } = methods;
 
   const onSubmit = () => {
     const data = {
       email
-    }
-    axios.post(`${process.env.REACT_APP_BASE_URL}/api/forgotpassword`, data)
-      .then(res => {
+    };
+    submitForgotPassword.mutate(data, {
+      onSuccess: (res) => {
         if (res.status === 200) {
           setOpenAlert(true)
         }
-      }).catch((error) => {
+        console.log(res);
+      },
+      onError: (error) => {
         if (error.response) {
           // The request was made and the server responded with a status code
           // that falls out of the range of 2xx
@@ -58,8 +49,8 @@ export default function ForgotPassword() {
           console.log('Error', error.message);
         }
         console.log(error.config);
-      });
-    
+      }
+    });
   };
 
   return (
@@ -71,7 +62,7 @@ export default function ForgotPassword() {
 
         <Typography align="center" sx={{ color: 'text.secondary', mb: 5 }}>Enter your email below.</Typography>
 
-        <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
+        <FormControl>
           <Collapse in={openAlert}>
             <Alert
               sx={{ mb: 2 }}
@@ -87,14 +78,15 @@ export default function ForgotPassword() {
               Uih, this email is not registered.
             </Alert>
           </Collapse>
-          <Stack spacing={3} sx={{mb:2}} >
-            <RHFTextField name="email" label="Email address" value={email} onChange={(e) => {setEmail(e.target.value)}} />
-          </Stack>
+          <TextField required id="outlined-required email" margin="normal" label="Enter Email" name="email" 
+            value={email} 
+            onChange={(e) => {setEmail(e.target.value)}} 
+          />
 
-          <LoadingButton fullWidth size="large" type="submit" variant="contained" loading={isSubmitting} color="warning">
+          <LoadingButton size="large" type="submit" variant="contained" loading={submitForgotPassword.isLoading} color="warning" onClick={onSubmit}>
             Send Email
           </LoadingButton>
-        </FormProvider>
+        </FormControl>
       </LoginLayout>
     </Page>
   );
