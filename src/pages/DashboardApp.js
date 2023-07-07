@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import React, { useEffect, useState } from "react";
+import { useQuery } from 'react-query';
 // Moment Libs
 import Moment from 'moment';
 // material
@@ -40,10 +41,6 @@ export default function DashboardApp() {
   const [teacherId, setTeacherId]  = useState('');
   
   const [bookings, setBookings] = useState('');
-  const [booking, setBooking]  = useState('1');
-  const [user, setUser] = useState('1');
-  const [room, setRoom] = useState('1');
-  const [post, setPost] = useState('1');
 
   const [foundUser, setFoundUser] = useState()
   useEffect(() => {
@@ -68,39 +65,40 @@ export default function DashboardApp() {
   // }
 
   // fetch bookings
-  const getBookingCount = async () => {
-    await axios.get(`${process.env.REACT_APP_BASE_URL}/api/dashboard/bookingCount`).then((response) => {
-      setBooking(response.data);
-    });
-  }
+  const { data: bookingCount, isLoading: isLoadingBookingCount } = useQuery({
+    queryKey: ['BOOKING_COUNT'],
+    queryFn: () =>
+      axios
+        .get(`${process.env.REACT_APP_BASE_URL}/api/dashboard/bookingCount`)
+        .then((res) => res.data),
+  });
 
   // fetch users
-  const getUserCount = async () => {
-    await axios.get(`${process.env.REACT_APP_BASE_URL}/api/dashboard/userCount`).then((response) => {
-      setUser(response.data);
-    });
-  }
+  const { data: userCount, isLoading: isLoadingUserCount } = useQuery({
+    queryKey: ['USER_COUNT'],
+    queryFn: () =>
+      axios
+        .get(`${process.env.REACT_APP_BASE_URL}/api/dashboard/userCount`)
+        .then((res) => res.data),
+  });
 
   // fetch rooms
-  const getRoomCount = async () => {
-    await axios.get(`${process.env.REACT_APP_BASE_URL}/api/dashboard/roomCount`).then((response) => {
-      setRoom(response.data);
-    });
-  }
+  const { data: roomCount, isLoading: isLoadingRoomCount } = useQuery({
+    queryKey: ['ROOM_COUNT'],
+    queryFn: () =>
+      axios
+        .get(`${process.env.REACT_APP_BASE_URL}/api/dashboard/roomCount`)
+        .then((res) => res.data),
+  });
 
   // fetch posts
-  const getPostCount = async () => {
-    await axios.get(`${process.env.REACT_APP_BASE_URL}/api/dashboard/postCount`).then((response) => {
-      setPost(response.data);
-    });
-  }
-
-  useEffect(() => {
-    getBookingCount();
-    getUserCount();
-    getRoomCount();
-    getPostCount();
-  }, [])
+  const { data: postCount, isLoading: isLoadingPostCount } = useQuery({
+    queryKey: ['POST_COUNT'],
+    queryFn: () =>
+      axios
+        .get(`${process.env.REACT_APP_BASE_URL}/api/dashboard/postCount`)
+        .then((res) => res.data),
+  });
 
   // ##TEACHER
   // Store Teacher Data
@@ -160,19 +158,19 @@ export default function DashboardApp() {
 
         <Grid container spacing={3}>
           <Grid item xs={12} sm={6} md={3}>
-            <AppWidgetSummary title="Booking Aktif" total={booking.data} />
+            {!isLoadingBookingCount && <AppWidgetSummary title="Booking Aktif" total={bookingCount.data} />}
           </Grid>
 
           <Grid item xs={12} sm={6} md={3}>
-            <AppWidgetSummary title="User" total={user.data} color="info" />
+            {!isLoadingUserCount && <AppWidgetSummary title="User" total={userCount.data} color="info" />}
           </Grid>
 
           <Grid item xs={12} sm={6} md={3}>
-            <AppWidgetSummary title="Ruangan" total={room.data} color="warning" />
+            {!isLoadingRoomCount && <AppWidgetSummary title="Ruangan" total={roomCount.data} color="warning" />}
           </Grid>
 
           <Grid item xs={12} sm={6} md={3}>
-            <AppWidgetSummary title="Report" total={post.data} color="error" />
+            {!isLoadingPostCount && <AppWidgetSummary title="Report" total={postCount.data} color="error" />}
           </Grid>
         </Grid>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}><></>

@@ -1,5 +1,6 @@
-import { QueryClient, QueryClientProvider } from "react-query";
 import React, { useState } from "react";
+import { QueryClient, QueryClientProvider } from "react-query";
+import { ReactQueryDevtools } from "react-query/devtools";
 // routes
 import Router from './routes';
 // theme
@@ -29,6 +30,7 @@ export default function App() {
         <BaseOptionChartStyle />
         <Router />
       </ThemeProvider>
+      <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
 }

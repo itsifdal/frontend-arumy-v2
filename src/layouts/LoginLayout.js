@@ -9,7 +9,7 @@ import IMAGES from '../constant/images';
 const LoginLayout = forwardRef(({ children }, ref) => (
   <Box ref={ref}
     minHeight="100vh"
-    style={{
+    sx={{
       backgroundImage:`url(${IMAGES.LOGIN_BG})`,
       backgroundPositionY:'center',
       backgroundPositionX:'center',
@@ -20,17 +20,15 @@ const LoginLayout = forwardRef(({ children }, ref) => (
     <Box maxWidth={480} width="100%" margin="auto" paddingBottom={5}>
       <Stack alignItems="center">
         <img src={IMAGES.ILLUSTRATION_LOGIN} alt="owly login" style={{width: '207px', height: '207px', transform: 'rotate(-3.071deg)'}} />
-        <Card style={{
+        <Card sx={{
           width: '100%',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
-          marginTop: '-25px',
-          paddingTop: 55,
-          paddingBottom: 55,
-          paddingLeft: 33,
-          paddingRight: 33,
-          marginBottom: 60
+          mt: '-25px',
+          py: '55px',
+          px: '33px',
+          mb: '60px'
         }}>
           {children}
         </Card>

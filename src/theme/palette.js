@@ -29,11 +29,11 @@ const GREY = {
 };
 
 const PRIMARY = {
-  lighter: '#c2c7da',
-  light: '#9ba2c2',
-  main: '#737daa',
-  dark: '#545d8a',
-  darker: '#3c4262',
+  lighter: '#8380d5',
+  light: '#5450c5',
+  main: '#3835A1',
+  dark: '#272571',
+  darker: '#171541',
   contrastText: '#fff',
 };
 
@@ -111,7 +111,7 @@ const palette = {
   chart: CHART_COLORS,
   divider: GREY[500_24],
   text: { primary: GREY[800], secondary: GREY[600], disabled: GREY[500] },
-  background: { paper: '#fff', default: GREY[100], neutral: GREY[200] },
+  background: { paper: '#fff', default: GREY[0], neutral: GREY[200] },
   action: {
     active: GREY[600],
     hover: GREY[500_8],

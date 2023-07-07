@@ -26,10 +26,11 @@ const ArrowStyle = styled('span')(({ theme }) => ({
 
 MenuPopover.propTypes = {
   children: PropTypes.node.isRequired,
+  noArrow: PropTypes.bool,
   sx: PropTypes.object,
 };
 
-export default function MenuPopover({ children, sx, ...other }) {
+export default function MenuPopover({ children, sx, noArrow = false, ...other }) {
   return (
     <Popover
       anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
@@ -44,7 +45,7 @@ export default function MenuPopover({ children, sx, ...other }) {
       }}
       {...other}
     >
-      <ArrowStyle className="arrow" />
+      {!noArrow && <ArrowStyle className="arrow" /> }
 
       {children}
     </Popover>
