@@ -1,12 +1,8 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import React, { useEffect, useState } from "react";
-import { useQuery } from 'react-query';
-// Moment Libs
-import Moment from 'moment';
 // material
 import {
-  Badge,
-  Card,
+  Link,
   Table,
   Stack,
   Button,
@@ -15,286 +11,121 @@ import {
   TableBody,
   TableCell,
   Container,
-  Typography,
   TableContainer,
-  Grid, 
-  TextField,
-  MenuItem,
-  FormControl
-} from '@mui/material';
+  Paper,
+  tableCellClasses,
+  Typography,
+  Box,
+} from "@mui/material";
+import { styled } from "@mui/material/styles";
 // components
-import axios from 'axios';
-import Page from '../components/Page';
-import Scrollbar from '../components/Scrollbar';
+import Page from "../components/Page";
 // sections
-import {
-  AppWidgetSummary
-} from '../sections/@dashboard/app';
+import PageHeader from "../components/PageHeader";
 
 // ----------------------------------------------------------------------
 
 export default function DashboardApp() {
-
   const navigate = useNavigate();
-
-  const [roomId, setRoomId]        = useState('');
-  const [teacherId, setTeacherId]  = useState('');
-  
-  const [bookings, setBookings] = useState('');
-
-  const [foundUser, setFoundUser] = useState()
+  const [foundUser, setFoundUser] = useState();
   useEffect(() => {
     const loggedInUser = localStorage.getItem("user");
     if (loggedInUser) {
-      const foundUser  = JSON.parse(loggedInUser);
+      const foundUser = JSON.parse(loggedInUser);
       setFoundUser(foundUser);
     }
   }, []);
 
-  if(!foundUser || foundUser === undefined) {
-    navigate('/login', { replace: true });
+  if (!foundUser || foundUser === undefined) {
+    navigate("/login", { replace: true });
   }
 
-  // const [data, setData] = useState([]);
-
-  // fetch response from server
-  // const getData = async () => {
-  //   await axios.get(process.env.REACT_APP_BASE_URL, { withCredentials: true }).then((response) => {
-  //     setData(response.data);
-  //   });
-  // }
-
-  // fetch bookings
-  const { data: bookingCount, isLoading: isLoadingBookingCount } = useQuery({
-    queryKey: ['BOOKING_COUNT'],
-    queryFn: () =>
-      axios
-        .get(`${process.env.REACT_APP_BASE_URL}/api/dashboard/bookingCount`)
-        .then((res) => res.data),
+  const StyledTableCell = styled(TableCell)({
+    [`&.${tableCellClasses.head}`]: {
+      borderColor: "#c7c7e4",
+      color: "#737DAA",
+      textAlign: "left",
+      paddingTop: 10,
+      paddingBottom: 10,
+    },
+    [`&.${tableCellClasses.body}`]: {
+      border: 0,
+      textAlign: "left",
+      paddingTop: 8,
+      paddingBottom: 8,
+    },
   });
 
-  // fetch users
-  const { data: userCount, isLoading: isLoadingUserCount } = useQuery({
-    queryKey: ['USER_COUNT'],
-    queryFn: () =>
-      axios
-        .get(`${process.env.REACT_APP_BASE_URL}/api/dashboard/userCount`)
-        .then((res) => res.data),
+  const StyledTableRow = styled(TableRow)({
+    // hide last border
+    "&:last-child td": {
+      paddingBottom: 20,
+    },
   });
 
-  // fetch rooms
-  const { data: roomCount, isLoading: isLoadingRoomCount } = useQuery({
-    queryKey: ['ROOM_COUNT'],
-    queryFn: () =>
-      axios
-        .get(`${process.env.REACT_APP_BASE_URL}/api/dashboard/roomCount`)
-        .then((res) => res.data),
-  });
-
-  // fetch posts
-  const { data: postCount, isLoading: isLoadingPostCount } = useQuery({
-    queryKey: ['POST_COUNT'],
-    queryFn: () =>
-      axios
-        .get(`${process.env.REACT_APP_BASE_URL}/api/dashboard/postCount`)
-        .then((res) => res.data),
-  });
-
-  // ##TEACHER
-  // Store Teacher Data
-  const [teachers, setTeachers] = useState('');
-  // Get Teacher Data
-  useEffect(() => {
-    axios.get(`${process.env.REACT_APP_BASE_URL}/api/teacher`).then((response) => {
-        setTeachers(response.data);
-    });
-  }, []);
-
-  // ##ROOM
-  // Store Room Data
-  const [rooms, setRooms] = useState('');
-  // Get Room Data
-  useEffect(() => {
-    axios.get(`${process.env.REACT_APP_BASE_URL}/api/room`).then((response) => {
-        setRooms(response.data);
-    });
-  }, []);
-
-  // GET DATA BOOKING BY FILTER PARAMETERS
-  const getBookingByNewFilter = () => {
-    const data = {
-      teacherId, roomId
-    }
-    axios.post(`${process.env.REACT_APP_BASE_URL}/api/booking/Newfilter/default`, data).then((response) => {
-      setBookings(response.data);
-    });
+  function createData(name, calories, fat, carbs, protein) {
+    return { name, calories, fat, carbs, protein };
   }
 
-  const SubmitFilter = () => { 
-    getBookingByNewFilter()
-  }
-
-  // GET DATA BOOKING ALL
-  const getBookingData = async () => {
-    await axios.get(`${process.env.REACT_APP_BASE_URL}/api/booking`).then((response) => {
-      setBookings(response.data);
-    });
-  }
-
-  const ResetFilter = () => { 
-    getBookingData()
-  }
-
-  useEffect(() => {
-    getBookingData()
-  }, [])
+  const rows = [
+    createData("10.45-11.45", "Group", "Abigail Lin", "Piano", "Julia Utomo"),
+    createData("10.45-11.45", "Group", "Abigail Lin", "Piano", "Julia Utomo"),
+    createData("10.45-11.45", "Group", "Abigail Lin", "Piano", "Julia Utomo"),
+    createData("10.45-11.45", "Group", "Abigail Lin", "Piano", "Julia Utomo"),
+    createData("10.45-11.45", "Group", "Abigail Lin", "Piano", "Julia Utomo"),
+  ];
 
   return (
     <Page title="Dashboard">
-      <Container maxWidth="xl">
-        <Typography variant="h4" sx={{ mb: 10 }}>
-          Hi, Welcome back
-        </Typography>
-
-        <Grid container spacing={3}>
-          <Grid item xs={12} sm={6} md={3}>
-            {!isLoadingBookingCount && <AppWidgetSummary title="Booking Aktif" total={bookingCount.data} />}
-          </Grid>
-
-          <Grid item xs={12} sm={6} md={3}>
-            {!isLoadingUserCount && <AppWidgetSummary title="User" total={userCount.data} color="info" />}
-          </Grid>
-
-          <Grid item xs={12} sm={6} md={3}>
-            {!isLoadingRoomCount && <AppWidgetSummary title="Ruangan" total={roomCount.data} color="warning" />}
-          </Grid>
-
-          <Grid item xs={12} sm={6} md={3}>
-            {!isLoadingPostCount && <AppWidgetSummary title="Report" total={postCount.data} color="error" />}
-          </Grid>
-        </Grid>
-        <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}><></>
-        </Stack>
-        <FormControl sx={{ display: 'inline' }}>
-          <TextField
-            select
-            id="demo-simple-select"
-            size="small"
-            label="Teacher"
-            value={teacherId}
-            onChange={(e) => {
-              setTeacherId(e.target.value)
-            }} 
-            sx={{
-              width: 150,
-              mr:1
-            }}
-          >
-            <MenuItem value={"Teacher"} >- Teacher -</MenuItem>
-              {Array.isArray(teachers)
-                ? teachers.map((option) => (
-                <MenuItem key={option.id} value={option.id}>
-                  {option?.nama_pengajar}
-                </MenuItem>
-              )) : null}
-          </TextField>
-          <TextField
-            select
-            id="demo-simple-select"
-            size="small"
-            label="Ruangan"
-            value={roomId}
-            onChange={(e) => {
-              setRoomId(e.target.value)
-            }} 
-            sx={{
-              width: 150,
-              mr:1
-            }}
-          >
-            <MenuItem value={"Ruangan"} >- Ruang -</MenuItem>
-              {Array.isArray(rooms)
-                ? rooms.map((option) => (
-                <MenuItem key={option.id} value={option.id}>
-                  {option.nama_ruang}
-                </MenuItem>
-              )) : null}
-          </TextField>
-          <Button variant="contained" size="small" sx={{ width: 30, ml: 1, mt: 1 }} type="submit" onClick={SubmitFilter}>Filter </Button>
-          <Button variant="contained" size="small" sx={{ width: 30, ml: 1, mt: 1 }} type="submit" onClick={ResetFilter} >Reset </Button>
-        </FormControl>
-        <Card sx={{ mt: 5 }}>
-          <Scrollbar>
-            <TableContainer sx={{ minWidth: 800 }}>
-              <Table>
+      <PageHeader
+        title="Dashboard"
+        rightContent={
+          <Stack direction={"row"} spacing={2}>
+            <Button variant="contained">ROOM</Button>
+            <Button variant="outlined">TEACHER</Button>
+          </Stack>
+        }
+      />
+      <Container maxWidth="xl" sx={{ paddingTop: 4 }}>
+        {Array.from(Array(4).keys()).map((index) => (
+          <Box key={index}>
+            <Typography marginBottom={2} fontWeight={"700"}>
+              Ruangan {index + 1}
+            </Typography>
+            <TableContainer
+              component={Paper}
+              sx={{ boxShadow: "3px 4px 20px 0px rgba(0, 0, 0, 0.10)", background: "white" }}
+            >
+              <Table size="small" aria-label="customized table">
                 <TableHead>
                   <TableRow>
-                    <TableCell>RUANGAN</TableCell>
-                    <TableCell>TEACHER</TableCell>
-                    <TableCell align="center">JENIS</TableCell>
-                    <TableCell align="center">DURASI</TableCell>
-                    <TableCell align="center">STATUS</TableCell>
-                    <TableCell>TGL KELAS</TableCell>
-                    <TableCell>JAM BOOKING</TableCell>
+                    <StyledTableCell>WAKTU</StyledTableCell>
+                    <StyledTableCell>JENIS KELAS</StyledTableCell>
+                    <StyledTableCell>NAMA ANAK</StyledTableCell>
+                    <StyledTableCell>INSTRUMENT</StyledTableCell>
+                    <StyledTableCell>PENGAJAR</StyledTableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {Array.isArray(bookings.data)
-                  ? bookings.data.map(booking => ( 
-                  <TableRow
-                    hover
-                    tabIndex={-1}
-                    role="checkbox"
-                    key={booking.id}
-                  >
-                    <TableCell align="left" component="td" >
-                      <Stack direction="row" alignItems="center" spacing={2}>
-                        <Typography variant="subtitle2" noWrap>
-                          {booking.room.nama_ruang}
-                        </Typography>
-                      </Stack>
-                    </TableCell>
-                    <TableCell align="left" component="td" >
-                      <Stack direction="row" alignItems="center" spacing={2}>
-                        <Typography variant="subtitle2" noWrap>
-                          {booking?.teacher?.nama_pengajar}
-                        </Typography>
-                      </Stack>
-                    </TableCell>
-                    <TableCell align="center" component="td">
-                      {booking.jenis_kelas === 'group' ? (
-                        <Badge badgeContent={booking.jenis_kelas} color="success" />
-                      ):(
-                        <Badge badgeContent={booking.jenis_kelas} color="primary" />
-                      )}
-                    </TableCell>
-                    <TableCell align="center">{booking.durasi} Menit </TableCell>
-                    <TableCell align="center">
-                      {booking.status === 'pending' ? (
-                        <Badge badgeContent={booking.status} color="warning" />
-                      ): null}
-
-                      {booking.status === 'cancel' ? (
-                        <Badge badgeContent={booking.status} color="error" />
-                      ) : null} 
-                      
-                      {booking.status === 'expired' ? (
-                        <Badge badgeContent={booking.status} color="secondary" />
-                      ) : null } 
-
-                      {booking.status === 'confirmed' ? (
-                        <Badge badgeContent={booking.status} color="success" />
-                      ) : null}
-                    </TableCell>
-                    <TableCell align="left">{Moment(booking.tgl_kelas).format('DD MMMM, YYYY')}</TableCell>
-                    <TableCell align="left">{booking.jam_booking}</TableCell>
-                  </TableRow>
-                  )) : null} 
+                  {rows.map((row) => (
+                    <StyledTableRow key={row.name}>
+                      <StyledTableCell>{row.name}</StyledTableCell>
+                      <StyledTableCell>{row.calories}</StyledTableCell>
+                      <StyledTableCell>{row.fat}</StyledTableCell>
+                      <StyledTableCell>{row.carbs}</StyledTableCell>
+                      <StyledTableCell>{row.protein}</StyledTableCell>
+                    </StyledTableRow>
+                  ))}
                 </TableBody>
               </Table>
             </TableContainer>
-          </Scrollbar>
-        </Card>
+            <Stack direction={"row"} justifyContent={"flex-end"} paddingY={2}>
+              <Link href="/" sx={{ textDecoration: "none" }} fontSize={14}>
+                See More ...
+              </Link>
+            </Stack>
+          </Box>
+        ))}
       </Container>
     </Page>
   );
