@@ -1,24 +1,24 @@
-import PropTypes from 'prop-types';
-import { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import PropTypes from "prop-types";
+import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 // material
-import { styled } from '@mui/material/styles';
-import { Box, Drawer} from '@mui/material';
+import { styled } from "@mui/material/styles";
+import { Box, Drawer } from "@mui/material";
 // hooks
-import useResponsive from '../../hooks/useResponsive';
+import useResponsive from "../../hooks/useResponsive";
 // components
-import Iconify from '../../components/Iconify';
-import Scrollbar from '../../components/Scrollbar';
-import NavSection from '../../components/NavSection';
-import AccountPopover from './AccountPopover';
-import IMAGES from '../../constant/images';
+import Iconify from "../../components/Iconify";
+import Scrollbar from "../../components/Scrollbar";
+import NavSection from "../../components/NavSection";
+import AccountPopover from "./AccountPopover";
+import IMAGES from "../../constant/images";
 
 // ----------------------------------------------------------------------
 
 const DRAWER_WIDTH = 280;
 
-const RootStyle = styled('div')(({ theme }) => ({
-  [theme.breakpoints.up('lg')]: {
+const RootStyle = styled("div")(({ theme }) => ({
+  [theme.breakpoints.up("lg")]: {
     flexShrink: 0,
     width: DRAWER_WIDTH,
   },
@@ -35,48 +35,48 @@ const getIcon = (name) => <Iconify icon={name} width={22} height={22} />;
 
 const navConfigAdmin = [
   {
-    title: 'dashboard',
-    path: '/dashboard/app',
-    icon: getIcon('mdi:dots-grid'),
+    title: "dashboard",
+    path: "/dashboard/app",
+    icon: getIcon("mdi:dots-grid"),
   },
   {
-    title: 'user',
-    path: '/dashboard/user',
-    icon: getIcon('solar:user-bold'),
+    title: "user",
+    path: "/dashboard/user",
+    icon: getIcon("solar:user-bold"),
   },
   {
-    title: 'rooms',
-    path: '/dashboard/room',
-    icon: getIcon('material-symbols:meeting-room'),
+    title: "rooms",
+    path: "/dashboard/room",
+    icon: getIcon("material-symbols:meeting-room"),
   },
   {
-    title: 'booking',
-    path: '/dashboard/booking',
-    icon: getIcon('ion:time'),
+    title: "booking",
+    path: "/dashboard/booking",
+    icon: getIcon("ion:time"),
   },
   {
-    title: 'post',
-    path: '/dashboard/post',
-    icon: getIcon('fa6-solid:paper-plane'),
-  }
+    title: "post",
+    path: "/dashboard/post",
+    icon: getIcon("fa6-solid:paper-plane"),
+  },
 ];
 
 const navConfigNonAdmin = [
   {
-    title: 'dashboard',
-    path: '/dashboard/app',
-    icon: getIcon('mdi:dots-grid'),
+    title: "dashboard",
+    path: "/dashboard/app",
+    icon: getIcon("mdi:dots-grid"),
   },
   {
-    title: 'booking',
-    path: '/dashboard/booking',
-    icon: getIcon('ion:time'),
+    title: "booking",
+    path: "/dashboard/booking",
+    icon: getIcon("ion:time"),
   },
   {
-    title: 'post',
-    path: '/dashboard/post',
-    icon: getIcon('fa6-solid:paper-plane'),
-  }
+    title: "post",
+    path: "/dashboard/post",
+    icon: getIcon("fa6-solid:paper-plane"),
+  },
 ];
 
 export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
@@ -92,7 +92,7 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
     }
   }, []);
 
-  const isDesktop = useResponsive('up', 'lg');
+  const isDesktop = useResponsive("up", "lg");
 
   useEffect(() => {
     if (isOpenSidebar) {
@@ -102,30 +102,29 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
   }, [pathname]);
 
   let nav;
-  if (user && user.role === 'Admin') {
-    nav = <NavSection navConfig={navConfigAdmin} />
-  }else{
-    nav = <NavSection navConfig={navConfigNonAdmin} />
+  if (user && user.role === "Admin") {
+    nav = <NavSection navConfig={navConfigAdmin} />;
+  } else {
+    nav = <NavSection navConfig={navConfigNonAdmin} />;
   }
 
   const renderContent = (
     <Scrollbar
       sx={{
         height: 1,
-        '& .simplebar-content': { height: 1, display: 'flex', flexDirection: 'column' },
+        "& .simplebar-content": { height: 1, display: "flex", flexDirection: "column" },
       }}
     >
-      <Box sx={{ px: 2.5, py: 3, display: 'inline-flex' }}>
+      <Box sx={{ px: 2.5, py: 3, display: "inline-flex" }}>
         <img src={IMAGES.LOGIN_LOGO} alt="logo login" />
       </Box>
-      
+
       {nav}
 
       <Box sx={{ flexGrow: 1 }} />
-      <Box sx={{ my: 2, display: 'flex', justifyContent: 'center' }}>
+      <Box sx={{ my: 2, display: "flex", justifyContent: "center" }}>
         <AccountPopover />
       </Box>
-      
     </Scrollbar>
   );
 
@@ -150,8 +149,7 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
           PaperProps={{
             sx: {
               width: DRAWER_WIDTH,
-              bgcolor: 'background.default',
-              borderRightStyle: 'dashed',
+              bgcolor: "background.default",
             },
           }}
         >
