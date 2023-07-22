@@ -9,7 +9,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 // material
-import { Button, Container, Typography, Modal, FormControl, TextField, MenuItem, Box, Stack } from "@mui/material";
+import { Button, Container, Typography, Modal, FormControl, Box, Stack } from "@mui/material";
 
 // components
 import axios from "axios";
@@ -19,6 +19,8 @@ import Scrollbar from "../components/Scrollbar";
 import Iconify from "../components/Iconify";
 import PageHeader from "../components/PageHeader";
 import BasicTable from "../components/BasicTable";
+import InputBasic from "../components/input/inputBasic";
+import SelectBasic from "../components/input/selectBasic";
 
 // Style box
 const style = {
@@ -45,6 +47,12 @@ export default function User() {
   //
   const [open, setOpen] = useState(false);
   const [openDel, setOpenDel] = useState(false);
+
+  const roleOptions = [
+    { value: "Admin", label: "Admin" },
+    { value: "Guru", label: "Guru" },
+    { value: "Reguler", label: "Reguler" },
+  ];
 
   // query
   const {
@@ -200,12 +208,12 @@ export default function User() {
             </Box>
             <Stack direction={"row"} flexWrap="wrap">
               <Box width={"50%"} paddingBottom={2} paddingRight={2}>
-                <TextField
+                <InputBasic
                   required
-                  fullWidth
                   id="name"
                   label="Name"
                   name="name"
+                  placeholder="Enter Name"
                   value={name}
                   onChange={(e) => {
                     setName(e.target.value);
@@ -213,13 +221,13 @@ export default function User() {
                 />
               </Box>
               <Box width={"50%"} paddingBottom={2} paddingRight={2}>
-                <TextField
+                <InputBasic
                   required
-                  fullWidth
                   id="email"
                   label="Email"
                   name="email"
                   type="email"
+                  placeholder="Enter Email"
                   value={email_}
                   onChange={(e) => {
                     setEmail_(e.target.value);
@@ -227,13 +235,13 @@ export default function User() {
                 />
               </Box>
               <Box width={"50%"} paddingBottom={2} paddingRight={2}>
-                <TextField
+                <InputBasic
                   required
-                  fullWidth
                   id="pass"
                   label="Password"
                   name="pass"
                   type="password"
+                  placeholder="Enter Password"
                   value={password_}
                   onChange={(e) => {
                     setPassword_(e.target.value);
@@ -241,24 +249,29 @@ export default function User() {
                 />
               </Box>
               <Box width={"50%"} paddingBottom={2} paddingRight={2}>
-                <TextField
+                <SelectBasic
                   fullWidth
                   id="role"
                   name="role"
+                  defaultValue=""
                   value={role}
                   onChange={(e) => {
                     setRole(e.target.value);
                   }}
                   select
                   label="Role"
-                >
-                  <MenuItem value={role}>Select</MenuItem>
-                  <MenuItem value={"Guru"}>Guru</MenuItem>
-                  <MenuItem value={"Reguler"}>Reguler</MenuItem>
-                </TextField>
+                  options={roleOptions}
+                />
               </Box>
             </Stack>
-            <Button variant="contained" type="submit" onClick={handleSubmitCreate}>
+            <Button
+              variant="contained"
+              color="warning"
+              size="large"
+              fullWidth
+              type="submit"
+              onClick={handleSubmitCreate}
+            >
               Save
             </Button>
           </Box>
