@@ -1,18 +1,18 @@
 /* eslint-disable camelcase */
 // import { Link as RouterLink } from 'react-router-dom';
 import { sentenceCase } from "change-case";
-import React, { useState } from "react";
+import React, { useState, useReducer } from "react";
 import { useQuery, useMutation } from "react-query";
-
+import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
-
 import "react-toastify/dist/ReactToastify.css";
 
 // material
 import { Button, Container, Typography, Modal, FormControl, Box, Stack } from "@mui/material";
+import { LoadingButton } from "@mui/lab";
 
 // components
-import axios from "axios";
+import { userFormReducer, initialUserFormState, validateUserForm } from "../utils/reducer/userReducer";
 import Page from "../components/Page";
 import Label from "../components/Label";
 import Scrollbar from "../components/Scrollbar";
@@ -40,9 +40,8 @@ export default function User() {
   //
   const [id, setUserId] = useState("");
   const [name, setName] = useState("");
-  const [role, setRole] = useState("");
-  const [email_, setEmail_] = useState("");
-  const [password_, setPassword_] = useState("");
+
+  const [stateForm, dispatchStateForm] = useReducer(userFormReducer, initialUserFormState);
 
   //
   const [open, setOpen] = useState(false);
@@ -76,13 +75,6 @@ export default function User() {
     return axios.delete(`${process.env.REACT_APP_BASE_URL}/api/user/${id}`);
   });
 
-  const data = {
-    role,
-    name,
-    email: email_,
-    password: password_,
-  };
-
   const submitAddUser = useMutation((data) => axios.post(`${process.env.REACT_APP_BASE_URL}/api/user`, data));
 
   // Create
@@ -90,30 +82,38 @@ export default function User() {
   const handleCloseModalCreate = () => setOpen(false);
   const handleSubmitCreate = (e) => {
     e.preventDefault();
-    submitAddUser.mutate(data, {
-      onSuccess: (response) => {
-        usersRefetch();
-        setOpen(false);
-        toast.success(response.data.message, {
-          position: "top-center",
-          autoClose: 1000,
-          theme: "colored",
-        });
-        setName("");
-        setRole("");
-        setEmail_("");
-        setPassword_("");
-      },
-      onError: (error) => {
-        if (error.response) {
-          toast.error(error.response, {
+    const errors = validateUserForm(stateForm.values);
+    const hasError = Object.values(errors).some((value) => Boolean(value));
+    if (!hasError) {
+      submitAddUser.mutate(stateForm.values, {
+        onSuccess: (response) => {
+          usersRefetch();
+          setOpen(false);
+          toast.success(response.data.message, {
             position: "top-center",
             autoClose: 1000,
             theme: "colored",
           });
-        }
-      },
-    });
+          dispatchStateForm({
+            type: "reset-field",
+          });
+        },
+        onError: (error) => {
+          if (error.response) {
+            toast.error(error.response, {
+              position: "top-center",
+              autoClose: 1000,
+              theme: "colored",
+            });
+          }
+        },
+      });
+    } else {
+      dispatchStateForm({
+        type: "change-error",
+        value: errors,
+      });
+    }
   };
 
   // Delete
@@ -152,6 +152,15 @@ export default function User() {
     );
   };
 
+  function onChangeInput(e) {
+    dispatchStateForm({
+      type: "change-field",
+      name: e.target.name,
+      value: e.target.value,
+      isEnableValidate: true,
+    });
+  }
+
   return (
     <Page title="Users">
       <PageHeader
@@ -164,8 +173,8 @@ export default function User() {
       />
       <Container maxWidth="xl" sx={{ paddingTop: 4 }}>
         <ToastContainer pauseOnFocusLoss={false} />
-        <Scrollbar>
-          {!isLoadingUsers ? (
+        {!isLoadingUsers ? (
+          <Scrollbar>
             <BasicTable
               header={["NAMA USER", "ROLE", "EMAIL", " "]}
               body={users.map((user, index) => [
@@ -188,8 +197,8 @@ export default function User() {
                 </Button>,
               ])}
             />
-          ) : null}
-        </Scrollbar>
+          </Scrollbar>
+        ) : null}
 
         <Modal
           open={open}
@@ -214,9 +223,11 @@ export default function User() {
                   label="Name"
                   name="name"
                   placeholder="Enter Name"
-                  value={name}
+                  value={stateForm.values.name}
+                  error={Boolean(stateForm.errors.name)}
+                  errorMessage={stateForm.errors.name}
                   onChange={(e) => {
-                    setName(e.target.value);
+                    onChangeInput(e);
                   }}
                 />
               </Box>
@@ -228,23 +239,27 @@ export default function User() {
                   name="email"
                   type="email"
                   placeholder="Enter Email"
-                  value={email_}
+                  value={stateForm.values.email}
+                  error={Boolean(stateForm.errors.email)}
+                  errorMessage={stateForm.errors.email}
                   onChange={(e) => {
-                    setEmail_(e.target.value);
+                    onChangeInput(e);
                   }}
                 />
               </Box>
               <Box width={"50%"} paddingBottom={2} paddingRight={2}>
                 <InputBasic
                   required
-                  id="pass"
+                  id="password"
                   label="Password"
-                  name="pass"
+                  name="password"
                   type="password"
                   placeholder="Enter Password"
-                  value={password_}
+                  value={stateForm.values.password}
+                  error={Boolean(stateForm.errors.password)}
+                  errorMessage={stateForm.errors.password}
                   onChange={(e) => {
-                    setPassword_(e.target.value);
+                    onChangeInput(e);
                   }}
                 />
               </Box>
@@ -253,10 +268,12 @@ export default function User() {
                   fullWidth
                   id="role"
                   name="role"
-                  defaultValue=""
-                  value={role}
+                  defaultValue="Reguler"
+                  value={stateForm.values.role}
+                  error={Boolean(stateForm.errors.role)}
+                  errorMessage={stateForm.errors.role}
                   onChange={(e) => {
-                    setRole(e.target.value);
+                    onChangeInput(e);
                   }}
                   select
                   label="Role"
@@ -264,16 +281,17 @@ export default function User() {
                 />
               </Box>
             </Stack>
-            <Button
+            <LoadingButton
               variant="contained"
               color="warning"
               size="large"
               fullWidth
               type="submit"
               onClick={handleSubmitCreate}
+              loading={submitAddUser.isLoading}
             >
               Save
-            </Button>
+            </LoadingButton>
           </Box>
         </Modal>
 

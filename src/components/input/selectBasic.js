@@ -15,7 +15,7 @@ const CustomTextField = styled(TextField)({
 });
 
 const CustomSelect = React.forwardRef((prop, ref) => {
-  const { id, label, required, options, ...otherProp } = prop;
+  const { id, label, required, options, errorMessage, ...otherProp } = prop;
   return (
     <FormControl fullWidth>
       <InputLabel
@@ -25,7 +25,7 @@ const CustomSelect = React.forwardRef((prop, ref) => {
         {String(label).toUpperCase()}
         {required && "*"}
       </InputLabel>
-      <CustomTextField id={id} required={required} {...otherProp} ref={ref}>
+      <CustomTextField id={id} required={required} {...otherProp} ref={ref} helperText={errorMessage}>
         {options.map((option) => (
           <MenuItem key={option.value} value={option.value}>
             {option.label}

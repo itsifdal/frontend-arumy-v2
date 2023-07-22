@@ -15,7 +15,7 @@ const CustomTextField = styled(TextField)({
 });
 
 const CustomInput = React.forwardRef((prop, ref) => {
-  const { id, label, required, ...otherProp } = prop;
+  const { id, label, required, errorMessage, ...otherProp } = prop;
   return (
     <FormControl fullWidth>
       <InputLabel
@@ -25,7 +25,7 @@ const CustomInput = React.forwardRef((prop, ref) => {
         {String(label).toUpperCase()}
         {required && "*"}
       </InputLabel>
-      <CustomTextField id={id} required={required} {...otherProp} ref={ref} />
+      <CustomTextField id={id} required={required} {...otherProp} ref={ref} helperText={errorMessage} />
     </FormControl>
   );
 });
