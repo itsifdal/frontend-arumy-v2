@@ -4,7 +4,7 @@
   "licence": "MIT",
   "version": "1.0.0",
   "private": false,
-  "homepage": "http://localhost:3000",
+  "homepage": "https://arumy.quatroacademy.com",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
