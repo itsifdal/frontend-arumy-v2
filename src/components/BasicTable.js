@@ -59,6 +59,8 @@ export default function BasicTable({ header, body }) {
                       ...(id === items.length - 1 && {
                         borderTopRightRadius: "15px",
                         borderBottomRightRadius: "15px",
+                        width: "1px",
+                        whiteSpace: "nowrap",
                       }),
                     }}
                   >

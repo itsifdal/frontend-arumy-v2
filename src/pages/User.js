@@ -22,18 +22,7 @@ import BasicTable from "../components/BasicTable";
 import InputBasic from "../components/input/inputBasic";
 import SelectBasic from "../components/input/selectBasic";
 
-// Style box
-const style = {
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  bgcolor: "background.paper",
-  boxShadow: 24,
-  p: 4,
-  borderRadius: "10px",
-  width: "100%",
-};
+import { modalStyle } from "../constant/modalStyle";
 
 // ----------------------------------------------------------------------
 export default function User() {
@@ -206,7 +195,7 @@ export default function User() {
           aria-labelledby="modal-modal-title"
           aria-describedby="modal-modal-description"
         >
-          <Box sx={{ ...style, maxWidth: 900 }}>
+          <Box sx={{ ...modalStyle, maxWidth: 900 }}>
             <Box width={"100%"} marginBottom={2}>
               <Typography id="modal-modal-title" variant="h3" component="h2" fontWeight={700} color={"#172560"}>
                 Invite new user
@@ -301,7 +290,7 @@ export default function User() {
           aria-labelledby="modal-modal-title"
           aria-describedby="modal-modal-description"
         >
-          <Box sx={{ ...style, maxWidth: 400 }}>
+          <Box sx={{ ...modalStyle, maxWidth: 400 }}>
             <Typography id="modal-modal-title" variant="h6" component="h2" marginBottom={5}>
               Delete {name} ?
             </Typography>
