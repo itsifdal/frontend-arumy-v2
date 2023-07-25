@@ -18,22 +18,16 @@ import "react-toastify/dist/ReactToastify.css";
 import {
   Link,
   Badge,
-  Card,
-  Table,
-  Stack,
   Button,
-  TableRow,
-  TableHead,
-  TableBody,
-  TableCell,
   Container,
   Typography,
-  TableContainer,
   Modal,
   FormControl,
   TextField,
   MenuItem,
   Box,
+  Stack,
+  Grid,
 } from "@mui/material";
 
 // components
@@ -41,6 +35,8 @@ import axios from "axios";
 import Page from "../components/Page";
 import Scrollbar from "../components/Scrollbar";
 import Iconify from "../components/Iconify";
+import PageHeader from "../components/PageHeader";
+import BasicTable from "../components/BasicTable";
 
 // Style box
 const style = {
@@ -66,7 +62,7 @@ export default function Booking() {
   const [user, setUser] = useState("");
   const [durasi, setDurasi] = useState("");
   const [jenisKelas, setJenisKelas] = useState("");
-  const [statusKelas, setStatusKelas] = useState("");
+  const [statusKelas, setStatusKelas] = useState("all");
   const [dt, setDate] = useState(null);
   const [tm_start, setTmStart] = useState(null);
   const [tm_end, setTmEnd] = useState(null);
@@ -238,193 +234,174 @@ export default function Booking() {
     navigate(`/dashboard/AddBooking`);
   };
 
-  let button;
-  if (user && user.role === "Admin") {
-    button = (
-      <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />} onClick={MoveToAddBookingPage}>
-        New Booking
-      </Button>
-    );
-  }
-
   // Cek loggedin user admin
   const isUserAdmin = user.role === "Admin";
   const isUserGuru = user.role === "Guru";
 
+  function generateStatus(status) {
+    if (status === "pending") {
+      return <Badge badgeContent={status} color="warning" />;
+    }
+    if (status === "cancel") {
+      return <Badge badgeContent={status} color="error" />;
+    }
+    if (status === "expired") {
+      return <Badge badgeContent={status} color="secondary" />;
+    }
+    if (status === "confirmed") {
+      return <Badge badgeContent={status} color="success" />;
+    }
+    return <></>;
+  }
+
+  function generateButtonAction(book) {
+    if (isUserAdmin) {
+      return (
+        <>
+          <Link href={`/dashboard/UpdateBooking/${book.id}`}>
+            <Button
+              variant="contained"
+              color="success"
+              size="small"
+              sx={{ margin: 1 }}
+              startIcon={<Iconify icon="eva:pencil-fill" />}
+            >
+              Update
+            </Button>
+          </Link>
+          <Button
+            variant="contained"
+            color="error"
+            size="small"
+            sx={{ margin: 1 }}
+            startIcon={<Iconify icon="eva:trash-fill" />}
+            data-durasi={book.durasi}
+            data-id={book.id}
+            onClick={handleOpenModalDelete}
+          >
+            Delete
+          </Button>
+        </>
+      );
+    }
+    if (isUserGuru) {
+      return (
+        <Button
+          variant="contained"
+          color="primary"
+          size="small"
+          margin="normal"
+          startIcon={<Iconify icon="eva:pencil-fill" />}
+          data-durasi={book.durasi}
+          data-id={book.id}
+          onClick={handleOpenModalUpdateStatus}
+        >
+          Confirm
+        </Button>
+      );
+    }
+    return <></>;
+  }
+
   //----
   return (
     <Page title="Booking">
-      <Container>
-        <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-          <Typography variant="h4" gutterBottom>
-            Bookings
-          </Typography>
-          {button}
-        </Stack>
+      <PageHeader
+        title="Bookings"
+        rightContent={
+          user && isUserAdmin ? (
+            <Button variant="outlined" startIcon={<Iconify icon="eva:plus-fill" />} onClick={MoveToAddBookingPage}>
+              Add New Booking
+            </Button>
+          ) : null
+        }
+      />
+      <Box
+        sx={{
+          background: "#FFF",
+          boxShadow: "0px 4px 20px 0px rgba(0, 0, 0, 0.05)",
+          paddingY: "20px",
+          zIndex: 2,
+          position: "relative",
+          borderTop: "1px solid #c3c3e1",
+        }}
+      >
+        <Container maxWidth="xl">
+          <Stack width={"100%"} direction={"row"} spacing={2}>
+            <Grid container spacing={1} flexGrow={1}>
+              <Grid item xs={4}>
+                <TextField select size="small" value={statusKelas} onChange={handleChangeStatus} fullWidth>
+                  <MenuItem selected value={"all"}>
+                    Semua Status
+                  </MenuItem>
+                  <MenuItem value={"pending"}>Pending</MenuItem>
+                  <MenuItem value={"confirmed"}>Confirmed</MenuItem>
+                </TextField>
+              </Grid>
+              <Grid item xs={4}>
+                <TextField
+                  type="date"
+                  size="small"
+                  value={rangeAwal}
+                  onChange={(e) => {
+                    setRangeAwal(e.target.value);
+                  }}
+                  fullWidth
+                />
+              </Grid>
+              <Grid item xs={4}>
+                <TextField
+                  type="date"
+                  size="small"
+                  value={rangeAkhir}
+                  onChange={(e) => {
+                    setRangeAkhir(e.target.value);
+                  }}
+                  fullWidth
+                />
+              </Grid>
+            </Grid>
+            <Stack spacing={1} direction={"row"} flexShrink={0}>
+              <Button variant="outlined" onClick={SubmitFilter}>
+                Filter{" "}
+              </Button>
+              <Button variant="outlined" onClick={ResetFilter}>
+                Reset{" "}
+              </Button>
+            </Stack>
+          </Stack>
+        </Container>
+      </Box>
+      <Container maxWidth="xl" sx={{ paddingTop: 4 }}>
         <ToastContainer pauseOnFocusLoss={false} />
-        <FormControl sx={{ display: "inline" }}>
-          <TextField
-            select
-            id="demo-simple-select"
-            size="small"
-            label="Status Kelas"
-            value={statusKelas}
-            onChange={handleChangeStatus}
-            sx={{
-              width: 150,
-              mr: 1,
-            }}
-          >
-            <MenuItem value={"Status Kelas"}>Status</MenuItem>
-            <MenuItem value={"pending"}>Pending</MenuItem>
-            <MenuItem value={"confirmed"}>Confirmed</MenuItem>
-          </TextField>
-          <TextField
-            type="date"
-            size="small"
-            value={rangeAwal}
-            onChange={(e) => {
-              setRangeAwal(e.target.value);
-            }}
-            sx={{
-              width: 150,
-              mr: 1,
-            }}
-          />
-          <TextField
-            type="date"
-            size="small"
-            value={rangeAkhir}
-            onChange={(e) => {
-              setRangeAkhir(e.target.value);
-            }}
-            sx={{
-              width: 150,
-              mr: 1,
-            }}
-          />
-          <Button
-            variant="contained"
-            size="small"
-            sx={{ width: 30, ml: 1, mt: 1 }}
-            type="submit"
-            onClick={SubmitFilter}
-          >
-            Filter{" "}
-          </Button>
-          <Button variant="contained" size="small" sx={{ width: 30, ml: 1, mt: 1 }} type="submit" onClick={ResetFilter}>
-            Reset{" "}
-          </Button>
-        </FormControl>
-        <Card sx={{ mt: 5 }}>
+        {Array.isArray(bookings.data) ? (
           <Scrollbar>
-            <TableContainer sx={{ minWidth: 800 }}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>RUANGAN</TableCell>
-                    <TableCell>JENIS</TableCell>
-                    <TableCell>DURASI</TableCell>
-                    <TableCell>STATUS</TableCell>
-                    <TableCell>TGL KELAS</TableCell>
-                    <TableCell>JAM BOOKING</TableCell>
-                    {isUserAdmin && <TableCell>ACTION</TableCell>}
-                    {isUserGuru && (
-                      <>
-                        <TableCell>MORE</TableCell>
-                      </>
-                    )}
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {Array.isArray(bookings.data)
-                    ? bookings.data.map((booking) => (
-                        <TableRow hover tabIndex={-1} role="checkbox" key={booking.id}>
-                          <TableCell align="left" component="td">
-                            <Stack direction="row" alignItems="center" spacing={2}>
-                              <Typography variant="subtitle2" noWrap>
-                                {booking.room.nama_ruang}
-                              </Typography>
-                            </Stack>
-                          </TableCell>
-                          <TableCell align="center">
-                            {booking.jenis_kelas === "group" ? (
-                              <Badge badgeContent={booking.jenis_kelas} color="success" />
-                            ) : (
-                              <Badge badgeContent={booking.jenis_kelas} color="primary" />
-                            )}
-                          </TableCell>
-                          <TableCell align="left">{booking.durasi} </TableCell>
-                          <TableCell align="center">
-                            {booking.status === "pending" ? (
-                              <Badge badgeContent={booking.status} color="warning" />
-                            ) : null}
-
-                            {booking.status === "cancel" ? <Badge badgeContent={booking.status} color="error" /> : null}
-
-                            {booking.status === "expired" ? (
-                              <Badge badgeContent={booking.status} color="secondary" />
-                            ) : null}
-
-                            {booking.status === "confirmed" ? (
-                              <Badge badgeContent={booking.status} color="success" />
-                            ) : null}
-                          </TableCell>
-                          <TableCell align="left">{Moment(booking.tgl_kelas).format("DD MMMM, YYYY")}</TableCell>
-                          <TableCell align="left">{booking.jam_booking}</TableCell>
-                          {isUserAdmin && (
-                            <TableCell align="left">
-                              <Link href={`/dashboard/UpdateBooking/${booking.id}`}>
-                                <Button
-                                  variant="contained"
-                                  color="success"
-                                  size="small"
-                                  sx={{ margin: 1 }}
-                                  startIcon={<Iconify icon="eva:pencil-fill" />}
-                                >
-                                  Update
-                                </Button>
-                              </Link>
-                              <Button
-                                variant="contained"
-                                color="error"
-                                size="small"
-                                sx={{ margin: 1 }}
-                                startIcon={<Iconify icon="eva:trash-fill" />}
-                                data-durasi={booking.durasi}
-                                data-id={booking.id}
-                                onClick={handleOpenModalDelete}
-                              >
-                                Delete
-                              </Button>
-                            </TableCell>
-                          )}
-                          {isUserGuru && (
-                            <>
-                              <TableCell align="left">
-                                <Button
-                                  variant="contained"
-                                  color="primary"
-                                  size="small"
-                                  margin="normal"
-                                  startIcon={<Iconify icon="eva:pencil-fill" />}
-                                  data-durasi={booking.durasi}
-                                  data-id={booking.id}
-                                  onClick={handleOpenModalUpdateStatus}
-                                >
-                                  Confirm
-                                </Button>
-                              </TableCell>
-                            </>
-                          )}
-                        </TableRow>
-                      ))
-                    : null}
-                </TableBody>
-              </Table>
-            </TableContainer>
+            <BasicTable
+              header={[
+                "RUANGAN",
+                "JENIS",
+                "DURASI",
+                "STATUS",
+                "TGL KELAS",
+                "JAM BOOKING",
+                ...((isUserAdmin || isUserGuru) && " "),
+              ]}
+              body={bookings.data.map((booking) => [
+                booking.room.nama_ruang,
+                booking.jenis_kelas === "group" ? (
+                  <Badge badgeContent={booking.jenis_kelas} color="success" />
+                ) : (
+                  <Badge badgeContent={booking.jenis_kelas} color="primary" />
+                ),
+                booking.durasi,
+                generateStatus(booking.status),
+                Moment(booking.tgl_kelas).format("DD MMMM, YYYY"),
+                booking.jam_booking,
+                { ...((isUserAdmin || isUserGuru) && generateButtonAction(booking)) },
+              ])}
+            />
           </Scrollbar>
-        </Card>
+        ) : null}
         <div>
           <Modal
             open={openDel}
