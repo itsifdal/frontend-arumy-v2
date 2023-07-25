@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
 // theme
-import { ThemeProvider, createTheme } from "@mui/material/styles";
+import { ThemeProvider, StyledEngineProvider, createTheme } from "@mui/material/styles";
+import CssBaseline from "@mui/material/CssBaseline";
 // routes
 import Router from "./routes";
 // components
@@ -25,10 +26,13 @@ export default function App() {
   );
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider theme={theme}>
-        <ScrollToTop />
-        <Router />
-      </ThemeProvider>
+      <StyledEngineProvider injectFirst>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <ScrollToTop />
+          <Router />
+        </ThemeProvider>
+      </StyledEngineProvider>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
