@@ -12,7 +12,7 @@ import { Stack, Button, Container, Typography, Modal, FormControl, Box, Grid } f
 import { LoadingButton } from "@mui/lab";
 
 // components
-import { studentFormReducer, initialStudentFormState, validateStudentForm } from "../utils/reducer/studentReducer";
+import { teacherFormReducer, initialTeacherFormState, validateTeacherForm } from "../utils/reducer/teacherReducer";
 import Page from "../components/Page";
 import Scrollbar from "../components/Scrollbar";
 import Iconify from "../components/Iconify";
@@ -22,53 +22,56 @@ import InputBasic from "../components/input/inputBasic";
 import { modalStyle } from "../constant/modalStyle";
 
 // ----------------------------------------------------------------------
-export default function Students() {
+export default function Teachers() {
   const [id, setId] = useState("");
-  const [studentName, setStudentName] = useState("");
+  const [teacherName, setTeacherName] = useState("");
   const [stateModal, setStateModal] = useState("create");
 
   const [open, setOpen] = useState(false);
   const [openDel, setOpenDel] = useState(false);
 
-  const [stateForm, dispatchStateForm] = useReducer(studentFormReducer, initialStudentFormState);
+  const [stateForm, dispatchStateForm] = useReducer(teacherFormReducer, initialTeacherFormState);
 
   // query
   const {
-    data: students,
-    refetch: studentsRefetch,
-    isLoading: isLoadingStudents,
-  } = useQuery(["STUDENTS"], () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/student`).then((res) => res.data));
+    data: teachers,
+    refetch: teachersRefetch,
+    isLoading: isLoadingTeachers,
+  } = useQuery(["TEACHERS"], () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/teacher`).then((res) => res.data));
 
-  const { refetch: studentRefetch } = useQuery(
-    ["STUDENTS", "DETAIL"],
-    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/student/${id}`).then((res) => res.data),
+  const { refetch: teacherRefetch } = useQuery(
+    ["TEACHERS", "DETAIL"],
+    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/teacher/${id}`).then((res) => res.data),
     {
       enabled: Boolean(id),
       onSuccess: (res) => {
-        const entries = Object.entries(res);
-        entries.forEach((student) => {
-          dispatchStateForm({
-            type: "change-field",
-            name: student[0],
-            value: student[1],
-            isEnableValidate: true,
+        if (res.data) {
+          const entries = Object.entries(res.data);
+          console.log("entries ", entries);
+          entries.forEach((student) => {
+            dispatchStateForm({
+              type: "change-field",
+              name: student[0],
+              value: student[1],
+              isEnableValidate: true,
+            });
           });
-        });
+        }
       },
     }
   );
 
   useEffect(() => {
     if (id) {
-      studentRefetch();
+      teacherRefetch();
     }
-  }, [id, studentRefetch]);
+  }, [id, teacherRefetch]);
 
-  const submitAddStudent = useMutation((data) => axios.post(`${process.env.REACT_APP_BASE_URL}/api/student`, data));
-  const submitUpdateStudent = useMutation((data) =>
-    axios.put(`${process.env.REACT_APP_BASE_URL}/api/student/${id}`, data)
+  const submitAddTeacher = useMutation((data) => axios.post(`${process.env.REACT_APP_BASE_URL}/api/teacher`, data));
+  const submitUpdateTeacher = useMutation((data) =>
+    axios.put(`${process.env.REACT_APP_BASE_URL}/api/teacher/${id}`, data)
   );
-  const submitDeleteStudent = useMutation(() => axios.delete(`${process.env.REACT_APP_BASE_URL}/api/student/${id}`));
+  const submitDeleteTeacher = useMutation(() => axios.delete(`${process.env.REACT_APP_BASE_URL}/api/teacher/${id}`));
 
   //----
   const handleOpenModalCreate = () => setOpen(true);
@@ -82,25 +85,25 @@ export default function Students() {
 
   const handleSubmitCreate = (e) => {
     e.preventDefault();
-    const errors = validateStudentForm(stateForm.values);
+    const errors = validateTeacherForm(stateForm.values);
     const hasError = Object.values(errors).some((value) => Boolean(value));
     if (!hasError) {
       if (stateModal === "update") {
-        submitUpdateStudent.mutate(stateForm.values, {
+        submitUpdateTeacher.mutate(stateForm.values, {
           onSuccess: (response) => {
-            onSuccessMutateStudent(response);
+            onSuccessMutateTeacher(response);
           },
           onError: (error) => {
-            onErrorMutateStudent(error);
+            onErrorMutateTeacher(error);
           },
         });
       } else {
-        submitAddStudent.mutate(stateForm.values, {
+        submitAddTeacher.mutate(stateForm.values, {
           onSuccess: (response) => {
-            onSuccessMutateStudent(response);
+            onSuccessMutateTeacher(response);
           },
           onError: (error) => {
-            onErrorMutateStudent(error);
+            onErrorMutateTeacher(error);
           },
         });
       }
@@ -120,27 +123,27 @@ export default function Students() {
 
   const handleOpenModalDelete = (e) => {
     setId(e.target.getAttribute("data-id"));
-    setStudentName(e.target.getAttribute("data-label"));
+    setTeacherName(e.target.getAttribute("data-label"));
     setOpenDel(true);
   };
   const handleCloseModalDelete = () => setOpenDel(false);
   const handleSubmitDelete = (e) => {
     e.preventDefault();
-    submitDeleteStudent.mutate(
+    submitDeleteTeacher.mutate(
       {},
       {
         onSuccess: (response) => {
-          onSuccessMutateStudent(response);
+          onSuccessMutateTeacher(response);
         },
         onError: (error) => {
-          onErrorMutateStudent(error);
+          onErrorMutateTeacher(error);
         },
       }
     );
   };
 
-  function onSuccessMutateStudent(response) {
-    studentsRefetch();
+  function onSuccessMutateTeacher(response) {
+    teachersRefetch();
     setOpen(false);
     setOpenDel(false);
     toast.success(response.data.message, {
@@ -153,7 +156,7 @@ export default function Students() {
     });
   }
 
-  function onErrorMutateStudent(error) {
+  function onErrorMutateTeacher(error) {
     if (error.response) {
       toast.error(error.response, {
         position: "top-center",
@@ -173,31 +176,30 @@ export default function Students() {
   }
 
   return (
-    <Page title="Student">
+    <Page title="Teachers">
       <PageHeader
-        title="Student"
+        title="Teachers"
         rightContent={
           <Button variant="outlined" startIcon={<Iconify icon="eva:plus-fill" />} onClick={handleOpenModalCreate}>
-            Add new Student
+            Add new Teacher
           </Button>
         }
       />
       <Container maxWidth="xl" sx={{ paddingTop: 4, background: "white" }}>
         <ToastContainer pauseOnFocusLoss={false} />
-        {!isLoadingStudents ? (
+        {!isLoadingTeachers ? (
           <Scrollbar>
             <BasicTable
-              header={["STUDENT NAME", "NOMOR VA", "TELEPON", " "]}
-              body={students.map((student) => [
-                student.nama_murid,
-                student.nomor_va,
-                student.telepon,
-                <Stack key={student.id} direction="row" spacing={2}>
+              header={["TEACHER NAME", "TELEPON", " "]}
+              body={teachers.map((teacher) => [
+                teacher.nama_pengajar,
+                teacher.telepon,
+                <Stack key={teacher.id} direction="row" spacing={2}>
                   <Button
                     variant="contained"
                     color="success"
                     size="small"
-                    data-id={student.id}
+                    data-id={teacher.id}
                     onClick={handleOpenModalUpdate}
                   >
                     Update
@@ -206,8 +208,8 @@ export default function Students() {
                     variant="contained"
                     color="error"
                     size="small"
-                    data-label={student.nama_murid}
-                    data-id={student.id}
+                    data-label={teacher.nama_pengajar}
+                    data-id={teacher.id}
                     onClick={handleOpenModalDelete}
                   >
                     Delete
@@ -227,44 +229,18 @@ export default function Students() {
           <Box sx={{ ...modalStyle, maxWidth: 800 }}>
             <Box marginBottom={2}>
               <Typography id="modal-modal-title" variant="h6" component="h2">
-                {stateModal === "update" ? "Update Student" : "Create Student"}
+                {stateModal === "update" ? "Update Teacher" : "Create Teacher"}
               </Typography>
             </Box>
             <Grid container spacing={2}>
               <Grid item xs={6} paddingBottom={2}>
                 <InputBasic
                   required
-                  label="Nama Murid"
-                  name="nama_murid"
-                  value={stateForm.values.nama_murid}
-                  error={Boolean(stateForm.errors.nama_murid)}
-                  errorMessage={stateForm.errors.nama_murid}
-                  onChange={(e) => {
-                    onChangeInput(e);
-                  }}
-                />
-              </Grid>
-              <Grid item xs={6} paddingBottom={2}>
-                <InputBasic
-                  required
-                  label="Nama Wali"
-                  name="nama_wali"
-                  value={stateForm.values.nama_wali}
-                  error={Boolean(stateForm.errors.nama_wali)}
-                  errorMessage={stateForm.errors.nama_wali}
-                  onChange={(e) => {
-                    onChangeInput(e);
-                  }}
-                />
-              </Grid>
-              <Grid item xs={6} paddingBottom={2}>
-                <InputBasic
-                  required
-                  label="Nomor VA"
-                  name="nomor_va"
-                  value={stateForm.values.nomor_va}
-                  error={Boolean(stateForm.errors.nomor_va)}
-                  errorMessage={stateForm.errors.nomor_va}
+                  label="Nama Pengajar"
+                  name="nama_pengajar"
+                  value={stateForm.values.nama_pengajar}
+                  error={Boolean(stateForm.errors.nama_pengajar)}
+                  errorMessage={stateForm.errors.nama_pengajar}
                   onChange={(e) => {
                     onChangeInput(e);
                   }}
@@ -285,7 +261,7 @@ export default function Students() {
               </Grid>
             </Grid>
             <LoadingButton
-              loading={submitAddStudent.isLoading || submitUpdateStudent.isLoading}
+              loading={submitAddTeacher.isLoading || submitUpdateTeacher.isLoading}
               variant="contained"
               type="submit"
               fullWidth
@@ -304,11 +280,11 @@ export default function Students() {
         >
           <Box sx={{ ...modalStyle, maxWidth: 400 }}>
             <Typography id="modal-modal-title" variant="h6" component="h2" marginBottom={5}>
-              Delete {studentName} ?
+              Delete {teacherName} ?
             </Typography>
             <FormControl fullWidth>
               <LoadingButton
-                loading={submitDeleteStudent.isLoading}
+                loading={submitDeleteTeacher.isLoading}
                 variant="contained"
                 type="submit"
                 onClick={handleSubmitDelete}

@@ -64,6 +64,11 @@ const navConfigAdmin = [
     path: "/dashboard/students",
     icon: getIcon("mdi:account-student"),
   },
+  {
+    title: "teachers",
+    path: "/dashboard/teachers",
+    icon: getIcon("mdi:teacher"),
+  },
 ];
 
 const navConfigNonAdmin = [

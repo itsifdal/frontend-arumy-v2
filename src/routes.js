@@ -23,6 +23,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/Page404";
 import DashboardApp from "./pages/DashboardApp";
+import Teachers from "./pages/Teachers";
 
 // ----------------------------------------------------------------------
 
@@ -48,6 +49,7 @@ export default function Router() {
         { path: "post", element: <Post /> },
         { path: "rooms", element: <Rooms /> },
         { path: "students", element: <Students /> },
+        { path: "teachers", element: <Teachers /> },
         { path: "addpost", element: <AddPost /> },
         { path: "updatepost/:slug", element: <UpdatePost /> },
         { path: "postdetail/:slug", element: <PostDetail /> },
