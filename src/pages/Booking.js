@@ -2,8 +2,7 @@
 // import { Link as RouterLink } from 'react-router-dom';
 import React, { useEffect, useState, useReducer } from "react";
 import { useQuery, useMutation } from "react-query";
-// Moment Libs
-import Moment from "moment";
+import { format, parse } from "date-fns";
 // Date Picker
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -82,8 +81,8 @@ export default function Booking() {
   const [rangeAwal, setRangeAwal] = useState("");
   const [rangeAkhir, setRangeAkhir] = useState("");
 
-  const tmstr = Moment(tm_start, "HH:mm:ss").format("HH:mm");
-  const tmend = Moment(tm_end, "HH:mm:ss").format("HH:mm");
+  const tmstr = tm_start;
+  const tmend = tm_end;
 
   const [openDel, setOpenDel] = useState(false);
   const [openUpdateData, setOpenUpdateData] = useState(false);
@@ -445,7 +444,7 @@ export default function Booking() {
                 ),
                 booking.durasi,
                 generateStatus(booking.status),
-                Moment(booking.tgl_kelas).format("DD MMMM, YYYY"),
+                format(parse(booking.tgl_kelas, "yyyy-MM-dd", new Date()), "dd-MM-yyyy"),
                 booking.jam_booking,
                 { ...((isUserAdmin || isUserGuru) && generateButtonAction(booking)) },
               ])}

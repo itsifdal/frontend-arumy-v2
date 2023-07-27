@@ -5,6 +5,7 @@ import PropTypes from "prop-types";
 
 import InputBasic from "../input/inputBasic";
 import SelectBasic from "../input/selectBasic";
+import DateInputBasic from "../input/dateInputBasic";
 import { modalStyle } from "../../constants/modalStyle";
 import { classType } from "../../constants/classType";
 
@@ -45,16 +46,14 @@ export default function CreateBooking({
             />
           </Grid>
           <Grid item xs={6} paddingBottom={2}>
-            <InputBasic
+            <DateInputBasic
               required
               label="Date"
               name="tgl_kelas"
               value={stateForm.values.tgl_kelas}
               error={Boolean(stateForm.errors.tgl_kelas)}
               errorMessage={stateForm.errors.tgl_kelas}
-              onChange={(e) => {
-                onChange(e);
-              }}
+              onChange={onChange}
             />
           </Grid>
           <Grid item xs={6} paddingBottom={2}>
