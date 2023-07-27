@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 // import { Link as RouterLink } from 'react-router-dom';
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState, useReducer } from "react";
+import { useQuery, useMutation } from "react-query";
 // Moment Libs
 import Moment from "moment";
 // Date Picker
@@ -10,13 +10,13 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { TimePicker, DatePicker } from "@mui/x-date-pickers/";
 // React Toasts
 import { ToastContainer, toast } from "react-toastify";
+import axios from "axios";
 
 // Toastify
 import "react-toastify/dist/ReactToastify.css";
 
 // material
 import {
-  Link,
   Badge,
   Button,
   Container,
@@ -31,12 +31,13 @@ import {
 } from "@mui/material";
 
 // components
-import axios from "axios";
 import Page from "../components/Page";
 import Scrollbar from "../components/Scrollbar";
 import Iconify from "../components/Iconify";
 import PageHeader from "../components/PageHeader";
 import BasicTable from "../components/BasicTable";
+import CreateBooking from "../components/modal/createBooking";
+import { roomFormReducer, initialRoomFormState, validateRoomForm } from "../utils/reducer/roomReducer";
 
 // Style box
 const style = {
@@ -53,10 +54,8 @@ const style = {
 
 // ----------------------------------------------------------------------
 export default function Booking() {
-  const [bookings, setBookings] = useState("");
   const [id, setBookingId] = useState("");
 
-  const [rooms, setRooms] = useState("");
   const [roomId, setRoomId] = useState("");
 
   const [user, setUser] = useState("");
@@ -66,6 +65,9 @@ export default function Booking() {
   const [dt, setDate] = useState(null);
   const [tm_start, setTmStart] = useState(null);
   const [tm_end, setTmEnd] = useState(null);
+  const [openModalCreate, setOpenModalCreate] = useState(false);
+  const [stateModalCreate, setStateModalCreate] = useState("create");
+  const [stateForm, dispatchStateForm] = useReducer(roomFormReducer, initialRoomFormState);
 
   // localStorage
   useEffect(() => {
@@ -100,43 +102,25 @@ export default function Booking() {
     setStatusKelas(e.target.value);
   };
 
-  // Get Room Data
-  useEffect(() => {
-    axios.get(`${process.env.REACT_APP_BASE_URL}/api/room`).then((response) => {
-      setRooms(response.data);
-    });
-  }, []);
-
-  // GET DATA BOOKING BY FILTER PARAMETERS
-  const getBookingByFilter = () => {
-    const data = {
-      status: statusKelas,
-      rangeAwal,
-      rangeAkhir,
-    };
-    axios.post(`${process.env.REACT_APP_BASE_URL}/api/booking/filter/default`, data).then((response) => {
-      setBookings(response.data);
-    });
-  };
+  const { data: rooms } = useQuery(["ROOMS"], () =>
+    axios.get(`${process.env.REACT_APP_BASE_URL}/api/room`).then((res) => res.data)
+  );
 
   const SubmitFilter = () => {
-    getBookingByFilter();
+    console.log("filter");
   };
 
   // GET DATA BOOKING ALL
-  const getBookingData = async () => {
-    await axios.get(`${process.env.REACT_APP_BASE_URL}/api/booking`).then((response) => {
-      setBookings(response.data);
-    });
-  };
+  const {
+    data: bookings,
+    refetch: bookingsRefetch,
+    isLoading: isLoadingBookings,
+  } = useQuery(["BOOKINGS"], () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/booking`).then((res) => res.data));
+  console.log(bookings);
 
   const ResetFilter = () => {
-    getBookingData();
+    console.log("reset filter");
   };
-
-  useEffect(() => {
-    getBookingData();
-  }, []);
 
   // Open Modal Delete
   const handleOpenModalDelete = (e) => {
@@ -145,18 +129,79 @@ export default function Booking() {
     setOpenDel(true);
   };
   const handleCloseModalDelete = () => setOpenDel(false);
+
+  const submitAddStudent = useMutation((data) => axios.post(`${process.env.REACT_APP_BASE_URL}/api/booking`, data));
+  const submitUpdateStudent = useMutation((data) =>
+    axios.put(`${process.env.REACT_APP_BASE_URL}/api/booking/${id}`, data)
+  );
+  const submitDeleteBooking = useMutation(() => axios.delete(`${process.env.REACT_APP_BASE_URL}/api/booking/${id}`));
+
+  const handleSubmitCreate = (e) => {
+    e.preventDefault();
+    const errors = validateRoomForm(stateForm.values);
+    const hasError = Object.values(errors).some((value) => Boolean(value));
+    if (!hasError) {
+      if (stateModalCreate === "update") {
+        submitUpdateStudent.mutate(stateForm.values, {
+          onSuccess: (response) => {
+            onSuccessMutateBooking(response);
+          },
+          onError: (error) => {
+            onErrorMutateBooking(error);
+          },
+        });
+      } else {
+        submitAddStudent.mutate(stateForm.values, {
+          onSuccess: (response) => {
+            onSuccessMutateBooking(response);
+          },
+          onError: (error) => {
+            onErrorMutateBooking(error);
+          },
+        });
+      }
+    } else {
+      dispatchStateForm({
+        type: "change-error",
+        value: errors,
+      });
+    }
+  };
+
   const handleSubmitDelete = (e) => {
     e.preventDefault();
-    axios.delete(`${process.env.REACT_APP_BASE_URL}/api/booking/${id}`).then((response) => {
-      getBookingData();
-      setOpenDel(false);
-      toast.warning(response.data.message, {
+    submitDeleteBooking.mutate(
+      {},
+      {
+        onSuccess: (response) => {
+          onSuccessMutateBooking(response);
+        },
+        onError: (error) => {
+          onErrorMutateBooking(error);
+        },
+      }
+    );
+  };
+
+  function onSuccessMutateBooking(response) {
+    bookingsRefetch();
+    setOpenDel(false);
+    toast.warning(response.data.message, {
+      position: "top-center",
+      autoClose: 1000,
+      theme: "colored",
+    });
+  }
+
+  function onErrorMutateBooking(error) {
+    if (error.response) {
+      toast.error(error.response, {
         position: "top-center",
         autoClose: 1000,
         theme: "colored",
       });
-    });
-  };
+    }
+  }
 
   // UPDATE DATA BOOKING SEMUA OLEH ADMIN
   const CloseModalUpdateData = () => setOpenUpdateData(false);
@@ -172,7 +217,7 @@ export default function Booking() {
       time_end: tmend,
     };
     axios.put(`${process.env.REACT_APP_BASE_URL}/api/booking/${id}`, data).then((response) => {
-      getBookingData();
+      bookingsRefetch();
       setOpenUpdateData(false);
       toast.success(response.data.message, {
         position: "top-center",
@@ -194,7 +239,7 @@ export default function Booking() {
     };
     console.log(data);
     axios.put(`${process.env.REACT_APP_BASE_URL}/api/booking/updateSchedule/${id}`, data).then((response) => {
-      getBookingData();
+      bookingsRefetch();
       setOpenUpdTime(false);
       toast.success(response.data.message, {
         position: "top-center",
@@ -218,7 +263,7 @@ export default function Booking() {
       status: statusKelas,
     };
     axios.put(`${process.env.REACT_APP_BASE_URL}/api/booking/updateStatus/${id}`, data).then((response) => {
-      getBookingData();
+      bookingsRefetch();
       setOpenUpdStatus(false);
       toast.success(response.data.message, {
         position: "top-center",
@@ -228,10 +273,8 @@ export default function Booking() {
     });
   };
 
-  const navigate = useNavigate();
-
   const MoveToAddBookingPage = () => {
-    navigate(`/dashboard/AddBooking`);
+    setOpenModalCreate(true);
   };
 
   // Cek loggedin user admin
@@ -258,17 +301,16 @@ export default function Booking() {
     if (isUserAdmin) {
       return (
         <>
-          <Link href={`/dashboard/UpdateBooking/${book.id}`}>
-            <Button
-              variant="contained"
-              color="success"
-              size="small"
-              sx={{ margin: 1 }}
-              startIcon={<Iconify icon="eva:pencil-fill" />}
-            >
-              Update
-            </Button>
-          </Link>
+          <Button
+            variant="contained"
+            color="success"
+            size="small"
+            sx={{ margin: 1 }}
+            startIcon={<Iconify icon="eva:pencil-fill" />}
+            onClick={setStateModalCreate("update")}
+          >
+            Update
+          </Button>
           <Button
             variant="contained"
             color="error"
@@ -302,6 +344,15 @@ export default function Booking() {
     }
     return <></>;
   }
+
+  const onChangeInput = (e) => {
+    dispatchStateForm({
+      type: "change-field",
+      name: e.target.name,
+      value: e.target.value,
+      isEnableValidate: true,
+    });
+  };
 
   //----
   return (
@@ -374,7 +425,7 @@ export default function Booking() {
       </Box>
       <Container maxWidth="xl" sx={{ paddingTop: 4 }}>
         <ToastContainer pauseOnFocusLoss={false} />
-        {Array.isArray(bookings.data) ? (
+        {!isLoadingBookings ? (
           <Scrollbar>
             <BasicTable
               header={[
@@ -402,6 +453,16 @@ export default function Booking() {
             />
           </Scrollbar>
         ) : null}
+        <CreateBooking
+          open={openModalCreate}
+          onClose={() => setOpenModalCreate(false)}
+          state={stateModalCreate}
+          stateForm={stateForm}
+          onChange={onChangeInput}
+          mutateCreate={submitAddStudent}
+          mutateUpdate={submitUpdateStudent}
+          onSubmit={handleSubmitCreate}
+        />
         <div>
           <Modal
             open={openDel}

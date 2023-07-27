@@ -22,7 +22,7 @@ import BasicTable from "../components/BasicTable";
 import InputBasic from "../components/input/inputBasic";
 import SelectBasic from "../components/input/selectBasic";
 
-import { modalStyle } from "../constant/modalStyle";
+import { modalStyle } from "../constants/modalStyle";
 
 // ----------------------------------------------------------------------
 export default function User() {

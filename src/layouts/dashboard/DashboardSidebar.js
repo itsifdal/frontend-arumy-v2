@@ -11,7 +11,7 @@ import Iconify from "../../components/Iconify";
 import Scrollbar from "../../components/Scrollbar";
 import NavSection from "../../components/NavSection";
 import AccountPopover from "./AccountPopover";
-import IMAGES from "../../constant/images";
+import IMAGES from "../../constants/images";
 
 // ----------------------------------------------------------------------
 

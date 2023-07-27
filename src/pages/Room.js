@@ -19,7 +19,7 @@ import Iconify from "../components/Iconify";
 import PageHeader from "../components/PageHeader";
 import BasicTable from "../components/BasicTable";
 import InputBasic from "../components/input/inputBasic";
-import { modalStyle } from "../constant/modalStyle";
+import { modalStyle } from "../constants/modalStyle";
 
 // ----------------------------------------------------------------------
 export default function Room() {
