@@ -65,7 +65,7 @@ export default function Booking() {
   const [dt, setDate] = useState(null);
   const [tm_start, setTmStart] = useState(null);
   const [tm_end, setTmEnd] = useState(null);
-  const [openModalCreate, setOpenModalCreate] = useState(false);
+  const [openModalCreate, setOpenModalCreate] = useState(true);
   const [stateModalCreate, setStateModalCreate] = useState("create");
   const [stateForm, dispatchStateForm] = useReducer(roomFormReducer, initialRoomFormState);
 
@@ -116,7 +116,6 @@ export default function Booking() {
     refetch: bookingsRefetch,
     isLoading: isLoadingBookings,
   } = useQuery(["BOOKINGS"], () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/booking`).then((res) => res.data));
-  console.log(bookings);
 
   const ResetFilter = () => {
     console.log("reset filter");
@@ -307,7 +306,7 @@ export default function Booking() {
             size="small"
             sx={{ margin: 1 }}
             startIcon={<Iconify icon="eva:pencil-fill" />}
-            onClick={setStateModalCreate("update")}
+            onClick={() => setStateModalCreate("update")}
           >
             Update
           </Button>
@@ -319,7 +318,7 @@ export default function Booking() {
             startIcon={<Iconify icon="eva:trash-fill" />}
             data-durasi={book.durasi}
             data-id={book.id}
-            onClick={handleOpenModalDelete}
+            onClick={() => handleOpenModalDelete}
           >
             Delete
           </Button>
