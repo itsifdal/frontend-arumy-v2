@@ -1,6 +1,7 @@
 /* eslint-disable camelcase */
 // import { Link as RouterLink } from 'react-router-dom';
 import React, { useEffect, useState, useReducer } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useQuery, useMutation } from "react-query";
 import { format, parse } from "date-fns";
 // Date Picker
@@ -37,6 +38,9 @@ import PageHeader from "../components/PageHeader";
 import BasicTable from "../components/BasicTable";
 import CreateBooking from "../components/modal/createBooking";
 import { bookingFormReducer, initialBookingFormState, validateBookingForm } from "../utils/reducer/bookingReducer";
+import { cleanQuery } from "../utils/cleanQuery";
+import { urlSearchParamsToQuery } from "../utils/urlSearchParamsToQuery";
+import { queryToString } from "../utils/queryToString";
 
 // Style box
 const style = {
@@ -67,6 +71,9 @@ export default function Booking() {
   const [openModalCreate, setOpenModalCreate] = useState(false);
   const [stateModalCreate, setStateModalCreate] = useState("create");
   const [stateForm, dispatchStateForm] = useReducer(bookingFormReducer, initialBookingFormState);
+
+  const [searchParams] = useSearchParams();
+  const queryParam = urlSearchParamsToQuery(searchParams);
 
   // localStorage
   useEffect(() => {
@@ -114,7 +121,9 @@ export default function Booking() {
     data: bookings,
     refetch: bookingsRefetch,
     isLoading: isLoadingBookings,
-  } = useQuery(["BOOKINGS"], () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/booking`).then((res) => res.data));
+  } = useQuery(["BOOKINGS", cleanQuery(queryParam)], () =>
+    axios.get(`${process.env.REACT_APP_BASE_URL}/api/booking${queryToString(queryParam)}`).then((res) => res.data)
+  );
 
   const ResetFilter = () => {
     console.log("reset filter");
