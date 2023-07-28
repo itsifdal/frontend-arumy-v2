@@ -20,6 +20,7 @@ import PageHeader from "../components/PageHeader";
 import BasicTable from "../components/BasicTable";
 import InputBasic from "../components/input/inputBasic";
 import { modalStyle } from "../constants/modalStyle";
+import { queryKey } from "../constants/queryKey";
 
 // ----------------------------------------------------------------------
 export default function Students() {
@@ -37,7 +38,9 @@ export default function Students() {
     data: students,
     refetch: studentsRefetch,
     isLoading: isLoadingStudents,
-  } = useQuery(["STUDENTS"], () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/student`).then((res) => res.data));
+  } = useQuery([queryKey.students], () =>
+    axios.get(`${process.env.REACT_APP_BASE_URL}/api/student`).then((res) => res.data)
+  );
 
   const { refetch: studentRefetch } = useQuery(
     ["STUDENTS", "DETAIL"],

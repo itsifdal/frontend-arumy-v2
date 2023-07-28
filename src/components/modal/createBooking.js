@@ -1,13 +1,17 @@
-import React from "react";
+import React, { useState } from "react";
 import { Typography, Modal, Box, Grid } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import PropTypes from "prop-types";
+import { useQuery } from "react-query";
+import axios from "axios";
 
 import InputBasic from "../input/inputBasic";
 import SelectBasic from "../input/selectBasic";
 import DateInputBasic from "../input/dateInputBasic";
+import AutoCompleteInputBasic from "../input/autoCompleteInputBasic";
 import { modalStyle } from "../../constants/modalStyle";
 import { classType } from "../../constants/classType";
+import { queryKey } from "../../constants/queryKey";
 
 export default function CreateBooking({
   open,
@@ -19,6 +23,16 @@ export default function CreateBooking({
   mutateUpdate,
   onSubmit,
 }) {
+  const [openStudent, setOpenStudent] = useState(false);
+  const { data: students = [], isLoading: isLoadingStudents } = useQuery(
+    [queryKey.students],
+    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/student`).then((res) => res.data),
+    {
+      select: (students) => students.map((student) => ({ value: student.id, label: student.nama_murid })),
+      enabled: openStudent,
+    }
+  );
+
   return (
     <Modal open={open} onClose={onClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
       <Box sx={{ ...modalStyle, maxWidth: 800 }}>
@@ -57,15 +71,27 @@ export default function CreateBooking({
             />
           </Grid>
           <Grid item xs={6} paddingBottom={2}>
-            <InputBasic
+            <AutoCompleteInputBasic
+              multiple
               required
               label="Student Name"
               name="user_group"
+              ChipProps={{ size: "small" }}
               value={stateForm.values.user_group}
               error={Boolean(stateForm.errors.user_group)}
               errorMessage={stateForm.errors.user_group}
-              onChange={(e) => {
-                onChange(e);
+              onChange={(e, value) => {
+                console.log(stateForm);
+                onChange(e, value);
+              }}
+              options={students}
+              loading={isLoadingStudents}
+              open={openStudent}
+              onOpen={() => {
+                setOpenStudent(true);
+              }}
+              onClose={() => {
+                setOpenStudent(false);
               }}
             />
           </Grid>

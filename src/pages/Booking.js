@@ -36,7 +36,7 @@ import Iconify from "../components/Iconify";
 import PageHeader from "../components/PageHeader";
 import BasicTable from "../components/BasicTable";
 import CreateBooking from "../components/modal/createBooking";
-import { roomFormReducer, initialRoomFormState, validateRoomForm } from "../utils/reducer/roomReducer";
+import { bookingFormReducer, initialBookingFormState, validateBookingForm } from "../utils/reducer/bookingReducer";
 
 // Style box
 const style = {
@@ -66,7 +66,7 @@ export default function Booking() {
   const [tm_end, setTmEnd] = useState(null);
   const [openModalCreate, setOpenModalCreate] = useState(true);
   const [stateModalCreate, setStateModalCreate] = useState("create");
-  const [stateForm, dispatchStateForm] = useReducer(roomFormReducer, initialRoomFormState);
+  const [stateForm, dispatchStateForm] = useReducer(bookingFormReducer, initialBookingFormState);
 
   // localStorage
   useEffect(() => {
@@ -136,7 +136,7 @@ export default function Booking() {
 
   const handleSubmitCreate = (e) => {
     e.preventDefault();
-    const errors = validateRoomForm(stateForm.values);
+    const errors = validateBookingForm(stateForm.values);
     const hasError = Object.values(errors).some((value) => Boolean(value));
     if (!hasError) {
       if (stateModalCreate === "update") {
