@@ -265,7 +265,7 @@ export default function CreateBooking({
           variant="contained"
           type="submit"
           fullWidth
-          onClick={() => onSubmit}
+          onClick={() => onSubmit()}
         >
           Save
         </LoadingButton>

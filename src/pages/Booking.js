@@ -134,13 +134,25 @@ export default function Booking() {
   );
   const submitDeleteBooking = useMutation(() => axios.delete(`${process.env.REACT_APP_BASE_URL}/api/booking/${id}`));
 
-  const handleSubmitCreate = (e) => {
-    e.preventDefault();
+  const handleSubmitCreate = () => {
     const errors = validateBookingForm(stateForm.values);
     const hasError = Object.values(errors).some((value) => Boolean(value));
     if (!hasError) {
+      const data = {
+        roomId: stateForm.values.roomId.value,
+        teacherId: stateForm.values.teacherId.value,
+        user_group: stateForm.values.user_group.map((student) => ({ id: student.value, nama_murid: student.label })),
+        instrumentId: stateForm.values.instrumentId.value,
+        tgl_kelas: format(stateForm.values.tgl_kelas, "yyyy-MM-dd"),
+        cabang: stateForm.values.cabang,
+        jam_booking: format(stateForm.values.jam_booking, "HH:mm"),
+        jenis_kelas: stateForm.values.jenis_kelas,
+        durasi: stateForm.values.durasi,
+        status: "pending",
+      };
+
       if (stateModalCreate === "update") {
-        submitUpdateStudent.mutate(stateForm.values, {
+        submitUpdateStudent.mutate(data, {
           onSuccess: (response) => {
             onSuccessMutateBooking(response);
           },
@@ -149,7 +161,7 @@ export default function Booking() {
           },
         });
       } else {
-        submitAddStudent.mutate(stateForm.values, {
+        submitAddStudent.mutate(data, {
           onSuccess: (response) => {
             onSuccessMutateBooking(response);
           },

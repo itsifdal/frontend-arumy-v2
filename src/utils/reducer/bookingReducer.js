@@ -10,7 +10,6 @@ export const initialBookingFormState = {
     jam_selesai_booking: "",
     jenis_kelas: "private",
     durasi: "",
-    status: "pending",
   },
   errors: {
     roomId: "",
@@ -23,7 +22,6 @@ export const initialBookingFormState = {
     jam_selesai_booking: "",
     jenis_kelas: "",
     durasi: "",
-    status: "",
   },
 };
 
@@ -58,9 +56,6 @@ export function validateBookingForm(values) {
   }
   if (!values.durasi) {
     errors.durasi = "durasi is required";
-  }
-  if (!values.status) {
-    errors.status = "status is required";
   }
   return errors;
 }

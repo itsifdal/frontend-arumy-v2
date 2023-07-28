@@ -12,9 +12,7 @@ export default function AutoCompleteInputBasic(props) {
       multiple={multiple}
       defaultValue={multiple ? [] : ""}
       ChipProps={{ size: "small" }}
-      isOptionEqualToValue={(option, value) =>
-        value === undefined || value === "" || value === [] || option.value === value.value
-      }
+      isOptionEqualToValue={(option, value) => value === "" || option.value === value.value}
       onChange={(_, value) => {
         onChange({ target: { name, value } });
       }}
