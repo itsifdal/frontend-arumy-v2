@@ -9,6 +9,7 @@ export default function AutoCompleteInputBasic(props) {
   return (
     <Autocomplete
       {...otherProps}
+      ChipProps={{ size: "small" }}
       isOptionEqualToValue={(option, value) => option.value === value.value}
       onChange={(_, value) => {
         onChange({ target: { name, value } });

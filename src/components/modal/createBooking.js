@@ -11,6 +11,7 @@ import DateInputBasic from "../input/dateInputBasic";
 import AutoCompleteInputBasic from "../input/autoCompleteInputBasic";
 import { modalStyle } from "../../constants/modalStyle";
 import { classType } from "../../constants/classType";
+import { branch } from "../../constants/branch";
 import { queryKey } from "../../constants/queryKey";
 
 export default function CreateBooking({
@@ -24,12 +25,23 @@ export default function CreateBooking({
   onSubmit,
 }) {
   const [openStudent, setOpenStudent] = useState(false);
+  const [openTeacher, setOpenTeacher] = useState(false);
+
   const { data: students = [], isLoading: isLoadingStudents } = useQuery(
     [queryKey.students],
     () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/student`).then((res) => res.data),
     {
       select: (students) => students.map((student) => ({ value: student.id, label: student.nama_murid })),
       enabled: openStudent,
+    }
+  );
+
+  const { data: teachers = [], isLoading: isLoadingTeachers } = useQuery(
+    [queryKey.teachers],
+    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/teacher`).then((res) => res.data),
+    {
+      select: (teachers) => teachers.map((teacher) => ({ value: teacher.id, label: teacher.nama_pengajar })),
+      enabled: openTeacher,
     }
   );
 
@@ -47,7 +59,7 @@ export default function CreateBooking({
               fullWidth
               id="jenis_kelas"
               name="jenis_kelas"
-              defaultValue="private"
+              defaultValue={classType[0].value}
               value={stateForm.values.jenis_kelas}
               error={Boolean(stateForm.errors.jenis_kelas)}
               errorMessage={stateForm.errors.jenis_kelas}
@@ -96,8 +108,8 @@ export default function CreateBooking({
             />
           </Grid>
           <Grid item xs={6} paddingBottom={2}>
-            <InputBasic
-              required
+            <SelectBasic
+              fullWidth
               label="Branch"
               name="cabang"
               value={stateForm.values.cabang}
@@ -106,18 +118,31 @@ export default function CreateBooking({
               onChange={(e) => {
                 onChange(e);
               }}
+              select
+              defaultValue={branch[0].value}
+              options={branch}
             />
           </Grid>
           <Grid item xs={6} paddingBottom={2}>
-            <InputBasic
+            <AutoCompleteInputBasic
               required
               label="Teacher Name"
               name="teacherId"
               value={stateForm.values.teacherId}
               error={Boolean(stateForm.errors.teacherId)}
               errorMessage={stateForm.errors.teacherId}
-              onChange={(e) => {
-                onChange(e);
+              onChange={(e, value) => {
+                console.log(stateForm);
+                onChange(e, value);
+              }}
+              options={teachers}
+              loading={isLoadingTeachers}
+              open={openTeacher}
+              onOpen={() => {
+                setOpenTeacher(true);
+              }}
+              onClose={() => {
+                setOpenTeacher(false);
               }}
             />
           </Grid>
