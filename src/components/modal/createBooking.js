@@ -28,6 +28,7 @@ export default function CreateBooking({
   const [openStudent, setOpenStudent] = useState(false);
   const [openTeacher, setOpenTeacher] = useState(false);
   const [openRoom, setOpenRoom] = useState(false);
+  const [openInstrument, setOpenInstrument] = useState(false);
 
   const { data: students = [], isLoading: isLoadingStudents } = useQuery(
     [queryKey.students],
@@ -53,6 +54,16 @@ export default function CreateBooking({
     {
       select: (teachers) => teachers.map((teacher) => ({ value: teacher.id, label: teacher.nama_ruang })),
       enabled: openRoom,
+    }
+  );
+
+  const { data: instruments = [], isLoading: isLoadingInstruments } = useQuery(
+    [queryKey.instruments],
+    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/instrument`).then((res) => res.data),
+    {
+      select: (instruments) =>
+        instruments.map((instrument) => ({ value: instrument.id, label: instrument.nama_instrument })),
+      enabled: true,
     }
   );
 
@@ -192,15 +203,24 @@ export default function CreateBooking({
             />
           </Grid>
           <Grid item xs={6} paddingBottom={2}>
-            <InputBasic
+            <AutoCompleteInputBasic
               required
               label="Instrument"
               name="instrumentId"
               value={stateForm.values.instrumentId}
               error={Boolean(stateForm.errors.instrumentId)}
               errorMessage={stateForm.errors.instrumentId}
-              onChange={(e) => {
-                onChange(e);
+              onChange={(e, value) => {
+                onChange(e, value);
+              }}
+              options={instruments}
+              loading={isLoadingInstruments}
+              open={openInstrument}
+              onOpen={() => {
+                setOpenInstrument(true);
+              }}
+              onClose={() => {
+                setOpenInstrument(false);
               }}
             />
           </Grid>

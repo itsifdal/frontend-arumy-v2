@@ -1,1 +1,1 @@
-export const queryKey = { students: "STUDENTS", teachers: "TEACHERS", rooms: "ROOMS" };
+export const queryKey = { students: "STUDENTS", teachers: "TEACHERS", rooms: "ROOMS", instruments: "INSTRUMENTS" };
