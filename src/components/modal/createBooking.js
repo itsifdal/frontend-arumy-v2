@@ -13,6 +13,7 @@ import { modalStyle } from "../../constants/modalStyle";
 import { classType } from "../../constants/classType";
 import { branch } from "../../constants/branch";
 import { queryKey } from "../../constants/queryKey";
+import TimeInputBasic from "../input/timeInputBasic";
 
 export default function CreateBooking({
   open,
@@ -179,16 +180,15 @@ export default function CreateBooking({
             />
           </Grid>
           <Grid item xs={6} paddingBottom={2}>
-            <InputBasic
+            <TimeInputBasic
               required
               label="Jam Booking"
               name="jam_booking"
               value={stateForm.values.jam_booking}
               error={Boolean(stateForm.errors.jam_booking)}
               errorMessage={stateForm.errors.jam_booking}
-              onChange={(e) => {
-                onChange(e);
-              }}
+              minutesStep={15}
+              onChange={onChange}
             />
           </Grid>
           <Grid item xs={6} paddingBottom={2}>
