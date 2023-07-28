@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Typography, Modal, Box, Grid } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import PropTypes from "prop-types";
 import { useQuery } from "react-query";
 import axios from "axios";
+import { differenceInMinutes } from "date-fns";
 
 import InputBasic from "../input/inputBasic";
 import SelectBasic from "../input/selectBasic";
@@ -29,6 +30,13 @@ export default function CreateBooking({
   const [openTeacher, setOpenTeacher] = useState(false);
   const [openRoom, setOpenRoom] = useState(false);
   const [openInstrument, setOpenInstrument] = useState(false);
+
+  useEffect(() => {
+    if (stateForm.values.jam_booking && stateForm.values.jam_selesai_booking) {
+      const duration = differenceInMinutes(stateForm.values.jam_selesai_booking, stateForm.values.jam_booking);
+      onChange({ target: { name: "durasi", value: duration } });
+    }
+  }, [stateForm.values.jam_booking, stateForm.values.jam_selesai_booking, onChange]);
 
   const { data: students = [], isLoading: isLoadingStudents } = useQuery(
     [queryKey.students],
@@ -193,11 +201,24 @@ export default function CreateBooking({
           <Grid item xs={6} paddingBottom={2}>
             <TimeInputBasic
               required
-              label="Jam Booking"
+              label="Start"
               name="jam_booking"
               value={stateForm.values.jam_booking}
               error={Boolean(stateForm.errors.jam_booking)}
               errorMessage={stateForm.errors.jam_booking}
+              minutesStep={15}
+              onChange={onChange}
+            />
+          </Grid>
+          <Grid item xs={6} paddingBottom={2}>
+            <TimeInputBasic
+              required
+              label="End"
+              name="jam_selesai_booking"
+              value={stateForm.values.jam_selesai_booking}
+              error={Boolean(stateForm.errors.jam_selesai_booking)}
+              errorMessage={stateForm.errors.jam_selesai_booking}
+              minTime={stateForm.values.jam_booking}
               minutesStep={15}
               onChange={onChange}
             />

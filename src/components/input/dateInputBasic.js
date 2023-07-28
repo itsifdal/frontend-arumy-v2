@@ -14,7 +14,7 @@ export default function DateInputBasic(props) {
     <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={id}>
       <DatePicker
         {...props}
-        disableMaskedInput
+        inputFormat="dd/MM/yyyy"
         onChange={(value) => {
           onChange({ target: { name, value } });
         }}

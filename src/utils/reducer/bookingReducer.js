@@ -7,6 +7,7 @@ export const initialBookingFormState = {
     tgl_kelas: new Date(),
     cabang: "",
     jam_booking: "",
+    jam_selesai_booking: "",
     jenis_kelas: "private",
     durasi: "",
     status: "pending",
@@ -19,6 +20,7 @@ export const initialBookingFormState = {
     tgl_kelas: "",
     cabang: "",
     jam_booking: "",
+    jam_selesai_booking: "",
     jenis_kelas: "",
     durasi: "",
     status: "",
@@ -47,6 +49,9 @@ export function validateBookingForm(values) {
   }
   if (!values.jam_booking) {
     errors.jam_booking = "jam_booking is required";
+  }
+  if (!values.jam_selesai_booking) {
+    errors.jam_selesai_booking = "jam_selesai_booking is required";
   }
   if (!values.jenis_kelas) {
     errors.jenis_kelas = "jenis_kelas is required";

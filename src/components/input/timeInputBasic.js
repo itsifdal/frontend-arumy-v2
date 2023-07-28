@@ -14,7 +14,6 @@ export default function TimeInputBasic(props) {
     <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={id}>
       <TimePicker
         {...props}
-        disableMaskedInput
         onChange={(value) => {
           onChange({ target: { name, value } });
         }}

@@ -5,12 +5,16 @@ import PropTypes from "prop-types";
 import InputBasic from "./inputBasic";
 
 export default function AutoCompleteInputBasic(props) {
-  const { label, required, error, errorMessage, name, onChange, ...otherProps } = props;
+  const { label, required, error, errorMessage, name, onChange, multiple, ...otherProps } = props;
   return (
     <Autocomplete
       {...otherProps}
+      multiple={multiple}
+      defaultValue={multiple ? [] : ""}
       ChipProps={{ size: "small" }}
-      isOptionEqualToValue={(option, value) => option.value === value.value}
+      isOptionEqualToValue={(option, value) =>
+        value === undefined || value === "" || value === [] || option.value === value.value
+      }
       onChange={(_, value) => {
         onChange({ target: { name, value } });
       }}
@@ -28,4 +32,5 @@ AutoCompleteInputBasic.propTypes = {
   error: PropTypes.bool,
   onChange: PropTypes.func,
   errorMessage: PropTypes.string,
+  multiple: PropTypes.bool,
 };
