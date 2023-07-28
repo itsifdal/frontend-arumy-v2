@@ -8,7 +8,7 @@ export const initialBookingFormState = {
     cabang: "",
     jam_booking: "",
     jam_selesai_booking: "",
-    jenis_kelas: "private",
+    jenis_kelas: "privat",
     durasi: "",
   },
   errors: {

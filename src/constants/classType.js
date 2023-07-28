@@ -1,7 +1,7 @@
 export const classType = [
   {
-    value: "private",
-    label: "Private",
+    value: "privat",
+    label: "Privat",
   },
   {
     value: "group",

@@ -64,7 +64,7 @@ export default function Booking() {
   const [dt, setDate] = useState(null);
   const [tm_start, setTmStart] = useState(null);
   const [tm_end, setTmEnd] = useState(null);
-  const [openModalCreate, setOpenModalCreate] = useState(true);
+  const [openModalCreate, setOpenModalCreate] = useState(false);
   const [stateModalCreate, setStateModalCreate] = useState("create");
   const [stateForm, dispatchStateForm] = useReducer(bookingFormReducer, initialBookingFormState);
 
@@ -196,6 +196,7 @@ export default function Booking() {
   function onSuccessMutateBooking(response) {
     bookingsRefetch();
     setOpenDel(false);
+    setOpenModalCreate(false);
     toast.warning(response.data.message, {
       position: "top-center",
       autoClose: 1000,
