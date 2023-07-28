@@ -26,6 +26,7 @@ export default function CreateBooking({
 }) {
   const [openStudent, setOpenStudent] = useState(false);
   const [openTeacher, setOpenTeacher] = useState(false);
+  const [openRoom, setOpenRoom] = useState(false);
 
   const { data: students = [], isLoading: isLoadingStudents } = useQuery(
     [queryKey.students],
@@ -45,6 +46,15 @@ export default function CreateBooking({
     }
   );
 
+  const { data: rooms = [], isLoading: isLoadingRooms } = useQuery(
+    [queryKey.rooms],
+    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/room`).then((res) => res.data),
+    {
+      select: (teachers) => teachers.map((teacher) => ({ value: teacher.id, label: teacher.nama_ruang })),
+      enabled: openRoom,
+    }
+  );
+
   return (
     <Modal open={open} onClose={onClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
       <Box sx={{ ...modalStyle, maxWidth: 800 }}>
@@ -56,6 +66,7 @@ export default function CreateBooking({
         <Grid container spacing={2}>
           <Grid item xs={12} paddingBottom={2}>
             <SelectBasic
+              required
               fullWidth
               id="jenis_kelas"
               name="jenis_kelas"
@@ -93,7 +104,6 @@ export default function CreateBooking({
               error={Boolean(stateForm.errors.user_group)}
               errorMessage={stateForm.errors.user_group}
               onChange={(e, value) => {
-                console.log(stateForm);
                 onChange(e, value);
               }}
               options={students}
@@ -109,6 +119,7 @@ export default function CreateBooking({
           </Grid>
           <Grid item xs={6} paddingBottom={2}>
             <SelectBasic
+              required
               fullWidth
               label="Branch"
               name="cabang"
@@ -132,7 +143,6 @@ export default function CreateBooking({
               error={Boolean(stateForm.errors.teacherId)}
               errorMessage={stateForm.errors.teacherId}
               onChange={(e, value) => {
-                console.log(stateForm);
                 onChange(e, value);
               }}
               options={teachers}
@@ -147,15 +157,24 @@ export default function CreateBooking({
             />
           </Grid>
           <Grid item xs={6} paddingBottom={2}>
-            <InputBasic
+            <AutoCompleteInputBasic
               required
               label="Rooms"
               name="roomId"
               value={stateForm.values.roomId}
               error={Boolean(stateForm.errors.roomId)}
               errorMessage={stateForm.errors.roomId}
-              onChange={(e) => {
-                onChange(e);
+              onChange={(e, value) => {
+                onChange(e, value);
+              }}
+              options={rooms}
+              loading={isLoadingRooms}
+              open={openRoom}
+              onOpen={() => {
+                setOpenRoom(true);
+              }}
+              onClose={() => {
+                setOpenRoom(false);
               }}
             />
           </Grid>
