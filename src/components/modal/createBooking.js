@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useReducer } from "react";
 import { Typography, Modal, Box, Grid } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import PropTypes from "prop-types";
-import { useQuery } from "react-query";
+import { useQuery, useMutation } from "react-query";
 import axios from "axios";
-import { differenceInMinutes } from "date-fns";
+import { differenceInMinutes, format } from "date-fns";
 
 import InputBasic from "../input/inputBasic";
 import SelectBasic from "../input/selectBasic";
@@ -16,27 +16,21 @@ import { branch } from "../../constants/branch";
 import { queryKey } from "../../constants/queryKey";
 import TimeInputBasic from "../input/timeInputBasic";
 
-export default function CreateBooking({
-  open,
-  onClose,
-  state,
-  stateForm,
-  onChange,
-  mutateCreate,
-  mutateUpdate,
-  onSubmit,
-}) {
+import { bookingFormReducer, initialBookingFormState, validateBookingForm } from "../../utils/reducer/bookingReducer";
+
+export default function CreateBooking({ open, onClose, state, id, callbackSuccess, callbackError }) {
   const [openStudent, setOpenStudent] = useState(false);
   const [openTeacher, setOpenTeacher] = useState(false);
   const [openRoom, setOpenRoom] = useState(false);
   const [openInstrument, setOpenInstrument] = useState(false);
+  const [stateForm, dispatchStateForm] = useReducer(bookingFormReducer, initialBookingFormState);
 
   useEffect(() => {
     if (stateForm.values.jam_booking && stateForm.values.jam_selesai_booking) {
       const duration = differenceInMinutes(stateForm.values.jam_selesai_booking, stateForm.values.jam_booking);
       onChange({ target: { name: "durasi", value: duration } });
     }
-  }, [stateForm.values.jam_booking, stateForm.values.jam_selesai_booking, onChange]);
+  }, [stateForm.values.jam_booking, stateForm.values.jam_selesai_booking]);
 
   const { data: students = [], isLoading: isLoadingStudents } = useQuery(
     [queryKey.students],
@@ -74,6 +68,59 @@ export default function CreateBooking({
       enabled: true,
     }
   );
+
+  const submitUpdateBooking = useMutation((data) =>
+    axios.put(`${process.env.REACT_APP_BASE_URL}/api/booking/${id}`, data)
+  );
+
+  const submitAddBooking = useMutation((data) => axios.post(`${process.env.REACT_APP_BASE_URL}/api/booking`, data));
+
+  const handleCallbackMutate = {
+    onSuccess: (response) => {
+      callbackSuccess(response);
+    },
+    onError: (error) => {
+      callbackError(error);
+    },
+  };
+  const handleSubmitCreate = () => {
+    const errors = validateBookingForm(stateForm.values);
+    const hasError = Object.values(errors).some((value) => Boolean(value));
+    if (!hasError) {
+      const data = {
+        roomId: stateForm.values.roomId.value,
+        teacherId: stateForm.values.teacherId.value,
+        user_group: stateForm.values.user_group.map((student) => ({ id: student.value, nama_murid: student.label })),
+        instrumentId: stateForm.values.instrumentId.value,
+        tgl_kelas: format(stateForm.values.tgl_kelas, "yyyy-MM-dd"),
+        cabang: stateForm.values.cabang,
+        jam_booking: format(stateForm.values.jam_booking, "HH:mm"),
+        jenis_kelas: stateForm.values.jenis_kelas,
+        durasi: stateForm.values.durasi,
+        status: "pending",
+      };
+
+      if (state === "update") {
+        submitUpdateBooking.mutate(data, handleCallbackMutate);
+      } else {
+        submitAddBooking.mutate(data, handleCallbackMutate);
+      }
+    } else {
+      dispatchStateForm({
+        type: "change-error",
+        value: errors,
+      });
+    }
+  };
+
+  const onChange = (e) => {
+    dispatchStateForm({
+      type: "change-field",
+      name: e.target.name,
+      value: e.target.value,
+      isEnableValidate: true,
+    });
+  };
 
   return (
     <Modal open={open} onClose={onClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
@@ -261,11 +308,11 @@ export default function CreateBooking({
           </Grid>
         </Grid>
         <LoadingButton
-          loading={mutateCreate.isLoading || mutateUpdate.isLoading}
+          loading={submitAddBooking.isLoading || submitUpdateBooking.isLoading}
           variant="contained"
           type="submit"
           fullWidth
-          onClick={() => onSubmit()}
+          onClick={() => handleSubmitCreate()}
         >
           Save
         </LoadingButton>
@@ -278,9 +325,7 @@ CreateBooking.propTypes = {
   open: PropTypes.bool,
   onClose: PropTypes.func,
   state: PropTypes.string,
-  stateForm: PropTypes.any,
-  onChange: PropTypes.func,
-  mutateCreate: PropTypes.any,
-  mutateUpdate: PropTypes.any,
-  onSubmit: PropTypes.func,
+  id: PropTypes.number,
+  callbackSuccess: PropTypes.func,
+  callbackError: PropTypes.func,
 };

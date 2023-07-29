@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 // import { Link as RouterLink } from 'react-router-dom';
-import React, { useEffect, useState, useReducer } from "react";
+import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useQuery, useMutation } from "react-query";
 import { format, parse } from "date-fns";
@@ -37,7 +37,6 @@ import Iconify from "../components/Iconify";
 import PageHeader from "../components/PageHeader";
 import BasicTable from "../components/BasicTable";
 import CreateBooking from "../components/modal/createBooking";
-import { bookingFormReducer, initialBookingFormState, validateBookingForm } from "../utils/reducer/bookingReducer";
 import { cleanQuery } from "../utils/cleanQuery";
 import { urlSearchParamsToQuery } from "../utils/urlSearchParamsToQuery";
 import { queryToString } from "../utils/queryToString";
@@ -70,7 +69,6 @@ export default function Booking() {
   const [tm_end, setTmEnd] = useState(null);
   const [openModalCreate, setOpenModalCreate] = useState(false);
   const [stateModalCreate, setStateModalCreate] = useState("create");
-  const [stateForm, dispatchStateForm] = useReducer(bookingFormReducer, initialBookingFormState);
 
   const [searchParams] = useSearchParams();
   const queryParam = urlSearchParamsToQuery(searchParams);
@@ -137,55 +135,7 @@ export default function Booking() {
   };
   const handleCloseModalDelete = () => setOpenDel(false);
 
-  const submitAddStudent = useMutation((data) => axios.post(`${process.env.REACT_APP_BASE_URL}/api/booking`, data));
-  const submitUpdateStudent = useMutation((data) =>
-    axios.put(`${process.env.REACT_APP_BASE_URL}/api/booking/${id}`, data)
-  );
   const submitDeleteBooking = useMutation(() => axios.delete(`${process.env.REACT_APP_BASE_URL}/api/booking/${id}`));
-
-  const handleSubmitCreate = () => {
-    const errors = validateBookingForm(stateForm.values);
-    const hasError = Object.values(errors).some((value) => Boolean(value));
-    if (!hasError) {
-      const data = {
-        roomId: stateForm.values.roomId.value,
-        teacherId: stateForm.values.teacherId.value,
-        user_group: stateForm.values.user_group.map((student) => ({ id: student.value, nama_murid: student.label })),
-        instrumentId: stateForm.values.instrumentId.value,
-        tgl_kelas: format(stateForm.values.tgl_kelas, "yyyy-MM-dd"),
-        cabang: stateForm.values.cabang,
-        jam_booking: format(stateForm.values.jam_booking, "HH:mm"),
-        jenis_kelas: stateForm.values.jenis_kelas,
-        durasi: stateForm.values.durasi,
-        status: "pending",
-      };
-
-      if (stateModalCreate === "update") {
-        submitUpdateStudent.mutate(data, {
-          onSuccess: (response) => {
-            onSuccessMutateBooking(response);
-          },
-          onError: (error) => {
-            onErrorMutateBooking(error);
-          },
-        });
-      } else {
-        submitAddStudent.mutate(data, {
-          onSuccess: (response) => {
-            onSuccessMutateBooking(response);
-          },
-          onError: (error) => {
-            onErrorMutateBooking(error);
-          },
-        });
-      }
-    } else {
-      dispatchStateForm({
-        type: "change-error",
-        value: errors,
-      });
-    }
-  };
 
   const handleSubmitDelete = (e) => {
     e.preventDefault();
@@ -206,7 +156,7 @@ export default function Booking() {
     bookingsRefetch();
     setOpenDel(false);
     setOpenModalCreate(false);
-    toast.warning(response.data.message, {
+    toast.success(response.data.message, {
       position: "top-center",
       autoClose: 1000,
       theme: "colored",
@@ -365,15 +315,6 @@ export default function Booking() {
     return <></>;
   }
 
-  const onChangeInput = (e) => {
-    dispatchStateForm({
-      type: "change-field",
-      name: e.target.name,
-      value: e.target.value,
-      isEnableValidate: true,
-    });
-  };
-
   //----
   return (
     <Page title="Booking">
@@ -476,12 +417,14 @@ export default function Booking() {
         <CreateBooking
           open={openModalCreate}
           onClose={() => setOpenModalCreate(false)}
+          id={id}
           state={stateModalCreate}
-          stateForm={stateForm}
-          onChange={onChangeInput}
-          mutateCreate={submitAddStudent}
-          mutateUpdate={submitUpdateStudent}
-          onSubmit={handleSubmitCreate}
+          callbackSuccess={(response) => {
+            onSuccessMutateBooking(response);
+          }}
+          callbackError={(error) => {
+            onErrorMutateBooking(error);
+          }}
         />
         <div>
           <Modal
