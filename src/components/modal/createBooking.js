@@ -4,7 +4,7 @@ import { LoadingButton } from "@mui/lab";
 import PropTypes from "prop-types";
 import { useQuery, useMutation } from "react-query";
 import axios from "axios";
-import { differenceInMinutes, format } from "date-fns";
+import { differenceInMinutes, format, parse } from "date-fns";
 
 import InputBasic from "../input/inputBasic";
 import SelectBasic from "../input/selectBasic";
@@ -83,6 +83,7 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
       callbackError(error);
     },
   };
+
   const handleSubmitCreate = () => {
     const errors = validateBookingForm(stateForm.values);
     const hasError = Object.values(errors).some((value) => Boolean(value));
@@ -97,7 +98,7 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
         jam_booking: format(stateForm.values.jam_booking, "HH:mm"),
         jenis_kelas: stateForm.values.jenis_kelas,
         durasi: stateForm.values.durasi,
-        status: "pending",
+        status: state === "create" ? "pending" : stateForm.values.status,
       };
 
       if (state === "update") {
@@ -122,8 +123,62 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
     });
   };
 
+  const { refetch: bookingRefetch } = useQuery(
+    [queryKey.bookings, "DETAIL"],
+    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/booking/${id}`).then((res) => res.data),
+    {
+      enabled: Boolean(id),
+      onSuccess: (res) => {
+        const modelData = {
+          roomId: {
+            value: res.roomId,
+            label: res.room.nama_ruang,
+          },
+          teacherId: {
+            value: res.teacherId,
+            label: res.teacher.nama_pengajar,
+          },
+          user_group: res.user_group.map((student) => ({ value: student.id, label: student.nama_murid })),
+          instrumentId: {
+            value: res.instrumentId,
+            label: res.instrument.nama_instrument,
+          },
+          tgl_kelas: parse(res.tgl_kelas, "yyyy-MM-dd", new Date()),
+          cabang: res.cabang,
+          jam_booking: parse(res.jam_booking, "HH:mm:ss", new Date()),
+          jam_selesai_booking: parse(res.selesai, "HH:mm:ss", new Date()),
+          jenis_kelas: res.jenis_kelas,
+          durasi: Number(res.durasi),
+          status: res.status,
+        };
+        const entries = Object.entries(modelData);
+        if (entries) {
+          entries.forEach((booking) => {
+            dispatchStateForm({
+              type: "change-field",
+              name: booking[0],
+              value: booking[1],
+              isEnableValidate: true,
+            });
+          });
+        }
+      },
+    }
+  );
+
+  useEffect(() => {
+    if (id) {
+      bookingRefetch();
+    }
+  }, [id, bookingRefetch]);
+
   return (
-    <Modal open={open} onClose={onClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
+    <Modal
+      open={open}
+      onClose={onClose}
+      aria-labelledby="modal-create-booking"
+      aria-describedby="modal-for-create-booking"
+    >
       <Box sx={{ ...modalStyle, maxWidth: 800 }}>
         <Box marginBottom={2}>
           <Typography id="modal-modal-title" variant="h6" component="h2">

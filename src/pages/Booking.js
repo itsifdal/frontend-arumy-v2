@@ -56,7 +56,7 @@ const style = {
 
 // ----------------------------------------------------------------------
 export default function Booking() {
-  const [id, setBookingId] = useState("");
+  const [id, setBookingId] = useState();
 
   const [roomId, setRoomId] = useState("");
 
@@ -243,7 +243,15 @@ export default function Booking() {
     });
   };
 
-  const MoveToAddBookingPage = () => {
+  const handleOpenModalCreate = (e) => {
+    e.preventDefault();
+    const type = e.target.getAttribute("data-type");
+    if (type === "update") {
+      setBookingId(e.target.getAttribute("data-id"));
+      setStateModalCreate("update");
+    } else {
+      setStateModalCreate("create");
+    }
     setOpenModalCreate(true);
   };
 
@@ -277,7 +285,9 @@ export default function Booking() {
             size="small"
             sx={{ margin: 1 }}
             startIcon={<Iconify icon="eva:pencil-fill" />}
-            onClick={() => setStateModalCreate("update")}
+            data-type="update"
+            data-id={book.id}
+            onClick={handleOpenModalCreate}
           >
             Update
           </Button>
@@ -322,7 +332,7 @@ export default function Booking() {
         title="Bookings"
         rightContent={
           user && isUserAdmin ? (
-            <Button variant="outlined" startIcon={<Iconify icon="eva:plus-fill" />} onClick={MoveToAddBookingPage}>
+            <Button variant="outlined" startIcon={<Iconify icon="eva:plus-fill" />} onClick={handleOpenModalCreate}>
               Add New Booking
             </Button>
           ) : null
@@ -417,7 +427,7 @@ export default function Booking() {
         <CreateBooking
           open={openModalCreate}
           onClose={() => setOpenModalCreate(false)}
-          id={id}
+          id={Number(id)}
           state={stateModalCreate}
           callbackSuccess={(response) => {
             onSuccessMutateBooking(response);

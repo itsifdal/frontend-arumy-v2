@@ -4,4 +4,5 @@ export const queryKey = {
   rooms: "ROOMS",
   instruments: "INSTRUMENTS",
   dashboard: "DASHBOARDS",
+  bookings: "BOOKINGS",
 };

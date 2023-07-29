@@ -10,6 +10,7 @@ export const initialBookingFormState = {
     jam_selesai_booking: "",
     jenis_kelas: "privat",
     durasi: "",
+    status: "",
   },
   errors: {
     roomId: "",
@@ -22,6 +23,7 @@ export const initialBookingFormState = {
     jam_selesai_booking: "",
     jenis_kelas: "",
     durasi: "",
+    status: "",
   },
 };
 
