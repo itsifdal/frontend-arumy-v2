@@ -152,16 +152,14 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
           status: res.status,
         };
         const entries = Object.entries(modelData);
-        if (entries) {
-          entries.forEach((booking) => {
-            dispatchStateForm({
-              type: "change-field",
-              name: booking[0],
-              value: booking[1],
-              isEnableValidate: true,
-            });
+        entries.forEach((booking) => {
+          dispatchStateForm({
+            type: "change-field",
+            name: booking[0],
+            value: booking[1],
+            isEnableValidate: true,
           });
-        }
+        });
       },
     }
   );
