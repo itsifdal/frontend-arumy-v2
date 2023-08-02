@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useQuery, useMutation } from "react-query";
-import { format, parse } from "date-fns";
+import { format, parse, addMinutes } from "date-fns";
 // Date Picker
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -19,7 +19,7 @@ import "react-toastify/dist/ReactToastify.css";
 // material
 import {
   Chip,
-  Badge,
+  Tooltip,
   Button,
   Container,
   Typography,
@@ -31,6 +31,7 @@ import {
   Stack,
   Grid,
 } from "@mui/material";
+import { InfoRounded } from "@mui/icons-material";
 
 // components
 import Page from "../components/Page";
@@ -136,7 +137,7 @@ export default function Booking() {
     );
   };
 
-  function onSuccessMutateBooking(response) {
+  const onSuccessMutateBooking = (response) => {
     bookingsRefetch();
     setOpenDel(false);
     setOpenModalCreate(false);
@@ -145,9 +146,9 @@ export default function Booking() {
       autoClose: 1000,
       theme: "colored",
     });
-  }
+  };
 
-  function onErrorMutateBooking(error) {
+  const onErrorMutateBooking = (error) => {
     if (error.response) {
       toast.error(error.response, {
         position: "top-center",
@@ -155,7 +156,7 @@ export default function Booking() {
         theme: "colored",
       });
     }
-  }
+  };
   // END
 
   // UPDATE DATA SCHEDULE OLEH ADMIN
@@ -220,7 +221,7 @@ export default function Booking() {
   const tableHeader = ["TGL KELAS", "JAM BOOKING", "RUANG KELAS", "MURID", "PENGAJAR", "STATUS"];
   if (isUserAdmin || isUserGuru) tableHeader.push(" ");
 
-  function generateStatus(status) {
+  const generateStatus = (status) => {
     if (status === "pending") {
       return <Chip label={status} color="warning" />;
     }
@@ -234,9 +235,9 @@ export default function Booking() {
       return <Chip label={status} color="success" />;
     }
     return <></>;
-  }
+  };
 
-  function generateButtonAction(book) {
+  const generateButtonAction = (book) => {
     if (isUserAdmin) {
       return (
         <Stack direction={"row"} spacing={1}>
@@ -273,7 +274,34 @@ export default function Booking() {
       );
     }
     return <></>;
-  }
+  };
+
+  const hourModel = ({ timeStart, timeEnd, duration }) => {
+    const formatTimeStart = format(parse(timeStart, "HH:mm:ss", new Date()), "HH:mm");
+    const formatTimeEnd = timeEnd
+      ? format(parse(timeEnd, "HH:mm:ss", new Date()), "HH:mm")
+      : format(addMinutes(parse(timeStart, "HH:mm:ss", new Date()), duration), "HH:mm");
+    return `${formatTimeStart}-${formatTimeEnd}`;
+  };
+
+  const studentModel = ({ students }) => {
+    if (students) {
+      const arrayStudents = JSON.parse(students);
+      return (
+        <Stack direction={"row"}>
+          <Typography noWrap maxWidth={"200px"} fontSize={"0.875rem"}>
+            {arrayStudents.map((student) => student.nama_murid).join(", ")}
+          </Typography>
+          {arrayStudents.length > 1 && (
+            <Tooltip title={arrayStudents.map((student) => student.nama_murid).join(", ")} placement="bottom">
+              <InfoRounded fontSize="small" />
+            </Tooltip>
+          )}
+        </Stack>
+      );
+    }
+    return "";
+  };
 
   //----
   return (
@@ -351,16 +379,12 @@ export default function Booking() {
             <BasicTable
               header={tableHeader}
               body={bookings.data.map((booking) => [
-                booking.room.nama_ruang,
-                booking.jenis_kelas === "group" ? (
-                  <Badge badgeContent={booking.jenis_kelas} color="success" />
-                ) : (
-                  <Badge badgeContent={booking.jenis_kelas} color="primary" />
-                ),
-                booking.durasi,
-                generateStatus(booking.status),
                 format(parse(booking.tgl_kelas, "yyyy-MM-dd", new Date()), "dd-MM-yyyy"),
-                booking.jam_booking,
+                hourModel({ timeStart: booking.jam_booking, timeEnd: booking.selesai, duration: booking.durasi }),
+                booking.room.nama_ruang,
+                studentModel({ students: booking.user_group }),
+                booking.teacher.nama_pengajar,
+                generateStatus(booking.status),
                 { ...((isUserAdmin || isUserGuru) && generateButtonAction(booking)) },
               ])}
             />
