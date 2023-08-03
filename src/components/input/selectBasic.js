@@ -3,16 +3,16 @@ import { styled } from "@mui/material/styles";
 
 import { FormControl, InputLabel, TextField, MenuItem } from "@mui/material";
 
-const CustomTextField = styled(TextField)({
+const CustomTextField = styled(TextField)((props) => ({
   ".MuiSelect-select": {
-    padding: "15px",
+    padding: props.size === "small" ? "7px" : "15px",
     fontSize: "14px",
   },
   ".MuiInputBase-root": { borderRadius: "15px" },
   ".MuiOutlinedInput-notchedOutline": {
     borderColor: "rgba(115, 125, 170, 0.70)",
   },
-});
+}));
 
 const CustomSelect = React.forwardRef((prop, ref) => {
   const { id, label, required, options, errorMessage, ...otherProp } = prop;

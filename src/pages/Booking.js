@@ -43,6 +43,10 @@ import CreateBooking from "../components/modal/createBooking";
 import { cleanQuery } from "../utils/cleanQuery";
 import { urlSearchParamsToQuery } from "../utils/urlSearchParamsToQuery";
 import { queryToString } from "../utils/queryToString";
+import SelectBasic from "../components/input/selectBasic";
+import AutoCompleteInputBasic from "../components/input/autoCompleteInputBasic";
+import { bookingStatus } from "../constants/bookingStatus";
+import { queryKey } from "../constants/queryKey";
 
 // Style box
 const style = {
@@ -66,8 +70,15 @@ export default function Booking() {
   const [tm_end, setTmEnd] = useState(null);
   const [openModalCreate, setOpenModalCreate] = useState(false);
   const [stateModalCreate, setStateModalCreate] = useState("create");
+  const [filters, setFilters] = useState({
+    status: "",
+    roomId: "",
+    date: "",
+    studentId: "",
+    teacherId: "",
+  });
 
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const queryParam = urlSearchParamsToQuery(searchParams);
 
   // localStorage
@@ -81,7 +92,6 @@ export default function Booking() {
 
   // range dates
   const [rangeAwal, setRangeAwal] = useState("");
-  const [rangeAkhir, setRangeAkhir] = useState("");
 
   const tmstr = tm_start;
   const tmend = tm_end;
@@ -90,12 +100,30 @@ export default function Booking() {
   const [openUpdTime, setOpenUpdTime] = useState(false);
   const [openUpdStatus, setOpenUpdStatus] = useState(false);
 
+  const [openRoom, setOpenRoom] = useState(false);
+  const { data: rooms = [], isLoading: isLoadingRooms } = useQuery(
+    [queryKey.rooms],
+    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/room`).then((res) => res.data),
+    {
+      select: (roomList) => roomList.map((room) => ({ value: room.id, label: room.nama_ruang })),
+      enabled: openRoom,
+    }
+  );
+
   const handleChangeStatus = (e) => {
     setStatusKelas(e.target.value);
   };
 
+  const handleChangeFilter = (e) => {
+    const values = e.target.value;
+    setFilters((prevState) => ({
+      ...prevState,
+      [e.target.name]: typeof values === "object" ? values.value : values,
+    }));
+  };
+
   const SubmitFilter = () => {
-    console.log("filter");
+    setSearchParams(filters);
   };
 
   // GET DATA BOOKING ALL
@@ -273,7 +301,7 @@ export default function Booking() {
         </Button>
       );
     }
-    return <></>;
+    return false;
   };
 
   const hourModel = ({ timeStart, timeEnd, duration }) => {
@@ -300,7 +328,7 @@ export default function Booking() {
         </Stack>
       );
     }
-    return "";
+    return <></>;
   };
 
   //----
@@ -330,13 +358,24 @@ export default function Booking() {
           <Stack width={"100%"} direction={"row"} spacing={2}>
             <Grid container spacing={1} flexGrow={1}>
               <Grid item xs={4}>
-                <TextField select size="small" value={statusKelas} onChange={handleChangeStatus} fullWidth>
-                  <MenuItem selected value={"all"}>
-                    Semua Status
-                  </MenuItem>
-                  <MenuItem value={"pending"}>Pending</MenuItem>
-                  <MenuItem value={"confirmed"}>Confirmed</MenuItem>
-                </TextField>
+                <AutoCompleteInputBasic
+                  label="Rooms"
+                  name="roomId"
+                  size="small"
+                  value={queryParam.roomId}
+                  onChange={(e) => {
+                    handleChangeFilter(e);
+                  }}
+                  options={rooms}
+                  loading={isLoadingRooms}
+                  open={openRoom}
+                  onOpen={() => {
+                    setOpenRoom(true);
+                  }}
+                  onClose={() => {
+                    setOpenRoom(false);
+                  }}
+                />
               </Grid>
               <Grid item xs={4}>
                 <TextField
@@ -350,14 +389,18 @@ export default function Booking() {
                 />
               </Grid>
               <Grid item xs={4}>
-                <TextField
-                  type="date"
-                  size="small"
-                  value={rangeAkhir}
-                  onChange={(e) => {
-                    setRangeAkhir(e.target.value);
-                  }}
+                <SelectBasic
                   fullWidth
+                  id="status"
+                  name="status"
+                  onChange={(e) => {
+                    handleChangeFilter(e);
+                  }}
+                  defaultValue={queryParam.status}
+                  select
+                  label="Class Status"
+                  options={bookingStatus}
+                  size="small"
                 />
               </Grid>
             </Grid>

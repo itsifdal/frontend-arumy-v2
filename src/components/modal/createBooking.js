@@ -54,7 +54,7 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
     [queryKey.rooms],
     () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/room`).then((res) => res.data),
     {
-      select: (teachers) => teachers.map((teacher) => ({ value: teacher.id, label: teacher.nama_ruang })),
+      select: (roomList) => roomList.map((room) => ({ value: room.id, label: room.nama_ruang })),
       enabled: openRoom,
     }
   );
