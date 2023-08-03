@@ -43,10 +43,10 @@ import CreateBooking from "../components/modal/createBooking";
 import { cleanQuery } from "../utils/cleanQuery";
 import { urlSearchParamsToQuery } from "../utils/urlSearchParamsToQuery";
 import { queryToString } from "../utils/queryToString";
-import SelectBasic from "../components/input/selectBasic";
 import AutoCompleteInputBasic from "../components/input/autoCompleteInputBasic";
 import { bookingStatus } from "../constants/bookingStatus";
 import { queryKey } from "../constants/queryKey";
+import NativeSelectBasic from "../components/input/nativeSelectBasic";
 
 // Style box
 const style = {
@@ -389,18 +389,15 @@ export default function Booking() {
                 />
               </Grid>
               <Grid item xs={4}>
-                <SelectBasic
-                  fullWidth
+                <NativeSelectBasic
                   id="status"
                   name="status"
+                  label="Class Status"
+                  defaultValue={queryParam.status}
                   onChange={(e) => {
                     handleChangeFilter(e);
                   }}
-                  defaultValue={queryParam.status}
-                  select
-                  label="Class Status"
                   options={bookingStatus}
-                  size="small"
                 />
               </Grid>
             </Grid>
