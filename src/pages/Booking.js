@@ -43,10 +43,10 @@ import CreateBooking from "../components/modal/createBooking";
 import { cleanQuery } from "../utils/cleanQuery";
 import { urlSearchParamsToQuery } from "../utils/urlSearchParamsToQuery";
 import { queryToString } from "../utils/queryToString";
-import AutoCompleteInputBasic from "../components/input/autoCompleteInputBasic";
 import { bookingStatus } from "../constants/bookingStatus";
 import { queryKey } from "../constants/queryKey";
 import NativeSelectBasic from "../components/input/nativeSelectBasic";
+import AutoCompleteBasic from "../components/input/autoCompleteBasic";
 
 // Style box
 const style = {
@@ -115,7 +115,7 @@ export default function Booking() {
   };
 
   const handleChangeFilter = (e) => {
-    const values = e.target.value;
+    const values = e.target?.value ?? "";
     setFilters((prevState) => ({
       ...prevState,
       [e.target.name]: typeof values === "object" ? values.value : values,
@@ -358,16 +358,9 @@ export default function Booking() {
           <Stack width={"100%"} direction={"row"} spacing={2}>
             <Grid container spacing={1} flexGrow={1}>
               <Grid item xs={4}>
-                <AutoCompleteInputBasic
-                  label="Rooms"
+                <AutoCompleteBasic
+                  label="Ruang Kelas"
                   name="roomId"
-                  size="small"
-                  value={queryParam.roomId}
-                  onChange={(e) => {
-                    handleChangeFilter(e);
-                  }}
-                  options={rooms}
-                  loading={isLoadingRooms}
                   open={openRoom}
                   onOpen={() => {
                     setOpenRoom(true);
@@ -375,6 +368,11 @@ export default function Booking() {
                   onClose={() => {
                     setOpenRoom(false);
                   }}
+                  onChange={(_, newValue) => {
+                    handleChangeFilter({ target: { name: "roomId", value: newValue } });
+                  }}
+                  options={rooms}
+                  loading={isLoadingRooms}
                 />
               </Grid>
               <Grid item xs={4}>

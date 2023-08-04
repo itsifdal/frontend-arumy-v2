@@ -9,12 +9,12 @@ import { differenceInMinutes, format, parse } from "date-fns";
 import InputBasic from "../input/inputBasic";
 import SelectBasic from "../input/selectBasic";
 import DateInputBasic from "../input/dateInputBasic";
-import AutoCompleteInputBasic from "../input/autoCompleteInputBasic";
 import { modalStyle } from "../../constants/modalStyle";
 import { classType } from "../../constants/classType";
 import { branch } from "../../constants/branch";
 import { queryKey } from "../../constants/queryKey";
 import TimeInputBasic from "../input/timeInputBasic";
+import AutoCompleteBasic from "../input/autoCompleteBasic";
 
 import { bookingFormReducer, initialBookingFormState, validateBookingForm } from "../../utils/reducer/bookingReducer";
 
@@ -131,17 +131,17 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
       onSuccess: (res) => {
         const modelData = {
           roomId: {
-            value: res.roomId,
-            label: res.room.nama_ruang,
+            value: res.roomId ?? "",
+            label: res.room.nama_ruang ?? "",
           },
           teacherId: {
-            value: res.teacherId,
-            label: res.teacher.nama_pengajar,
+            value: res.teacherId ?? "",
+            label: res.teacher.nama_pengajar ?? "",
           },
-          user_group: res.user_group.map((student) => ({ value: student.id, label: student.nama_murid })),
+          user_group: res.user_group?.map((student) => ({ value: student.id, label: student.nama_murid })),
           instrumentId: {
-            value: res.instrumentId,
-            label: res.instrument.nama_instrument,
+            value: res.instrumentId ?? "",
+            label: res.instrument.nama_instrument ?? "",
           },
           tgl_kelas: parse(res.tgl_kelas, "yyyy-MM-dd", new Date()),
           cabang: res.cabang,
@@ -214,7 +214,7 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
             />
           </Grid>
           <Grid item xs={6} paddingBottom={2}>
-            <AutoCompleteInputBasic
+            <AutoCompleteBasic
               multiple
               required
               label="Student Name"
@@ -223,9 +223,6 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
               value={stateForm.values.user_group}
               error={Boolean(stateForm.errors.user_group)}
               errorMessage={stateForm.errors.user_group}
-              onChange={(e, value) => {
-                onChange(e, value);
-              }}
               options={students}
               loading={isLoadingStudents}
               open={openStudent}
@@ -234,6 +231,9 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
               }}
               onClose={() => {
                 setOpenStudent(false);
+              }}
+              onChange={(_, newValue) => {
+                onChange({ target: { name: "user_group", value: newValue } });
               }}
             />
           </Grid>
@@ -255,16 +255,13 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
             />
           </Grid>
           <Grid item xs={6} paddingBottom={2}>
-            <AutoCompleteInputBasic
+            <AutoCompleteBasic
               required
               label="Teacher Name"
               name="teacherId"
               value={stateForm.values.teacherId}
               error={Boolean(stateForm.errors.teacherId)}
               errorMessage={stateForm.errors.teacherId}
-              onChange={(e, value) => {
-                onChange(e, value);
-              }}
               options={teachers}
               loading={isLoadingTeachers}
               open={openTeacher}
@@ -274,19 +271,19 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
               onClose={() => {
                 setOpenTeacher(false);
               }}
+              onChange={(_, newValue) => {
+                onChange({ target: { name: "teacherId", value: newValue } });
+              }}
             />
           </Grid>
           <Grid item xs={6} paddingBottom={2}>
-            <AutoCompleteInputBasic
+            <AutoCompleteBasic
               required
               label="Rooms"
               name="roomId"
               value={stateForm.values.roomId}
               error={Boolean(stateForm.errors.roomId)}
               errorMessage={stateForm.errors.roomId}
-              onChange={(e, value) => {
-                onChange(e, value);
-              }}
               options={rooms}
               loading={isLoadingRooms}
               open={openRoom}
@@ -295,6 +292,9 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
               }}
               onClose={() => {
                 setOpenRoom(false);
+              }}
+              onChange={(_, newValue) => {
+                onChange({ target: { name: "roomId", value: newValue } });
               }}
             />
           </Grid>
@@ -324,16 +324,13 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
             />
           </Grid>
           <Grid item xs={6} paddingBottom={2}>
-            <AutoCompleteInputBasic
+            <AutoCompleteBasic
               required
               label="Instrument"
               name="instrumentId"
               value={stateForm.values.instrumentId}
               error={Boolean(stateForm.errors.instrumentId)}
               errorMessage={stateForm.errors.instrumentId}
-              onChange={(e, value) => {
-                onChange(e, value);
-              }}
               options={instruments}
               loading={isLoadingInstruments}
               open={openInstrument}
@@ -342,6 +339,9 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
               }}
               onClose={() => {
                 setOpenInstrument(false);
+              }}
+              onChange={(_, newValue) => {
+                onChange({ target: { name: "instrumentId", value: newValue } });
               }}
             />
           </Grid>
