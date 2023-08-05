@@ -15,6 +15,7 @@ import UpdateBooking from "./pages/UpdateBooking";
 import UpdatePost from "./pages/UpdatePost";
 import Booking from "./pages/Booking";
 import UpdateBookingPage from "./pages/UpdateBookingPage";
+import Students from "./pages/Students";
 
 import Rooms from "./pages/Rooms";
 import User from "./pages/User";
@@ -22,6 +23,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/Page404";
 import DashboardApp from "./pages/DashboardApp";
+import Teachers from "./pages/Teachers";
 
 // ----------------------------------------------------------------------
 
@@ -46,6 +48,8 @@ export default function Router() {
         { path: "updateBookingPage/:id", element: <UpdateBookingPage /> },
         { path: "post", element: <Post /> },
         { path: "rooms", element: <Rooms /> },
+        { path: "students", element: <Students /> },
+        { path: "teachers", element: <Teachers /> },
         { path: "addpost", element: <AddPost /> },
         { path: "updatepost/:slug", element: <UpdatePost /> },
         { path: "postdetail/:slug", element: <PostDetail /> },

@@ -1,15 +1,16 @@
 import React, { useState } from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
-// routes
-import Router from './routes';
 // theme
-import ThemeProvider from './theme';
+import { ThemeProvider, StyledEngineProvider, createTheme } from "@mui/material/styles";
+import CssBaseline from "@mui/material/CssBaseline";
+// routes
+import Router from "./routes";
 // components
-import ScrollToTop from './components/ScrollToTop';
-import { BaseOptionChartStyle } from './components/chart/BaseOptionChart';
+import ScrollToTop from "./components/ScrollToTop";
 
 // ----------------------------------------------------------------------
+const theme = createTheme();
 
 export default function App() {
   const [queryClient] = useState(
@@ -25,11 +26,13 @@ export default function App() {
   );
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <ScrollToTop />
-        <BaseOptionChartStyle />
-        <Router />
-      </ThemeProvider>
+      <StyledEngineProvider injectFirst>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <ScrollToTop />
+          <Router />
+        </ThemeProvider>
+      </StyledEngineProvider>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );

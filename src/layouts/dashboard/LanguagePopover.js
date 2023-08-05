@@ -1,27 +1,27 @@
-import { useRef, useState } from 'react';
+import { useRef, useState } from "react";
 // material
-import { alpha } from '@mui/material/styles';
-import { Box, MenuItem, Stack, IconButton } from '@mui/material';
+import { alpha } from "@mui/material/styles";
+import { Box, MenuItem, Stack, IconButton } from "@mui/material";
 // components
-import MenuPopover from '../../components/MenuPopover';
+import MenuPopover from "../../components/MenuPopover";
 
 // ----------------------------------------------------------------------
 
 const LANGS = [
   {
-    value: 'en',
-    label: 'English',
-    icon: '/static/icons/ic_flag_en.svg',
+    value: "en",
+    label: "English",
+    icon: "/static/icons/ic_flag_en.svg",
   },
   {
-    value: 'de',
-    label: 'German',
-    icon: '/static/icons/ic_flag_de.svg',
+    value: "de",
+    label: "German",
+    icon: "/static/icons/ic_flag_de.svg",
   },
   {
-    value: 'fr',
-    label: 'French',
-    icon: '/static/icons/ic_flag_fr.svg',
+    value: "fr",
+    label: "French",
+    icon: "/static/icons/ic_flag_fr.svg",
   },
 ];
 
@@ -64,7 +64,7 @@ export default function LanguagePopover() {
           mt: 1.5,
           ml: 0.75,
           width: 180,
-          '& .MuiMenuItem-root': { px: 1, typography: 'body2', borderRadius: 0.75 },
+          "& .MuiMenuItem-root": { px: 1, typography: "body2", borderRadius: 0.75 },
         }}
       >
         <Stack spacing={0.75}>

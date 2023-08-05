@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 // import { Link as RouterLink } from 'react-router-dom';
-import React, { useState, useReducer } from "react";
+import React, { useState, useReducer, useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import { useQuery, useMutation } from "react-query";
 import axios from "axios";
@@ -8,11 +8,11 @@ import axios from "axios";
 import "react-toastify/dist/ReactToastify.css";
 
 // material
-import { Stack, Button, Container, Typography, Modal, FormControl, Box } from "@mui/material";
+import { Stack, Button, Container, Typography, Modal, FormControl, Box, Grid } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 
 // components
-import { roomFormReducer, initialRoomFormState, validateRoomForm } from "../utils/reducer/roomReducer";
+import { teacherFormReducer, initialTeacherFormState, validateTeacherForm } from "../utils/reducer/teacherReducer";
 import Page from "../components/Page";
 import Scrollbar from "../components/Scrollbar";
 import Iconify from "../components/Iconify";
@@ -22,25 +22,56 @@ import InputBasic from "../components/input/inputBasic";
 import { modalStyle } from "../constants/modalStyle";
 
 // ----------------------------------------------------------------------
-export default function Room() {
+export default function Teachers() {
   const [id, setId] = useState("");
-  const [nama_ruang, setRoomName] = useState("");
+  const [teacherName, setTeacherName] = useState("");
   const [stateModal, setStateModal] = useState("create");
 
   const [open, setOpen] = useState(false);
   const [openDel, setOpenDel] = useState(false);
 
-  const [stateForm, dispatchStateForm] = useReducer(roomFormReducer, initialRoomFormState);
+  const [stateForm, dispatchStateForm] = useReducer(teacherFormReducer, initialTeacherFormState);
+
   // query
   const {
-    data: rooms,
-    refetch: roomsRefetch,
-    isLoading: isLoadingRooms,
-  } = useQuery(["ROOMS"], () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/room`).then((res) => res.data));
+    data: teachers,
+    refetch: teachersRefetch,
+    isLoading: isLoadingTeachers,
+  } = useQuery(["TEACHERS"], () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/teacher`).then((res) => res.data));
 
-  const submitAddRoom = useMutation((data) => axios.post(`${process.env.REACT_APP_BASE_URL}/api/room`, data));
-  const submitUpdateRoom = useMutation((data) => axios.put(`${process.env.REACT_APP_BASE_URL}/api/room/${id}`, data));
-  const submitDeleteRoom = useMutation(() => axios.delete(`${process.env.REACT_APP_BASE_URL}/api/room/${id}`));
+  const { refetch: teacherRefetch } = useQuery(
+    ["TEACHERS", "DETAIL"],
+    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/teacher/${id}`).then((res) => res.data),
+    {
+      enabled: Boolean(id),
+      onSuccess: (res) => {
+        if (res.data) {
+          const entries = Object.entries(res.data);
+          console.log("entries ", entries);
+          entries.forEach((student) => {
+            dispatchStateForm({
+              type: "change-field",
+              name: student[0],
+              value: student[1],
+              isEnableValidate: true,
+            });
+          });
+        }
+      },
+    }
+  );
+
+  useEffect(() => {
+    if (id) {
+      teacherRefetch();
+    }
+  }, [id, teacherRefetch]);
+
+  const submitAddTeacher = useMutation((data) => axios.post(`${process.env.REACT_APP_BASE_URL}/api/teacher`, data));
+  const submitUpdateTeacher = useMutation((data) =>
+    axios.put(`${process.env.REACT_APP_BASE_URL}/api/teacher/${id}`, data)
+  );
+  const submitDeleteTeacher = useMutation(() => axios.delete(`${process.env.REACT_APP_BASE_URL}/api/teacher/${id}`));
 
   //----
   const handleOpenModalCreate = () => setOpen(true);
@@ -54,25 +85,25 @@ export default function Room() {
 
   const handleSubmitCreate = (e) => {
     e.preventDefault();
-    const errors = validateRoomForm(stateForm.values);
+    const errors = validateTeacherForm(stateForm.values);
     const hasError = Object.values(errors).some((value) => Boolean(value));
     if (!hasError) {
       if (stateModal === "update") {
-        submitUpdateRoom.mutate(stateForm.values, {
+        submitUpdateTeacher.mutate(stateForm.values, {
           onSuccess: (response) => {
-            onSuccessMutateRoom(response);
+            onSuccessMutateTeacher(response);
           },
           onError: (error) => {
-            onErrorMutateRoom(error);
+            onErrorMutateTeacher(error);
           },
         });
       } else {
-        submitAddRoom.mutate(stateForm.values, {
+        submitAddTeacher.mutate(stateForm.values, {
           onSuccess: (response) => {
-            onSuccessMutateRoom(response);
+            onSuccessMutateTeacher(response);
           },
           onError: (error) => {
-            onErrorMutateRoom(error);
+            onErrorMutateTeacher(error);
           },
         });
       }
@@ -86,43 +117,33 @@ export default function Room() {
 
   const handleOpenModalUpdate = (e) => {
     setId(e.target.getAttribute("data-id"));
-    dispatchStateForm({
-      type: "change-field",
-      name: "lokasi_cabang",
-      value: e.target.getAttribute("data-lokasi_cabang"),
-    });
-    dispatchStateForm({
-      type: "change-field",
-      name: "nama_ruang",
-      value: e.target.getAttribute("data-nama_ruang"),
-    });
     setStateModal("update");
     setOpen(true);
   };
 
   const handleOpenModalDelete = (e) => {
     setId(e.target.getAttribute("data-id"));
-    setRoomName(e.target.getAttribute("data-nama_ruang"));
+    setTeacherName(e.target.getAttribute("data-label"));
     setOpenDel(true);
   };
   const handleCloseModalDelete = () => setOpenDel(false);
   const handleSubmitDelete = (e) => {
     e.preventDefault();
-    submitDeleteRoom.mutate(
+    submitDeleteTeacher.mutate(
       {},
       {
         onSuccess: (response) => {
-          onSuccessMutateRoom(response);
+          onSuccessMutateTeacher(response);
         },
         onError: (error) => {
-          onErrorMutateRoom(error);
+          onErrorMutateTeacher(error);
         },
       }
     );
   };
 
-  function onSuccessMutateRoom(response) {
-    roomsRefetch();
+  function onSuccessMutateTeacher(response) {
+    teachersRefetch();
     setOpen(false);
     setOpenDel(false);
     toast.success(response.data.message, {
@@ -135,7 +156,7 @@ export default function Room() {
     });
   }
 
-  function onErrorMutateRoom(error) {
+  function onErrorMutateTeacher(error) {
     if (error.response) {
       toast.error(error.response, {
         position: "top-center",
@@ -155,33 +176,30 @@ export default function Room() {
   }
 
   return (
-    <Page title="Room">
+    <Page title="Teachers">
       <PageHeader
-        title="Rooms"
+        title="Teachers"
         rightContent={
           <Button variant="outlined" startIcon={<Iconify icon="eva:plus-fill" />} onClick={handleOpenModalCreate}>
-            Add new Room
+            Add new Teacher
           </Button>
         }
       />
-      <Container maxWidth="xl" sx={{ paddingTop: 4 }}>
+      <Container maxWidth="xl" sx={{ paddingTop: 4, background: "white" }}>
         <ToastContainer pauseOnFocusLoss={false} />
-        {!isLoadingRooms ? (
+        {!isLoadingTeachers ? (
           <Scrollbar>
             <BasicTable
-              header={["ROOM NAME", "DESCRIPTION", " "]}
-              body={rooms.map((room) => [
-                room.nama_ruang,
-                room.lokasi_cabang,
-                <Stack key={room.id} direction="row" spacing={2}>
+              header={["TEACHER NAME", "TELEPON", " "]}
+              body={teachers.map((teacher) => [
+                teacher.nama_pengajar,
+                teacher.telepon,
+                <Stack key={teacher.id} direction="row" spacing={2}>
                   <Button
                     variant="contained"
                     color="success"
                     size="small"
-                    startIcon={<Iconify icon="mdi:pencil" />}
-                    data-id={room.id}
-                    data-lokasi_cabang={room.lokasi_cabang}
-                    data-nama_ruang={room.nama_ruang}
+                    data-id={teacher.id}
                     onClick={handleOpenModalUpdate}
                   >
                     Update
@@ -190,9 +208,8 @@ export default function Room() {
                     variant="contained"
                     color="error"
                     size="small"
-                    startIcon={<Iconify icon="eva:trash-fill" />}
-                    data-nama_ruang={room.nama_ruang}
-                    data-id={room.id}
+                    data-label={teacher.nama_pengajar}
+                    data-id={teacher.id}
                     onClick={handleOpenModalDelete}
                   >
                     Delete
@@ -209,40 +226,42 @@ export default function Room() {
           aria-labelledby="modal-modal-title"
           aria-describedby="modal-modal-description"
         >
-          <Box sx={{ ...modalStyle, maxWidth: 400 }}>
+          <Box sx={{ ...modalStyle, maxWidth: 800 }}>
             <Box marginBottom={2}>
               <Typography id="modal-modal-title" variant="h6" component="h2">
-                {stateModal === "update" ? "Update Room" : "Create Room"}
+                {stateModal === "update" ? "Update Teacher" : "Create Teacher"}
               </Typography>
             </Box>
-            <Box paddingBottom={2}>
-              <InputBasic
-                required
-                label="Nama Ruang"
-                name="nama_ruang"
-                value={stateForm.values.nama_ruang}
-                error={Boolean(stateForm.errors.nama_ruang)}
-                errorMessage={stateForm.errors.nama_ruang}
-                onChange={(e) => {
-                  onChangeInput(e);
-                }}
-              />
-            </Box>
-            <Box paddingBottom={2}>
-              <InputBasic
-                required
-                label="Lokasi Cabang"
-                name="lokasi_cabang"
-                value={stateForm.values.lokasi_cabang}
-                error={Boolean(stateForm.errors.lokasi_cabang)}
-                errorMessage={stateForm.errors.lokasi_cabang}
-                onChange={(e) => {
-                  onChangeInput(e);
-                }}
-              />
-            </Box>
+            <Grid container spacing={2}>
+              <Grid item xs={6} paddingBottom={2}>
+                <InputBasic
+                  required
+                  label="Nama Pengajar"
+                  name="nama_pengajar"
+                  value={stateForm.values.nama_pengajar}
+                  error={Boolean(stateForm.errors.nama_pengajar)}
+                  errorMessage={stateForm.errors.nama_pengajar}
+                  onChange={(e) => {
+                    onChangeInput(e);
+                  }}
+                />
+              </Grid>
+              <Grid item xs={6} paddingBottom={2}>
+                <InputBasic
+                  required
+                  label="Telepon"
+                  name="telepon"
+                  value={stateForm.values.telepon}
+                  error={Boolean(stateForm.errors.telepon)}
+                  errorMessage={stateForm.errors.telepon}
+                  onChange={(e) => {
+                    onChangeInput(e);
+                  }}
+                />
+              </Grid>
+            </Grid>
             <LoadingButton
-              loading={submitAddRoom.isLoading || submitUpdateRoom.isLoading}
+              loading={submitAddTeacher.isLoading || submitUpdateTeacher.isLoading}
               variant="contained"
               type="submit"
               fullWidth
@@ -261,11 +280,11 @@ export default function Room() {
         >
           <Box sx={{ ...modalStyle, maxWidth: 400 }}>
             <Typography id="modal-modal-title" variant="h6" component="h2" marginBottom={5}>
-              Delete {nama_ruang} ?
+              Delete {teacherName} ?
             </Typography>
             <FormControl fullWidth>
               <LoadingButton
-                loading={submitDeleteRoom.isLoading}
+                loading={submitDeleteTeacher.isLoading}
                 variant="contained"
                 type="submit"
                 onClick={handleSubmitDelete}

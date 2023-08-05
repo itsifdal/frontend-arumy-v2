@@ -1,46 +1,52 @@
 /* eslint-disable camelcase */
 // import { Link as RouterLink } from 'react-router-dom';
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-// Moment Libs
-import Moment from "moment";
+import { useSearchParams } from "react-router-dom";
+import { useQuery, useMutation } from "react-query";
+import { format, parse, addMinutes } from "date-fns";
 // Date Picker
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { TimePicker, DatePicker } from "@mui/x-date-pickers/";
+import { TimePicker } from "@mui/x-date-pickers/";
 // React Toasts
 import { ToastContainer, toast } from "react-toastify";
+import axios from "axios";
+import { LoadingButton } from "@mui/lab";
 
 // Toastify
 import "react-toastify/dist/ReactToastify.css";
 
 // material
 import {
-  Link,
-  Badge,
-  Card,
-  Table,
-  Stack,
+  Chip,
+  Tooltip,
   Button,
-  TableRow,
-  TableHead,
-  TableBody,
-  TableCell,
   Container,
   Typography,
-  TableContainer,
   Modal,
   FormControl,
   TextField,
   MenuItem,
   Box,
+  Stack,
+  Grid,
 } from "@mui/material";
+import { InfoRounded } from "@mui/icons-material";
 
 // components
-import axios from "axios";
 import Page from "../components/Page";
 import Scrollbar from "../components/Scrollbar";
 import Iconify from "../components/Iconify";
+import PageHeader from "../components/PageHeader";
+import BasicTable from "../components/BasicTable";
+import CreateBooking from "../components/modal/createBooking";
+import { cleanQuery } from "../utils/cleanQuery";
+import { urlSearchParamsToQuery } from "../utils/urlSearchParamsToQuery";
+import { queryToString } from "../utils/queryToString";
+import { bookingStatus } from "../constants/bookingStatus";
+import { queryKey } from "../constants/queryKey";
+import NativeSelectBasic from "../components/input/nativeSelectBasic";
+import AutoCompleteBasic from "../components/input/autoCompleteBasic";
 
 // Style box
 const style = {
@@ -57,19 +63,23 @@ const style = {
 
 // ----------------------------------------------------------------------
 export default function Booking() {
-  const [bookings, setBookings] = useState("");
-  const [id, setBookingId] = useState("");
-
-  const [rooms, setRooms] = useState("");
-  const [roomId, setRoomId] = useState("");
-
+  const [id, setBookingId] = useState();
   const [user, setUser] = useState("");
-  const [durasi, setDurasi] = useState("");
-  const [jenisKelas, setJenisKelas] = useState("");
-  const [statusKelas, setStatusKelas] = useState("");
-  const [dt, setDate] = useState(null);
+  const [statusKelas, setStatusKelas] = useState("all");
   const [tm_start, setTmStart] = useState(null);
   const [tm_end, setTmEnd] = useState(null);
+  const [openModalCreate, setOpenModalCreate] = useState(false);
+  const [stateModalCreate, setStateModalCreate] = useState("create");
+  const [filters, setFilters] = useState({
+    status: "",
+    roomId: "",
+    date: "",
+    studentId: "",
+    teacherId: "",
+  });
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  const queryParam = urlSearchParamsToQuery(searchParams);
 
   // localStorage
   useEffect(() => {
@@ -82,108 +92,98 @@ export default function Booking() {
 
   // range dates
   const [rangeAwal, setRangeAwal] = useState("");
-  const [rangeAkhir, setRangeAkhir] = useState("");
 
-  const tmstr = Moment(tm_start, "HH:mm:ss").format("HH:mm");
-  const tmend = Moment(tm_end, "HH:mm:ss").format("HH:mm");
+  const tmstr = tm_start;
+  const tmend = tm_end;
 
   const [openDel, setOpenDel] = useState(false);
-  const [openUpdateData, setOpenUpdateData] = useState(false);
   const [openUpdTime, setOpenUpdTime] = useState(false);
   const [openUpdStatus, setOpenUpdStatus] = useState(false);
 
-  const handleChange = (e) => {
-    setRoomId(e.target.value);
-  };
-
-  const handleChangeJenis = (e) => {
-    setJenisKelas(e.target.value);
-  };
+  const [openRoom, setOpenRoom] = useState(false);
+  const { data: rooms = [], isLoading: isLoadingRooms } = useQuery(
+    [queryKey.rooms],
+    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/room`).then((res) => res.data),
+    {
+      select: (roomList) => roomList.map((room) => ({ value: room.id, label: room.nama_ruang })),
+      enabled: openRoom,
+    }
+  );
 
   const handleChangeStatus = (e) => {
     setStatusKelas(e.target.value);
   };
 
-  // Get Room Data
-  useEffect(() => {
-    axios.get(`${process.env.REACT_APP_BASE_URL}/api/room`).then((response) => {
-      setRooms(response.data);
-    });
-  }, []);
-
-  // GET DATA BOOKING BY FILTER PARAMETERS
-  const getBookingByFilter = () => {
-    const data = {
-      status: statusKelas,
-      rangeAwal,
-      rangeAkhir,
-    };
-    axios.post(`${process.env.REACT_APP_BASE_URL}/api/booking/filter/default`, data).then((response) => {
-      setBookings(response.data);
-    });
+  const handleChangeFilter = (e) => {
+    const values = e.target?.value ?? "";
+    setFilters((prevState) => ({
+      ...prevState,
+      [e.target.name]: typeof values === "object" ? values.value : values,
+    }));
   };
 
   const SubmitFilter = () => {
-    getBookingByFilter();
+    setSearchParams(filters);
   };
 
   // GET DATA BOOKING ALL
-  const getBookingData = async () => {
-    await axios.get(`${process.env.REACT_APP_BASE_URL}/api/booking`).then((response) => {
-      setBookings(response.data);
-    });
-  };
+  const {
+    data: bookings,
+    refetch: bookingsRefetch,
+    isLoading: isLoadingBookings,
+  } = useQuery(["BOOKINGS", cleanQuery(queryParam)], () =>
+    axios.get(`${process.env.REACT_APP_BASE_URL}/api/booking${queryToString(queryParam)}`).then((res) => res.data)
+  );
 
   const ResetFilter = () => {
-    getBookingData();
+    console.log("reset filter");
   };
-
-  useEffect(() => {
-    getBookingData();
-  }, []);
 
   // Open Modal Delete
   const handleOpenModalDelete = (e) => {
+    e.preventDefault();
     setBookingId(e.target.getAttribute("data-id"));
-    setDurasi(e.target.getAttribute("data-durasi"));
     setOpenDel(true);
   };
   const handleCloseModalDelete = () => setOpenDel(false);
+
+  const submitDeleteBooking = useMutation(() => axios.delete(`${process.env.REACT_APP_BASE_URL}/api/booking/${id}`));
+
   const handleSubmitDelete = (e) => {
     e.preventDefault();
-    axios.delete(`${process.env.REACT_APP_BASE_URL}/api/booking/${id}`).then((response) => {
-      getBookingData();
-      setOpenDel(false);
-      toast.warning(response.data.message, {
-        position: "top-center",
-        autoClose: 1000,
-        theme: "colored",
-      });
+    submitDeleteBooking.mutate(
+      {},
+      {
+        onSuccess: (response) => {
+          setBookingId();
+          onSuccessMutateBooking(response);
+        },
+        onError: (error) => {
+          onErrorMutateBooking(error);
+        },
+      }
+    );
+  };
+
+  const onSuccessMutateBooking = (response) => {
+    bookingsRefetch();
+    setOpenDel(false);
+    setOpenModalCreate(false);
+    toast.success(response.data.message, {
+      position: "top-center",
+      autoClose: 1000,
+      theme: "colored",
     });
   };
 
-  // UPDATE DATA BOOKING SEMUA OLEH ADMIN
-  const CloseModalUpdateData = () => setOpenUpdateData(false);
-
-  const SubmitUpdateData = (e) => {
-    e.preventDefault();
-    const data = {
-      durasi,
-      roomId,
-      kategori: jenisKelas,
-      booking_date: dt,
-      time_start: tmstr,
-      time_end: tmend,
-    };
-    axios.put(`${process.env.REACT_APP_BASE_URL}/api/booking/${id}`, data).then((response) => {
-      getBookingData();
-      setOpenUpdateData(false);
-      toast.success(response.data.message, {
+  const onErrorMutateBooking = (error) => {
+    if (error.response) {
+      toast.error(error.response, {
         position: "top-center",
         autoClose: 1000,
         theme: "colored",
       });
-    });
+    }
   };
   // END
 
@@ -198,7 +198,7 @@ export default function Booking() {
     };
     console.log(data);
     axios.put(`${process.env.REACT_APP_BASE_URL}/api/booking/updateSchedule/${id}`, data).then((response) => {
-      getBookingData();
+      bookingsRefetch();
       setOpenUpdTime(false);
       toast.success(response.data.message, {
         position: "top-center",
@@ -212,7 +212,6 @@ export default function Booking() {
   // Open Modal Update Confirm
   const handleOpenModalUpdateStatus = (e) => {
     setBookingId(e.target.getAttribute("data-id"));
-    setDurasi(e.target.getAttribute("data-durasi"));
     setOpenUpdStatus(true);
   };
   const handleCloseModalUpdateStatus = () => setOpenUpdStatus(false);
@@ -222,7 +221,7 @@ export default function Booking() {
       status: statusKelas,
     };
     axios.put(`${process.env.REACT_APP_BASE_URL}/api/booking/updateStatus/${id}`, data).then((response) => {
-      getBookingData();
+      bookingsRefetch();
       setOpenUpdStatus(false);
       toast.success(response.data.message, {
         position: "top-center",
@@ -232,382 +231,303 @@ export default function Booking() {
     });
   };
 
-  const navigate = useNavigate();
-
-  const MoveToAddBookingPage = () => {
-    navigate(`/dashboard/AddBooking`);
+  const handleOpenModalCreate = (e) => {
+    e.preventDefault();
+    const type = e.target.getAttribute("data-type");
+    if (type === "update") {
+      setBookingId(e.target.getAttribute("data-id"));
+      setStateModalCreate("update");
+    } else {
+      setStateModalCreate("create");
+    }
+    setOpenModalCreate(true);
   };
-
-  let button;
-  if (user && user.role === "Admin") {
-    button = (
-      <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />} onClick={MoveToAddBookingPage}>
-        New Booking
-      </Button>
-    );
-  }
 
   // Cek loggedin user admin
   const isUserAdmin = user.role === "Admin";
   const isUserGuru = user.role === "Guru";
+  const tableHeader = ["TGL KELAS", "JAM BOOKING", "RUANG KELAS", "MURID", "PENGAJAR", "STATUS"];
+  if (isUserAdmin || isUserGuru) tableHeader.push(" ");
+
+  const generateStatus = (status) => {
+    if (status === "pending") {
+      return <Chip label={status} color="warning" />;
+    }
+    if (status === "cancel") {
+      return <Chip label={status} color="error" />;
+    }
+    if (status === "expired") {
+      return <Chip label={status} color="secondary" />;
+    }
+    if (status === "confirmed") {
+      return <Chip label={status} color="success" />;
+    }
+    return <></>;
+  };
+
+  const generateButtonAction = (book) => {
+    if (isUserAdmin) {
+      return (
+        <Stack direction={"row"} spacing={1}>
+          <Button
+            variant="contained"
+            color="success"
+            size="small"
+            data-type="update"
+            data-id={book.id}
+            onClick={handleOpenModalCreate}
+          >
+            Update
+          </Button>
+          <Button variant="contained" color="error" size="small" data-id={book.id} onClick={handleOpenModalDelete}>
+            Delete
+          </Button>
+        </Stack>
+      );
+    }
+    if (isUserGuru) {
+      return (
+        <Button
+          variant="contained"
+          color="primary"
+          size="small"
+          margin="normal"
+          startIcon={<Iconify icon="eva:pencil-fill" />}
+          data-durasi={book.durasi}
+          data-id={book.id}
+          onClick={handleOpenModalUpdateStatus}
+        >
+          Confirm
+        </Button>
+      );
+    }
+    return false;
+  };
+
+  const hourModel = ({ timeStart, timeEnd, duration }) => {
+    const formatTimeStart = format(parse(timeStart, "HH:mm:ss", new Date()), "HH:mm");
+    const formatTimeEnd = timeEnd
+      ? format(parse(timeEnd, "HH:mm:ss", new Date()), "HH:mm")
+      : format(addMinutes(parse(timeStart, "HH:mm:ss", new Date()), duration), "HH:mm");
+    return `${formatTimeStart}-${formatTimeEnd}`;
+  };
+
+  const studentModel = ({ students }) => {
+    if (students) {
+      const arrayStudents = JSON.parse(students);
+      return (
+        <Stack direction={"row"}>
+          <Typography noWrap maxWidth={"200px"} fontSize={"0.875rem"}>
+            {arrayStudents.map((student) => student.nama_murid).join(", ")}
+          </Typography>
+          {arrayStudents.length > 1 && (
+            <Tooltip title={arrayStudents.map((student) => student.nama_murid).join(", ")} placement="bottom">
+              <InfoRounded fontSize="small" />
+            </Tooltip>
+          )}
+        </Stack>
+      );
+    }
+    return <></>;
+  };
 
   //----
   return (
     <Page title="Booking">
-      <Container>
-        <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-          <Typography variant="h4" gutterBottom>
-            Bookings
-          </Typography>
-          {button}
-        </Stack>
-        <ToastContainer pauseOnFocusLoss={false} />
-        <FormControl sx={{ display: "inline" }}>
-          <TextField
-            select
-            id="demo-simple-select"
-            size="small"
-            label="Status Kelas"
-            value={statusKelas}
-            onChange={handleChangeStatus}
-            sx={{
-              width: 150,
-              mr: 1,
-            }}
-          >
-            <MenuItem value={"Status Kelas"}>Status</MenuItem>
-            <MenuItem value={"pending"}>Pending</MenuItem>
-            <MenuItem value={"confirmed"}>Confirmed</MenuItem>
-          </TextField>
-          <TextField
-            type="date"
-            size="small"
-            value={rangeAwal}
-            onChange={(e) => {
-              setRangeAwal(e.target.value);
-            }}
-            sx={{
-              width: 150,
-              mr: 1,
-            }}
-          />
-          <TextField
-            type="date"
-            size="small"
-            value={rangeAkhir}
-            onChange={(e) => {
-              setRangeAkhir(e.target.value);
-            }}
-            sx={{
-              width: 150,
-              mr: 1,
-            }}
-          />
-          <Button
-            variant="contained"
-            size="small"
-            sx={{ width: 30, ml: 1, mt: 1 }}
-            type="submit"
-            onClick={SubmitFilter}
-          >
-            Filter{" "}
-          </Button>
-          <Button variant="contained" size="small" sx={{ width: 30, ml: 1, mt: 1 }} type="submit" onClick={ResetFilter}>
-            Reset{" "}
-          </Button>
-        </FormControl>
-        <Card sx={{ mt: 5 }}>
-          <Scrollbar>
-            <TableContainer sx={{ minWidth: 800 }}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>RUANGAN</TableCell>
-                    <TableCell>JENIS</TableCell>
-                    <TableCell>DURASI</TableCell>
-                    <TableCell>STATUS</TableCell>
-                    <TableCell>TGL KELAS</TableCell>
-                    <TableCell>JAM BOOKING</TableCell>
-                    {isUserAdmin && <TableCell>ACTION</TableCell>}
-                    {isUserGuru && (
-                      <>
-                        <TableCell>MORE</TableCell>
-                      </>
-                    )}
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {Array.isArray(bookings.data)
-                    ? bookings.data.map((booking) => (
-                        <TableRow hover tabIndex={-1} role="checkbox" key={booking.id}>
-                          <TableCell align="left" component="td">
-                            <Stack direction="row" alignItems="center" spacing={2}>
-                              <Typography variant="subtitle2" noWrap>
-                                {booking.room.nama_ruang}
-                              </Typography>
-                            </Stack>
-                          </TableCell>
-                          <TableCell align="center">
-                            {booking.jenis_kelas === "group" ? (
-                              <Badge badgeContent={booking.jenis_kelas} color="success" />
-                            ) : (
-                              <Badge badgeContent={booking.jenis_kelas} color="primary" />
-                            )}
-                          </TableCell>
-                          <TableCell align="left">{booking.durasi} </TableCell>
-                          <TableCell align="center">
-                            {booking.status === "pending" ? (
-                              <Badge badgeContent={booking.status} color="warning" />
-                            ) : null}
-
-                            {booking.status === "cancel" ? <Badge badgeContent={booking.status} color="error" /> : null}
-
-                            {booking.status === "expired" ? (
-                              <Badge badgeContent={booking.status} color="secondary" />
-                            ) : null}
-
-                            {booking.status === "confirmed" ? (
-                              <Badge badgeContent={booking.status} color="success" />
-                            ) : null}
-                          </TableCell>
-                          <TableCell align="left">{Moment(booking.tgl_kelas).format("DD MMMM, YYYY")}</TableCell>
-                          <TableCell align="left">{booking.jam_booking}</TableCell>
-                          {isUserAdmin && (
-                            <TableCell align="left">
-                              <Link href={`/dashboard/UpdateBooking/${booking.id}`}>
-                                <Button
-                                  variant="contained"
-                                  color="success"
-                                  size="small"
-                                  sx={{ margin: 1 }}
-                                  startIcon={<Iconify icon="eva:pencil-fill" />}
-                                >
-                                  Update
-                                </Button>
-                              </Link>
-                              <Button
-                                variant="contained"
-                                color="error"
-                                size="small"
-                                sx={{ margin: 1 }}
-                                startIcon={<Iconify icon="eva:trash-fill" />}
-                                data-durasi={booking.durasi}
-                                data-id={booking.id}
-                                onClick={handleOpenModalDelete}
-                              >
-                                Delete
-                              </Button>
-                            </TableCell>
-                          )}
-                          {isUserGuru && (
-                            <>
-                              <TableCell align="left">
-                                <Button
-                                  variant="contained"
-                                  color="primary"
-                                  size="small"
-                                  margin="normal"
-                                  startIcon={<Iconify icon="eva:pencil-fill" />}
-                                  data-durasi={booking.durasi}
-                                  data-id={booking.id}
-                                  onClick={handleOpenModalUpdateStatus}
-                                >
-                                  Confirm
-                                </Button>
-                              </TableCell>
-                            </>
-                          )}
-                        </TableRow>
-                      ))
-                    : null}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Scrollbar>
-        </Card>
-        <div>
-          <Modal
-            open={openDel}
-            onClose={handleCloseModalDelete}
-            aria-labelledby="modal-modal-title"
-            aria-describedby="modal-modal-description"
-          >
-            <Box sx={style}>
-              <Typography id="modal-modal-title" variant="h6" component="h2" marginBottom={5}>
-                Delete {durasi} ?
-              </Typography>
-              <FormControl fullWidth>
-                <Button variant="contained" type="submit" onClick={handleSubmitDelete}>
-                  Delete
-                </Button>
-              </FormControl>
-            </Box>
-          </Modal>
-        </div>
-        <div>
-          <Modal
-            open={openUpdStatus}
-            onClose={handleCloseModalUpdateStatus}
-            aria-labelledby="modal-modal-title"
-            aria-describedby="modal-modal-description"
-          >
-            <Box sx={style}>
-              <Typography id="modal-modal-title" variant="h6" component="h2" marginBottom={5}>
-                Confirm Class
-              </Typography>
-              <FormControl fullWidth>
-                <TextField
-                  id="outlined-select-currency jenis"
-                  select
-                  margin="normal"
-                  label="Status Kelas"
-                  value={statusKelas}
-                  onChange={handleChangeStatus}
-                >
-                  <MenuItem value={"Jenis Kelas"}>Jenis kelas</MenuItem>
-                  <MenuItem value={"Pending"}>Pending</MenuItem>
-                  <MenuItem value={"Confirmed"}>Confirmed</MenuItem>
-                </TextField>
-                <Button variant="contained" type="submit" onClick={handleSubmitUpdStatus}>
-                  Submit
-                </Button>
-              </FormControl>
-            </Box>
-          </Modal>
-        </div>
-        <div>
-          <Modal
-            open={openUpdateData}
-            onClose={CloseModalUpdateData}
-            aria-labelledby="modal-modal-title"
-            aria-describedby="modal-modal-description"
-          >
-            <Box sx={style}>
-              <Typography id="modal-modal-title" variant="h6" component="h2" marginBottom={5}>
-                Update Booking Data
-              </Typography>
-              <FormControl fullWidth>
-                <TextField
-                  required
-                  id="outlined-required"
-                  margin="normal"
-                  size="small"
-                  label="Meeting Name"
-                  name="durasi"
-                  value={durasi}
-                  onChange={(e) => {
-                    setDurasi(e.target.value);
+      <PageHeader
+        title="Bookings"
+        rightContent={
+          user && isUserAdmin ? (
+            <Button variant="outlined" startIcon={<Iconify icon="eva:plus-fill" />} onClick={handleOpenModalCreate}>
+              Add New Booking
+            </Button>
+          ) : null
+        }
+      />
+      <Box
+        sx={{
+          background: "#FFF",
+          boxShadow: "0px 4px 20px 0px rgba(0, 0, 0, 0.05)",
+          paddingY: "20px",
+          zIndex: 2,
+          position: "relative",
+          borderTop: "1px solid #c3c3e1",
+        }}
+      >
+        <Container maxWidth="xl">
+          <Stack width={"100%"} direction={"row"} spacing={2}>
+            <Grid container spacing={1} flexGrow={1}>
+              <Grid item xs={4}>
+                <AutoCompleteBasic
+                  label="Ruang Kelas"
+                  name="roomId"
+                  open={openRoom}
+                  onOpen={() => {
+                    setOpenRoom(true);
                   }}
+                  onClose={() => {
+                    setOpenRoom(false);
+                  }}
+                  onChange={(_, newValue) => {
+                    handleChangeFilter({ target: { name: "roomId", value: newValue } });
+                  }}
+                  options={rooms}
+                  loading={isLoadingRooms}
                 />
+              </Grid>
+              <Grid item xs={4}>
                 <TextField
-                  id="outlined-select-currency ruang"
-                  select
-                  margin="normal"
+                  type="date"
                   size="small"
-                  label="Ruang"
-                  value={roomId}
-                  onChange={handleChange}
-                >
-                  <MenuItem value={"Ruang"}>- Ruangan -</MenuItem>
-                  {Array.isArray(rooms)
-                    ? rooms.map((option) => (
-                        <MenuItem key={option.id} value={option.id}>
-                          {option.room_name}
-                        </MenuItem>
-                      ))
-                    : null}
-                </TextField>
-                <TextField
-                  id="outlined-select-currency jenis"
-                  select
+                  value={rangeAwal}
+                  onChange={(e) => {
+                    setRangeAwal(e.target.value);
+                  }}
+                  fullWidth
+                />
+              </Grid>
+              <Grid item xs={4}>
+                <NativeSelectBasic
+                  id="status"
+                  name="status"
+                  label="Class Status"
+                  defaultValue={queryParam.status}
+                  onChange={(e) => {
+                    handleChangeFilter(e);
+                  }}
+                  options={bookingStatus}
+                />
+              </Grid>
+            </Grid>
+            <Stack spacing={1} direction={"row"} flexShrink={0}>
+              <Button variant="outlined" onClick={SubmitFilter}>
+                Filter{" "}
+              </Button>
+              <Button variant="outlined" onClick={ResetFilter}>
+                Reset{" "}
+              </Button>
+            </Stack>
+          </Stack>
+        </Container>
+      </Box>
+      <Container maxWidth="xl" sx={{ paddingTop: 4 }}>
+        <ToastContainer pauseOnFocusLoss={false} />
+        {!isLoadingBookings ? (
+          <Scrollbar>
+            <BasicTable
+              header={tableHeader}
+              body={bookings.data.map((booking) => [
+                format(parse(booking.tgl_kelas, "yyyy-MM-dd", new Date()), "dd-MM-yyyy"),
+                hourModel({ timeStart: booking.jam_booking, timeEnd: booking.selesai, duration: booking.durasi }),
+                booking.room.nama_ruang,
+                studentModel({ students: booking.user_group }),
+                booking.teacher.nama_pengajar,
+                generateStatus(booking.status),
+                { ...((isUserAdmin || isUserGuru) && generateButtonAction(booking)) },
+              ])}
+            />
+          </Scrollbar>
+        ) : null}
+        <CreateBooking
+          open={openModalCreate}
+          onClose={() => setOpenModalCreate(false)}
+          id={Number(id)}
+          state={stateModalCreate}
+          callbackSuccess={(response) => {
+            onSuccessMutateBooking(response);
+          }}
+          callbackError={(error) => {
+            onErrorMutateBooking(error);
+          }}
+        />
+
+        <Modal
+          open={openDel}
+          onClose={handleCloseModalDelete}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
+          <Box sx={style}>
+            <Typography id="modal-modal-title" variant="h6" component="h2" marginBottom={5}>
+              Delete booking ?
+            </Typography>
+            <FormControl fullWidth>
+              <LoadingButton variant="contained" type="submit" onClick={handleSubmitDelete}>
+                Delete
+              </LoadingButton>
+            </FormControl>
+          </Box>
+        </Modal>
+
+        <Modal
+          open={openUpdStatus}
+          onClose={handleCloseModalUpdateStatus}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
+          <Box sx={style}>
+            <Typography id="modal-modal-title" variant="h6" component="h2" marginBottom={5}>
+              Confirm Class
+            </Typography>
+            <FormControl fullWidth>
+              <TextField
+                id="outlined-select-currency jenis"
+                select
+                margin="normal"
+                label="Status Kelas"
+                value={statusKelas}
+                onChange={handleChangeStatus}
+              >
+                <MenuItem value={"Jenis Kelas"}>Jenis kelas</MenuItem>
+                <MenuItem value={"Pending"}>Pending</MenuItem>
+                <MenuItem value={"Confirmed"}>Confirmed</MenuItem>
+              </TextField>
+              <Button variant="contained" type="submit" onClick={handleSubmitUpdStatus}>
+                Submit
+              </Button>
+            </FormControl>
+          </Box>
+        </Modal>
+
+        <Modal
+          open={openUpdTime}
+          onClose={CloseModalUpdTime}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
+          <Box sx={style}>
+            <Typography id="modal-modal-title" variant="h6" component="h2" marginBottom={5}>
+              Update Times
+            </Typography>
+            <FormControl fullWidth>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <TimePicker
+                  label="Time Start"
+                  ampm={false}
                   margin="normal"
-                  size="small"
-                  label="Jenis Kelas"
-                  value={jenisKelas}
-                  onChange={handleChangeJenis}
-                >
-                  <MenuItem value={"Jenis Kelas"}>Jenis kelas</MenuItem>
-                  <MenuItem value={"Privat"}>Privat</MenuItem>
-                  <MenuItem value={"Group"}>Group</MenuItem>
-                </TextField>
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DatePicker
-                    label="Date"
-                    value={dt}
-                    onChange={(newValue) => {
-                      setDate(newValue);
-                    }}
-                    renderInput={(params) => <TextField {...params} margin="normal" size="small" />}
-                  />
-                  <TimePicker
-                    label="Time Start"
-                    ampm={false}
-                    margin="normal"
-                    format="hh:mm"
-                    value={tmstr}
-                    onChange={(newValue) => {
-                      setTmStart(new Date(newValue));
-                    }}
-                    renderInput={(params) => <TextField {...params} margin="normal" />}
-                  />
-                  <TimePicker
-                    label="Time End"
-                    ampm={false}
-                    value={tmend}
-                    onChange={(newValue) => {
-                      setTmEnd(new Date(newValue));
-                    }}
-                    renderInput={(params) => <TextField {...params} margin="normal" />}
-                  />
-                </LocalizationProvider>
-                <Button variant="contained" type="submit" onClick={SubmitUpdateData}>
-                  Update
-                </Button>
-              </FormControl>
-            </Box>
-          </Modal>
-        </div>
-        <div>
-          <Modal
-            open={openUpdTime}
-            onClose={CloseModalUpdTime}
-            aria-labelledby="modal-modal-title"
-            aria-describedby="modal-modal-description"
-          >
-            <Box sx={style}>
-              <Typography id="modal-modal-title" variant="h6" component="h2" marginBottom={5}>
+                  format="hh:mm"
+                  value={tmstr}
+                  onChange={(newValue) => {
+                    setTmStart(new Date(newValue));
+                  }}
+                  renderInput={(params) => <TextField {...params} margin="normal" />}
+                />
+                <TimePicker
+                  label="Time End"
+                  ampm={false}
+                  value={tmend}
+                  onChange={(newValue) => {
+                    setTmEnd(new Date(newValue));
+                  }}
+                  renderInput={(params) => <TextField {...params} margin="normal" />}
+                />
+              </LocalizationProvider>
+              <Button variant="contained" type="submit" onClick={SubmitUpdateTime}>
                 Update Times
-              </Typography>
-              <FormControl fullWidth>
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <TimePicker
-                    label="Time Start"
-                    ampm={false}
-                    margin="normal"
-                    format="hh:mm"
-                    value={tmstr}
-                    onChange={(newValue) => {
-                      setTmStart(new Date(newValue));
-                    }}
-                    renderInput={(params) => <TextField {...params} margin="normal" />}
-                  />
-                  <TimePicker
-                    label="Time End"
-                    ampm={false}
-                    value={tmend}
-                    onChange={(newValue) => {
-                      setTmEnd(new Date(newValue));
-                    }}
-                    renderInput={(params) => <TextField {...params} margin="normal" />}
-                  />
-                </LocalizationProvider>
-                <Button variant="contained" type="submit" onClick={SubmitUpdateTime}>
-                  Update Times
-                </Button>
-              </FormControl>
-            </Box>
-          </Modal>
-        </div>
+              </Button>
+            </FormControl>
+          </Box>
+        </Modal>
       </Container>
     </Page>
   );

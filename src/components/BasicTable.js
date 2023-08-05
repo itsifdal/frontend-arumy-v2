@@ -9,6 +9,7 @@ export default function BasicTable({ header, body }) {
       <Table
         sx={{
           paddingX: "15px",
+          paddingBottom: "15px",
           borderCollapse: "separate",
           borderSpacing: "0 15px",
         }}

@@ -11,7 +11,7 @@ import Iconify from "../../components/Iconify";
 import Scrollbar from "../../components/Scrollbar";
 import NavSection from "../../components/NavSection";
 import AccountPopover from "./AccountPopover";
-import IMAGES from "../../constant/images";
+import IMAGES from "../../constants/images";
 
 // ----------------------------------------------------------------------
 
@@ -58,6 +58,16 @@ const navConfigAdmin = [
     title: "post",
     path: "/dashboard/post",
     icon: getIcon("fa6-solid:paper-plane"),
+  },
+  {
+    title: "students",
+    path: "/dashboard/students",
+    icon: getIcon("mdi:account-student"),
+  },
+  {
+    title: "teachers",
+    path: "/dashboard/teachers",
+    icon: getIcon("mdi:teacher"),
   },
 ];
 

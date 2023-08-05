@@ -8,4 +8,6 @@ export const modalStyle = {
   p: 4,
   borderRadius: "10px",
   width: "100%",
+  maxHeight: "95vh",
+  overflow: "auto",
 };

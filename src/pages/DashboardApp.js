@@ -1,5 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import React, { useEffect, useState } from "react";
+import { useQuery } from "react-query";
+import axios from "axios";
 // material
 import {
   Link,
@@ -19,6 +21,7 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 // components
+import { queryKey } from "../constants/queryKey";
 import Page from "../components/Page";
 // sections
 import PageHeader from "../components/PageHeader";
@@ -28,6 +31,33 @@ import PageHeader from "../components/PageHeader";
 export default function DashboardApp() {
   const navigate = useNavigate();
   const [foundUser, setFoundUser] = useState();
+
+  const { data: dashboard, isLoading: isLoadingDashboard } = useQuery(
+    [queryKey.dashboard],
+    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/dashboard/booking`).then((res) => res.data),
+    {
+      select: (dashboards) =>
+        dashboards.data.map((dashboard) => ({
+          roomName: dashboard.roomName,
+          roomId: dashboard.roomId,
+          bookings: dashboard.booking.map((book) => {
+            const arrayStudent = JSON.parse(book.user_group)
+              .map((student) => student.nama_murid)
+              .join(", ");
+            return {
+              id: book.id,
+              startTime: book.jam_booking,
+              classType: book.jenis_kelas,
+              studentName: arrayStudent,
+              instrument: book.instrument?.nama_instrument,
+              teacherName: book.teacher?.nama_pengajar,
+            };
+          }),
+        })),
+    }
+  );
+  console.log(dashboard);
+
   useEffect(() => {
     const loggedInUser = localStorage.getItem("user");
     if (loggedInUser) {
@@ -63,18 +93,6 @@ export default function DashboardApp() {
     },
   });
 
-  function createData(name, calories, fat, carbs, protein) {
-    return { name, calories, fat, carbs, protein };
-  }
-
-  const rows = [
-    createData("10.45-11.45", "Group", "Abigail Lin", "Piano", "Julia Utomo"),
-    createData("10.45-11.45", "Group", "Abigail Lin", "Piano", "Julia Utomo"),
-    createData("10.45-11.45", "Group", "Abigail Lin", "Piano", "Julia Utomo"),
-    createData("10.45-11.45", "Group", "Abigail Lin", "Piano", "Julia Utomo"),
-    createData("10.45-11.45", "Group", "Abigail Lin", "Piano", "Julia Utomo"),
-  ];
-
   return (
     <Page title="Dashboard">
       <PageHeader
@@ -87,45 +105,47 @@ export default function DashboardApp() {
         }
       />
       <Container maxWidth="xl" sx={{ paddingTop: 4 }}>
-        {Array.from(Array(4).keys()).map((index) => (
-          <Box key={index}>
-            <Typography marginBottom={2} fontWeight={"700"}>
-              Ruangan {index + 1}
-            </Typography>
-            <TableContainer
-              component={Paper}
-              sx={{ boxShadow: "3px 4px 20px 0px rgba(0, 0, 0, 0.10)", background: "white" }}
-            >
-              <Table size="small" aria-label="customized table">
-                <TableHead>
-                  <TableRow>
-                    <StyledTableCell>WAKTU</StyledTableCell>
-                    <StyledTableCell>JENIS KELAS</StyledTableCell>
-                    <StyledTableCell>NAMA ANAK</StyledTableCell>
-                    <StyledTableCell>INSTRUMENT</StyledTableCell>
-                    <StyledTableCell>PENGAJAR</StyledTableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {rows.map((row) => (
-                    <StyledTableRow key={row.name}>
-                      <StyledTableCell>{row.name}</StyledTableCell>
-                      <StyledTableCell>{row.calories}</StyledTableCell>
-                      <StyledTableCell>{row.fat}</StyledTableCell>
-                      <StyledTableCell>{row.carbs}</StyledTableCell>
-                      <StyledTableCell>{row.protein}</StyledTableCell>
-                    </StyledTableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-            <Stack direction={"row"} justifyContent={"flex-end"} paddingY={2}>
-              <Link href="/" sx={{ textDecoration: "none" }} fontSize={14}>
-                See More ...
-              </Link>
-            </Stack>
-          </Box>
-        ))}
+        {!isLoadingDashboard
+          ? dashboard.map(({ roomName, roomId, bookings }) => (
+              <Box key={roomId}>
+                <Typography marginBottom={2} fontWeight={"700"}>
+                  {roomName}
+                </Typography>
+                <TableContainer
+                  component={Paper}
+                  sx={{ boxShadow: "3px 4px 20px 0px rgba(0, 0, 0, 0.10)", background: "white" }}
+                >
+                  <Table size="small" aria-label="customized table">
+                    <TableHead>
+                      <TableRow>
+                        <StyledTableCell>WAKTU</StyledTableCell>
+                        <StyledTableCell>JENIS KELAS</StyledTableCell>
+                        <StyledTableCell>NAMA ANAK</StyledTableCell>
+                        <StyledTableCell>INSTRUMENT</StyledTableCell>
+                        <StyledTableCell>PENGAJAR</StyledTableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {bookings.map((booking) => (
+                        <StyledTableRow key={booking.id}>
+                          <StyledTableCell>{booking.startTime}</StyledTableCell>
+                          <StyledTableCell>{booking.classType}</StyledTableCell>
+                          <StyledTableCell>{booking.studentName}</StyledTableCell>
+                          <StyledTableCell>{booking.instrument}</StyledTableCell>
+                          <StyledTableCell>{booking.teacherName}</StyledTableCell>
+                        </StyledTableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+                <Stack direction={"row"} justifyContent={"flex-end"} paddingY={2}>
+                  <Link href={`/dashboard/booking?roomId=${roomId}`} sx={{ textDecoration: "none" }} fontSize={14}>
+                    See More ...
+                  </Link>
+                </Stack>
+              </Box>
+            ))
+          : null}
       </Container>
     </Page>
   );
