@@ -18,7 +18,9 @@ export default function DateInputBasic(props) {
         onChange={(value) => {
           onChange({ target: { name, value } });
         }}
-        renderInput={(params) => <InputBasic {...params} error={!disableValidation} required={required} />}
+        renderInput={(params) => (
+          <InputBasic {...params} error={disableValidation ? false : params.error} required={required} />
+        )}
       />
     </LocalizationProvider>
   );

@@ -370,7 +370,7 @@ export default function Booking() {
                   }}
                   options={rooms}
                   loading={isLoadingRooms}
-                  value={{ value: filters.roomId, label: filters.roomLabel }}
+                  value={{ value: filters.roomId || "", label: filters.roomLabel || "" }}
                 />
               </Grid>
               <Grid item xs={4}>
