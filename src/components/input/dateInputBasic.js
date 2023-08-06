@@ -9,7 +9,7 @@ import PropTypes from "prop-types";
 import InputBasic from "./inputBasic";
 
 export default function DateInputBasic(props) {
-  const { onChange, name, required } = props;
+  const { onChange, name, required, disableValidation } = props;
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={id}>
       <DatePicker
@@ -18,7 +18,7 @@ export default function DateInputBasic(props) {
         onChange={(value) => {
           onChange({ target: { name, value } });
         }}
-        renderInput={(params) => <InputBasic {...params} required={required} />}
+        renderInput={(params) => <InputBasic {...params} error={!disableValidation} required={required} />}
       />
     </LocalizationProvider>
   );
@@ -28,4 +28,5 @@ DateInputBasic.propTypes = {
   onChange: PropTypes.func,
   required: PropTypes.bool,
   name: PropTypes.string,
+  disableValidation: PropTypes.bool,
 };

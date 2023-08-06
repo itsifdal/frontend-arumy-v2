@@ -5,7 +5,7 @@ import { FormControl, InputLabel, TextField, MenuItem } from "@mui/material";
 
 const CustomTextField = styled(TextField)((props) => ({
   ".MuiSelect-select": {
-    padding: props.size === "small" ? "7px" : "15px",
+    padding: props.size === "small" ? "7px" : "13px",
     fontSize: "14px",
   },
   ".MuiInputBase-root": { borderRadius: "15px" },
