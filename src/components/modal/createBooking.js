@@ -11,7 +11,6 @@ import SelectBasic from "../input/selectBasic";
 import DateInputBasic from "../input/dateInputBasic";
 import { modalStyle } from "../../constants/modalStyle";
 import { classType } from "../../constants/classType";
-import { branch } from "../../constants/branch";
 import { queryKey } from "../../constants/queryKey";
 import TimeInputBasic from "../input/timeInputBasic";
 import AutoCompleteBasic from "../input/autoCompleteBasic";
@@ -54,7 +53,8 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
     [queryKey.rooms],
     () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/room`).then((res) => res.data),
     {
-      select: (roomList) => roomList.map((room) => ({ value: room.id, label: room.nama_ruang })),
+      select: (roomList) =>
+        roomList.map((room) => ({ value: room.id, label: room.nama_ruang, branch: room.cabang?.nama_cabang })),
       enabled: openRoom,
     }
   );
@@ -184,7 +184,7 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
           </Typography>
         </Box>
         <Grid container spacing={2}>
-          <Grid item xs={12} paddingBottom={2}>
+          <Grid item xs={6} paddingBottom={2}>
             <SelectBasic
               required
               fullWidth
@@ -238,23 +238,6 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
             />
           </Grid>
           <Grid item xs={6} paddingBottom={2}>
-            <SelectBasic
-              required
-              fullWidth
-              label="Branch"
-              name="cabang"
-              value={stateForm.values.cabang}
-              error={Boolean(stateForm.errors.cabang)}
-              errorMessage={stateForm.errors.cabang}
-              onChange={(e) => {
-                onChange(e);
-              }}
-              select
-              defaultValue={branch[0].value}
-              options={branch}
-            />
-          </Grid>
-          <Grid item xs={6} paddingBottom={2}>
             <AutoCompleteBasic
               required
               label="Teacher Name"
@@ -295,7 +278,24 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
               }}
               onChange={(_, newValue) => {
                 onChange({ target: { name: "roomId", value: newValue } });
+                onChange({
+                  target: {
+                    name: "cabang",
+                    value: newValue ? rooms.find((room) => room.value === newValue.value).branch : "",
+                  },
+                });
               }}
+            />
+          </Grid>
+          <Grid item xs={6} paddingBottom={2}>
+            <InputBasic
+              required
+              label="Branch"
+              name="cabang"
+              disabled
+              value={stateForm.values.cabang}
+              error={Boolean(stateForm.errors.cabang)}
+              errorMessage={stateForm.errors.cabang}
             />
           </Grid>
           <Grid item xs={6} paddingBottom={2}>
@@ -354,9 +354,6 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
               value={stateForm.values.durasi}
               error={Boolean(stateForm.errors.durasi)}
               errorMessage={stateForm.errors.durasi}
-              onChange={(e) => {
-                onChange(e);
-              }}
             />
           </Grid>
         </Grid>

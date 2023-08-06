@@ -47,6 +47,7 @@ import { bookingStatus } from "../constants/bookingStatus";
 import { queryKey } from "../constants/queryKey";
 import NativeSelectBasic from "../components/input/nativeSelectBasic";
 import AutoCompleteBasic from "../components/input/autoCompleteBasic";
+import DateInputBasic from "../components/input/dateInputBasic";
 
 // Style box
 const style = {
@@ -60,6 +61,14 @@ const style = {
   boxShadow: 24,
   p: 4,
 };
+const initFilter = {
+  status: "",
+  roomId: "",
+  roomLabel: "",
+  tgl_kelas: "",
+  studentId: "",
+  teacherId: "",
+};
 
 // ----------------------------------------------------------------------
 export default function Booking() {
@@ -70,13 +79,7 @@ export default function Booking() {
   const [tm_end, setTmEnd] = useState(null);
   const [openModalCreate, setOpenModalCreate] = useState(false);
   const [stateModalCreate, setStateModalCreate] = useState("create");
-  const [filters, setFilters] = useState({
-    status: "",
-    roomId: "",
-    date: "",
-    studentId: "",
-    teacherId: "",
-  });
+  const [filters, setFilters] = useState(initFilter);
 
   const [searchParams, setSearchParams] = useSearchParams();
   const queryParam = urlSearchParamsToQuery(searchParams);
@@ -90,8 +93,10 @@ export default function Booking() {
     }
   }, []);
 
-  // range dates
-  const [rangeAwal, setRangeAwal] = useState("");
+  useEffect(() => {
+    // use this for escape infinite loop
+    setFilters(urlSearchParamsToQuery(searchParams));
+  }, [searchParams]);
 
   const tmstr = tm_start;
   const tmend = tm_end;
@@ -114,14 +119,6 @@ export default function Booking() {
     setStatusKelas(e.target.value);
   };
 
-  const handleChangeFilter = (e) => {
-    const values = e.target?.value ?? "";
-    setFilters((prevState) => ({
-      ...prevState,
-      [e.target.name]: typeof values === "object" ? values.value : values,
-    }));
-  };
-
   const SubmitFilter = () => {
     setSearchParams(filters);
   };
@@ -136,7 +133,7 @@ export default function Booking() {
   );
 
   const ResetFilter = () => {
-    console.log("reset filter");
+    setSearchParams(initFilter);
   };
 
   // Open Modal Delete
@@ -369,21 +366,27 @@ export default function Booking() {
                     setOpenRoom(false);
                   }}
                   onChange={(_, newValue) => {
-                    handleChangeFilter({ target: { name: "roomId", value: newValue } });
+                    setFilters((prevState) => ({
+                      ...prevState,
+                      roomId: newValue?.value || "",
+                      roomLabel: newValue?.label || "",
+                    }));
                   }}
                   options={rooms}
                   loading={isLoadingRooms}
+                  value={{ value: filters.roomId || "", label: filters.roomLabel || "" }}
                 />
               </Grid>
               <Grid item xs={4}>
-                <TextField
-                  type="date"
-                  size="small"
-                  value={rangeAwal}
+                <DateInputBasic
+                  disableValidation
+                  id="tgl_kelas"
+                  name="tgl_kelas"
+                  label="Date"
+                  value={parse(filters.tgl_kelas, "yyyy-MM-dd", new Date())}
                   onChange={(e) => {
-                    setRangeAwal(e.target.value);
+                    setFilters((prevState) => ({ ...prevState, tgl_kelas: format(e.target.value, "yyyy-MM-dd") }));
                   }}
-                  fullWidth
                 />
               </Grid>
               <Grid item xs={4}>
@@ -391,9 +394,9 @@ export default function Booking() {
                   id="status"
                   name="status"
                   label="Class Status"
-                  defaultValue={queryParam.status}
+                  value={filters.status}
                   onChange={(e) => {
-                    handleChangeFilter(e);
+                    setFilters((prevState) => ({ ...prevState, status: e }));
                   }}
                   options={bookingStatus}
                 />
