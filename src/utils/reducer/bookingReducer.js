@@ -2,10 +2,10 @@ import { parse } from "date-fns";
 
 export const initialBookingFormState = {
   values: {
-    roomId: "",
-    teacherId: "",
+    roomId: { value: "", label: "" },
+    teacherId: { value: "", label: "" },
     user_group: [],
-    instrumentId: "",
+    instrumentId: { value: "", label: "" },
     tgl_kelas: new Date(),
     cabang: "",
     jam_booking: parse("09:00", "HH:mm", new Date()),
