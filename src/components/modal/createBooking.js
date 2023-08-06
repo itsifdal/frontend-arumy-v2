@@ -279,7 +279,10 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
               onChange={(_, newValue) => {
                 onChange({ target: { name: "roomId", value: newValue } });
                 onChange({
-                  target: { name: "cabang", value: rooms.find((room) => room.value === newValue.value).branch },
+                  target: {
+                    name: "cabang",
+                    value: newValue ? rooms.find((room) => room.value === newValue.value).branch : "",
+                  },
                 });
               }}
             />

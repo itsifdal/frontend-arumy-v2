@@ -366,7 +366,11 @@ export default function Booking() {
                     setOpenRoom(false);
                   }}
                   onChange={(_, newValue) => {
-                    setFilters((prevState) => ({ ...prevState, roomId: newValue.value, roomLabel: newValue.label }));
+                    setFilters((prevState) => ({
+                      ...prevState,
+                      roomId: newValue?.value || "",
+                      roomLabel: newValue?.label || "",
+                    }));
                   }}
                   options={rooms}
                   loading={isLoadingRooms}
