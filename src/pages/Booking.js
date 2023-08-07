@@ -4,10 +4,6 @@ import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useQuery, useMutation } from "react-query";
 import { format, parse, addMinutes } from "date-fns";
-// Date Picker
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { TimePicker } from "@mui/x-date-pickers/";
 // React Toasts
 import { ToastContainer, toast } from "react-toastify";
 import axios from "axios";
@@ -17,19 +13,7 @@ import { LoadingButton } from "@mui/lab";
 import "react-toastify/dist/ReactToastify.css";
 
 // material
-import {
-  Chip,
-  Tooltip,
-  Button,
-  Container,
-  Typography,
-  Modal,
-  FormControl,
-  TextField,
-  Box,
-  Stack,
-  Grid,
-} from "@mui/material";
+import { Chip, Tooltip, Button, Container, Typography, Modal, FormControl, Box, Stack, Grid } from "@mui/material";
 import { InfoRounded } from "@mui/icons-material";
 
 // components
@@ -75,8 +59,6 @@ const initFilter = {
 export default function Booking() {
   const [bookingId, setBookingId] = useState();
   const [user, setUser] = useState("");
-  const [tm_start, setTmStart] = useState(null);
-  const [tm_end, setTmEnd] = useState(null);
   const [openModalCreate, setOpenModalCreate] = useState(false);
   const [stateModalCreate, setStateModalCreate] = useState("create");
   const [filters, setFilters] = useState(initFilter);
@@ -98,11 +80,7 @@ export default function Booking() {
     setFilters(urlSearchParamsToQuery(searchParams));
   }, [searchParams]);
 
-  const tmstr = tm_start;
-  const tmend = tm_end;
-
   const [openDel, setOpenDel] = useState(false);
-  const [openUpdTime, setOpenUpdTime] = useState(false);
   const [openUpdStatus, setOpenUpdStatus] = useState(false);
 
   const [openRoom, setOpenRoom] = useState(false);
@@ -180,28 +158,6 @@ export default function Booking() {
         theme: "colored",
       });
     }
-  };
-  // END
-
-  // UPDATE DATA SCHEDULE OLEH ADMIN
-  const CloseModalUpdTime = () => setOpenUpdTime(false);
-
-  const SubmitUpdateTime = (e) => {
-    e.preventDefault();
-    const data = {
-      time_start: tmstr,
-      time_end: tmend,
-    };
-    console.log(data);
-    axios.put(`${process.env.REACT_APP_BASE_URL}/api/booking/updateSchedule/${bookingId}`, data).then((response) => {
-      bookingsRefetch();
-      setOpenUpdTime(false);
-      toast.success(response.data.message, {
-        position: "top-center",
-        autoClose: 1000,
-        theme: "colored",
-      });
-    });
   };
   // END
 
@@ -460,46 +416,6 @@ export default function Booking() {
             onErrorMutateBooking(error);
           }}
         />
-
-        <Modal
-          open={openUpdTime}
-          onClose={CloseModalUpdTime}
-          aria-labelledby="modal-modal-title"
-          aria-describedby="modal-modal-description"
-        >
-          <Box sx={style}>
-            <Typography id="modal-modal-title" variant="h6" component="h2" marginBottom={5}>
-              Update Times
-            </Typography>
-            <FormControl fullWidth>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <TimePicker
-                  label="Time Start"
-                  ampm={false}
-                  margin="normal"
-                  format="hh:mm"
-                  value={tmstr}
-                  onChange={(newValue) => {
-                    setTmStart(new Date(newValue));
-                  }}
-                  renderInput={(params) => <TextField {...params} margin="normal" />}
-                />
-                <TimePicker
-                  label="Time End"
-                  ampm={false}
-                  value={tmend}
-                  onChange={(newValue) => {
-                    setTmEnd(new Date(newValue));
-                  }}
-                  renderInput={(params) => <TextField {...params} margin="normal" />}
-                />
-              </LocalizationProvider>
-              <Button variant="contained" type="submit" onClick={SubmitUpdateTime}>
-                Update Times
-              </Button>
-            </FormControl>
-          </Box>
-        </Modal>
       </Container>
     </Page>
   );
