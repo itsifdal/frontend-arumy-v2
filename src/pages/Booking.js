@@ -1,7 +1,6 @@
 /* eslint-disable camelcase */
-// import { Link as RouterLink } from 'react-router-dom';
 import React, { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, Link as RouterLink } from "react-router-dom";
 import { useQuery, useMutation } from "react-query";
 import { format, parse, addMinutes } from "date-fns";
 // Date Picker
@@ -30,6 +29,8 @@ import {
   Box,
   Stack,
   Grid,
+  Pagination,
+  PaginationItem,
 } from "@mui/material";
 import { InfoRounded } from "@mui/icons-material";
 
@@ -418,20 +419,35 @@ export default function Booking() {
       <Container maxWidth="xl" sx={{ paddingTop: 4 }}>
         <ToastContainer pauseOnFocusLoss={false} />
         {!isLoadingBookings ? (
-          <Scrollbar>
-            <BasicTable
-              header={tableHeader}
-              body={bookings.data.map((booking) => [
-                format(parse(booking.tgl_kelas, "yyyy-MM-dd", new Date()), "dd-MM-yyyy"),
-                hourModel({ timeStart: booking.jam_booking, timeEnd: booking.selesai, duration: booking.durasi }),
-                booking.room.nama_ruang,
-                studentModel({ students: booking.user_group }),
-                booking.teacher.nama_pengajar,
-                generateStatus(booking.status),
-                { ...((isUserAdmin || isUserGuru) && generateButtonAction(booking)) },
-              ])}
+          <Box padding={3} marginBottom={3}>
+            <Scrollbar>
+              <BasicTable
+                header={tableHeader}
+                body={bookings.data.map((booking) => [
+                  format(parse(booking.tgl_kelas, "yyyy-MM-dd", new Date()), "dd-MM-yyyy"),
+                  hourModel({ timeStart: booking.jam_booking, timeEnd: booking.selesai, duration: booking.durasi }),
+                  booking.room.nama_ruang,
+                  studentModel({ students: booking.user_group }),
+                  booking.teacher.nama_pengajar,
+                  generateStatus(booking.status),
+                  { ...((isUserAdmin || isUserGuru) && generateButtonAction(booking)) },
+                ])}
+              />
+            </Scrollbar>
+            <Pagination
+              page={bookings.pagination.current_page}
+              count={bookings.pagination.total_pages}
+              shape="rounded"
+              sx={[{ ul: { justifyContent: "center" } }]}
+              renderItem={(item) => (
+                <PaginationItem
+                  component={RouterLink}
+                  to={`/dashboard/booking${item.page === 1 ? "" : `?page=${item.page}`}`}
+                  {...item}
+                />
+              )}
             />
-          </Scrollbar>
+          </Box>
         ) : null}
         <CreateBooking
           open={openModalCreate}
