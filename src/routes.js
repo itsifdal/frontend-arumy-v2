@@ -24,6 +24,7 @@ import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/Page404";
 import DashboardApp from "./pages/DashboardApp";
 import Teachers from "./pages/Teachers";
+import Branches from "./pages/Branches";
 
 // ----------------------------------------------------------------------
 
@@ -55,6 +56,7 @@ export default function Router() {
         { path: "postdetail/:slug", element: <PostDetail /> },
         { path: "addbooking", element: <AddBooking /> },
         { path: "updatebooking/:id", element: <UpdateBooking /> },
+        { path: "branches", element: <Branches /> },
       ],
     },
     {
