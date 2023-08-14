@@ -185,7 +185,7 @@ export default function Teachers() {
           </Button>
         }
       />
-      <Container maxWidth="xl" sx={{ paddingTop: 4, background: "white" }}>
+      <Container maxWidth="xl" sx={{ paddingTop: 4 }}>
         <ToastContainer pauseOnFocusLoss={false} />
         {!isLoadingTeachers ? (
           <Scrollbar>
