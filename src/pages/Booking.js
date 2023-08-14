@@ -163,8 +163,8 @@ export default function Booking() {
   };
 
   const onErrorMutateBooking = (error) => {
-    if (error.response) {
-      toast.error(error.response, {
+    if (error) {
+      toast.error("Booking Error", {
         position: "top-center",
         autoClose: 1000,
         theme: "colored",

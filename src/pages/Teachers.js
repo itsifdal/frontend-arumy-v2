@@ -47,7 +47,6 @@ export default function Teachers() {
       onSuccess: (res) => {
         if (res.data) {
           const entries = Object.entries(res.data);
-          console.log("entries ", entries);
           entries.forEach((student) => {
             dispatchStateForm({
               type: "change-field",
