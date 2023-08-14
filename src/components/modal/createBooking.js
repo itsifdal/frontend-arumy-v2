@@ -1,20 +1,31 @@
 import React, { useEffect, useState, useReducer } from "react";
-import { Typography, Modal, Box, Grid } from "@mui/material";
+import {
+  Typography,
+  Modal,
+  Box,
+  Grid,
+  Stack,
+  FormControl,
+  FormLabel,
+  RadioGroup,
+  FormControlLabel,
+  Radio,
+} from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import PropTypes from "prop-types";
 import { useQuery, useMutation } from "react-query";
 import axios from "axios";
 import { differenceInMinutes, format, parse } from "date-fns";
+import { toast } from "react-toastify";
 
 import InputBasic from "../input/inputBasic";
 import SelectBasic from "../input/selectBasic";
 import DateInputBasic from "../input/dateInputBasic";
-import AutoCompleteInputBasic from "../input/autoCompleteInputBasic";
 import { modalStyle } from "../../constants/modalStyle";
 import { classType } from "../../constants/classType";
-import { branch } from "../../constants/branch";
 import { queryKey } from "../../constants/queryKey";
 import TimeInputBasic from "../input/timeInputBasic";
+import AutoCompleteBasic from "../input/autoCompleteBasic";
 
 import { bookingFormReducer, initialBookingFormState, validateBookingForm } from "../../utils/reducer/bookingReducer";
 
@@ -31,6 +42,14 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
       onChange({ target: { name: "durasi", value: duration } });
     }
   }, [stateForm.values.jam_booking, stateForm.values.jam_selesai_booking]);
+
+  useEffect(() => {
+    if (open) {
+      dispatchStateForm({
+        type: "reset-field",
+      });
+    }
+  }, [open]);
 
   const { data: students = [], isLoading: isLoadingStudents } = useQuery(
     [queryKey.students],
@@ -54,7 +73,8 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
     [queryKey.rooms],
     () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/room`).then((res) => res.data),
     {
-      select: (roomList) => roomList.map((room) => ({ value: room.id, label: room.nama_ruang })),
+      select: (roomList) =>
+        roomList.map((room) => ({ value: room.id, label: room.nama_ruang, branch: room.cabang?.nama_cabang })),
       enabled: openRoom,
     }
   );
@@ -75,16 +95,24 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
 
   const submitAddBooking = useMutation((data) => axios.post(`${process.env.REACT_APP_BASE_URL}/api/booking`, data));
 
-  const handleCallbackMutate = {
+  const handleCallbackMutate = ({ addAnother }) => ({
     onSuccess: (response) => {
-      callbackSuccess(response);
+      if (!addAnother) {
+        callbackSuccess(response);
+      } else {
+        toast.success(response.data.message, {
+          position: "top-center",
+          autoClose: 1000,
+          theme: "colored",
+        });
+      }
     },
     onError: (error) => {
       callbackError(error);
     },
-  };
+  });
 
-  const handleSubmitCreate = () => {
+  const handleSubmitCreate = ({ addAnother = false }) => {
     const errors = validateBookingForm(stateForm.values);
     const hasError = Object.values(errors).some((value) => Boolean(value));
     if (!hasError) {
@@ -102,9 +130,9 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
       };
 
       if (state === "update") {
-        submitUpdateBooking.mutate(data, handleCallbackMutate);
+        submitUpdateBooking.mutate(data, handleCallbackMutate({ addAnother }));
       } else {
-        submitAddBooking.mutate(data, handleCallbackMutate);
+        submitAddBooking.mutate(data, handleCallbackMutate({ addAnother }));
       }
     } else {
       dispatchStateForm({
@@ -131,17 +159,17 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
       onSuccess: (res) => {
         const modelData = {
           roomId: {
-            value: res.roomId,
-            label: res.room.nama_ruang,
+            value: res.roomId ?? "",
+            label: res.room.nama_ruang ?? "",
           },
           teacherId: {
-            value: res.teacherId,
-            label: res.teacher.nama_pengajar,
+            value: res.teacherId ?? "",
+            label: res.teacher.nama_pengajar ?? "",
           },
-          user_group: res.user_group.map((student) => ({ value: student.id, label: student.nama_murid })),
+          user_group: res.user_group?.map((student) => ({ value: student.id, label: student.nama_murid })) || [],
           instrumentId: {
-            value: res.instrumentId,
-            label: res.instrument.nama_instrument,
+            value: res.instrumentId ?? "",
+            label: res.instrument.nama_instrument ?? "",
           },
           tgl_kelas: parse(res.tgl_kelas, "yyyy-MM-dd", new Date()),
           cabang: res.cabang,
@@ -184,7 +212,7 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
           </Typography>
         </Box>
         <Grid container spacing={2}>
-          <Grid item xs={12} paddingBottom={2}>
+          <Grid item xs={6} paddingBottom={2}>
             <SelectBasic
               required
               fullWidth
@@ -195,6 +223,7 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
               error={Boolean(stateForm.errors.jenis_kelas)}
               errorMessage={stateForm.errors.jenis_kelas}
               onChange={(e) => {
+                onChange({ target: { name: "user_group", value: [] } });
                 onChange(e);
               }}
               select
@@ -214,7 +243,7 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
             />
           </Grid>
           <Grid item xs={6} paddingBottom={2}>
-            <AutoCompleteInputBasic
+            <AutoCompleteBasic
               multiple
               required
               label="Student Name"
@@ -223,9 +252,6 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
               value={stateForm.values.user_group}
               error={Boolean(stateForm.errors.user_group)}
               errorMessage={stateForm.errors.user_group}
-              onChange={(e, value) => {
-                onChange(e, value);
-              }}
               options={students}
               loading={isLoadingStudents}
               open={openStudent}
@@ -235,36 +261,24 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
               onClose={() => {
                 setOpenStudent(false);
               }}
-            />
-          </Grid>
-          <Grid item xs={6} paddingBottom={2}>
-            <SelectBasic
-              required
-              fullWidth
-              label="Branch"
-              name="cabang"
-              value={stateForm.values.cabang}
-              error={Boolean(stateForm.errors.cabang)}
-              errorMessage={stateForm.errors.cabang}
-              onChange={(e) => {
-                onChange(e);
+              onChange={(_, newValue) => {
+                let values = newValue;
+                // reset when class not group
+                if (stateForm.values.jenis_kelas !== "group") {
+                  values = values.slice(-1);
+                }
+                onChange({ target: { name: "user_group", value: values } });
               }}
-              select
-              defaultValue={branch[0].value}
-              options={branch}
             />
           </Grid>
           <Grid item xs={6} paddingBottom={2}>
-            <AutoCompleteInputBasic
+            <AutoCompleteBasic
               required
               label="Teacher Name"
               name="teacherId"
               value={stateForm.values.teacherId}
               error={Boolean(stateForm.errors.teacherId)}
               errorMessage={stateForm.errors.teacherId}
-              onChange={(e, value) => {
-                onChange(e, value);
-              }}
               options={teachers}
               loading={isLoadingTeachers}
               open={openTeacher}
@@ -274,19 +288,19 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
               onClose={() => {
                 setOpenTeacher(false);
               }}
+              onChange={(_, newValue) => {
+                onChange({ target: { name: "teacherId", value: newValue } });
+              }}
             />
           </Grid>
           <Grid item xs={6} paddingBottom={2}>
-            <AutoCompleteInputBasic
+            <AutoCompleteBasic
               required
               label="Rooms"
               name="roomId"
               value={stateForm.values.roomId}
               error={Boolean(stateForm.errors.roomId)}
               errorMessage={stateForm.errors.roomId}
-              onChange={(e, value) => {
-                onChange(e, value);
-              }}
               options={rooms}
               loading={isLoadingRooms}
               open={openRoom}
@@ -296,6 +310,26 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
               onClose={() => {
                 setOpenRoom(false);
               }}
+              onChange={(_, newValue) => {
+                onChange({ target: { name: "roomId", value: newValue } });
+                onChange({
+                  target: {
+                    name: "cabang",
+                    value: newValue ? rooms.find((room) => room.value === newValue.value).branch : "",
+                  },
+                });
+              }}
+            />
+          </Grid>
+          <Grid item xs={6} paddingBottom={2}>
+            <InputBasic
+              required
+              label="Branch"
+              name="cabang"
+              disabled
+              value={stateForm.values.cabang}
+              error={Boolean(stateForm.errors.cabang)}
+              errorMessage={stateForm.errors.cabang}
             />
           </Grid>
           <Grid item xs={6} paddingBottom={2}>
@@ -324,16 +358,13 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
             />
           </Grid>
           <Grid item xs={6} paddingBottom={2}>
-            <AutoCompleteInputBasic
+            <AutoCompleteBasic
               required
               label="Instrument"
               name="instrumentId"
               value={stateForm.values.instrumentId}
               error={Boolean(stateForm.errors.instrumentId)}
               errorMessage={stateForm.errors.instrumentId}
-              onChange={(e, value) => {
-                onChange(e, value);
-              }}
               options={instruments}
               loading={isLoadingInstruments}
               open={openInstrument}
@@ -342,6 +373,9 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
               }}
               onClose={() => {
                 setOpenInstrument(false);
+              }}
+              onChange={(_, newValue) => {
+                onChange({ target: { name: "instrumentId", value: newValue } });
               }}
             />
           </Grid>
@@ -354,21 +388,49 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
               value={stateForm.values.durasi}
               error={Boolean(stateForm.errors.durasi)}
               errorMessage={stateForm.errors.durasi}
-              onChange={(e) => {
-                onChange(e);
-              }}
             />
           </Grid>
+          {state === "update" ? (
+            <Grid item xs={12}>
+              <FormControl>
+                <FormLabel id="status-kelas">Status Kelas</FormLabel>
+                <RadioGroup
+                  row
+                  aria-labelledby="status-kelas"
+                  name="status"
+                  value={stateForm.values.status}
+                  onChange={onChange}
+                >
+                  <FormControlLabel value="pending" control={<Radio />} label="Hold" />
+                  <FormControlLabel value="confirmed" control={<Radio />} label="Konfirmasi" />
+                  <FormControlLabel value="cancel" control={<Radio />} label="Cancel" />
+                </RadioGroup>
+              </FormControl>
+            </Grid>
+          ) : null}
         </Grid>
-        <LoadingButton
-          loading={submitAddBooking.isLoading || submitUpdateBooking.isLoading}
-          variant="contained"
-          type="submit"
-          fullWidth
-          onClick={() => handleSubmitCreate()}
-        >
-          Save
-        </LoadingButton>
+        <Stack direction={"row"} spacing={2}>
+          <LoadingButton
+            loading={submitAddBooking.isLoading || submitUpdateBooking.isLoading}
+            variant="outlined"
+            type="submit"
+            fullWidth
+            onClick={() => handleSubmitCreate({ addAnother: false })}
+          >
+            Save and Close
+          </LoadingButton>
+          {state !== "update" ? (
+            <LoadingButton
+              loading={submitAddBooking.isLoading || submitUpdateBooking.isLoading}
+              variant="contained"
+              type="submit"
+              fullWidth
+              onClick={() => handleSubmitCreate({ addAnother: true })}
+            >
+              Save and add another
+            </LoadingButton>
+          ) : null}
+        </Stack>
       </Box>
     </Modal>
   );

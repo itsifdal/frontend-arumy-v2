@@ -3,9 +3,8 @@ import { styled } from "@mui/material/styles";
 
 import { FormControl, InputLabel, TextField } from "@mui/material";
 
-const CustomTextField = styled(TextField)({
+export const CustomTextField = styled(TextField)({
   input: {
-    padding: "15px",
     fontSize: "14px",
   },
   ".MuiInputBase-root": { borderRadius: "15px" },
