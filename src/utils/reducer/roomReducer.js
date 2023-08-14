@@ -1,11 +1,11 @@
 export const initialRoomFormState = {
   values: {
     nama_ruang: "",
-    lokasi_cabang: "",
+    cabangId: "",
   },
   errors: {
     nama_ruang: "",
-    lokasi_cabang: "",
+    cabangId: "",
   },
 };
 
@@ -14,8 +14,8 @@ export function validateRoomForm(values) {
   if (!values.nama_ruang) {
     errors.nama_ruang = "Nama ruang is required";
   }
-  if (!values.lokasi_cabang) {
-    errors.lokasi_cabang = "Lokasi cabang is required";
+  if (!values.cabangId) {
+    errors.cabangId = "Cabang is required";
   }
   return errors;
 }

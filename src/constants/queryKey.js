@@ -5,4 +5,5 @@ export const queryKey = {
   instruments: "INSTRUMENTS",
   dashboard: "DASHBOARDS",
   bookings: "BOOKINGS",
+  branches: "BRANCHES",
 };

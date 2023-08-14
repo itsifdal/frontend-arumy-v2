@@ -20,6 +20,8 @@ import PageHeader from "../components/PageHeader";
 import BasicTable from "../components/BasicTable";
 import InputBasic from "../components/input/inputBasic";
 import { modalStyle } from "../constants/modalStyle";
+import { queryKey } from "../constants/queryKey";
+import SelectBasic from "../components/input/selectBasic";
 
 // ----------------------------------------------------------------------
 export default function Room() {
@@ -41,6 +43,14 @@ export default function Room() {
   const submitAddRoom = useMutation((data) => axios.post(`${process.env.REACT_APP_BASE_URL}/api/room`, data));
   const submitUpdateRoom = useMutation((data) => axios.put(`${process.env.REACT_APP_BASE_URL}/api/room/${id}`, data));
   const submitDeleteRoom = useMutation(() => axios.delete(`${process.env.REACT_APP_BASE_URL}/api/room/${id}`));
+
+  const { data: branches = [{ value: "", label: "" }] } = useQuery(
+    [queryKey.branches],
+    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/cabang`).then((res) => res.data),
+    {
+      select: (branches) => branches.data.map((branch) => ({ value: branch.id, label: branch.nama_cabang })),
+    }
+  );
 
   //----
   const handleOpenModalCreate = () => setOpen(true);
@@ -88,8 +98,8 @@ export default function Room() {
     setId(e.target.getAttribute("data-id"));
     dispatchStateForm({
       type: "change-field",
-      name: "lokasi_cabang",
-      value: e.target.getAttribute("data-lokasi_cabang"),
+      name: "cabangId",
+      value: e.target.getAttribute("data-cabangId"),
     });
     dispatchStateForm({
       type: "change-field",
@@ -169,10 +179,10 @@ export default function Room() {
         {!isLoadingRooms ? (
           <Scrollbar>
             <BasicTable
-              header={["ROOM NAME", "DESCRIPTION", " "]}
+              header={["ROOM NAME", "CABANG", " "]}
               body={rooms.map((room) => [
                 room.nama_ruang,
-                room.lokasi_cabang,
+                room.cabang?.nama_cabang,
                 <Stack key={room.id} direction="row" spacing={2}>
                   <Button
                     variant="contained"
@@ -180,7 +190,7 @@ export default function Room() {
                     size="small"
                     startIcon={<Iconify icon="mdi:pencil" />}
                     data-id={room.id}
-                    data-lokasi_cabang={room.lokasi_cabang}
+                    data-cabangId={room.cabangId}
                     data-nama_ruang={room.nama_ruang}
                     onClick={handleOpenModalUpdate}
                   >
@@ -229,16 +239,21 @@ export default function Room() {
               />
             </Box>
             <Box paddingBottom={2}>
-              <InputBasic
+              <SelectBasic
                 required
-                label="Lokasi Cabang"
-                name="lokasi_cabang"
-                value={stateForm.values.lokasi_cabang}
-                error={Boolean(stateForm.errors.lokasi_cabang)}
-                errorMessage={stateForm.errors.lokasi_cabang}
+                fullWidth
+                id="cabangId"
+                name="cabangId"
+                defaultValue={branches[0].value}
+                value={stateForm.values.cabangId}
+                error={Boolean(stateForm.errors.cabangId)}
+                errorMessage={stateForm.errors.cabangId}
                 onChange={(e) => {
                   onChangeInput(e);
                 }}
+                select
+                label="Cabang"
+                options={branches}
               />
             </Box>
             <LoadingButton
