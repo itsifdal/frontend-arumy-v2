@@ -38,7 +38,7 @@ export default function Room() {
     data: rooms,
     refetch: roomsRefetch,
     isLoading: isLoadingRooms,
-  } = useQuery(["ROOMS"], () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/room`).then((res) => res.data));
+  } = useQuery([queryKey.rooms], () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/room`).then((res) => res.data));
 
   const submitAddRoom = useMutation((data) => axios.post(`${process.env.REACT_APP_BASE_URL}/api/room`, data));
   const submitUpdateRoom = useMutation((data) => axios.put(`${process.env.REACT_APP_BASE_URL}/api/room/${id}`, data));

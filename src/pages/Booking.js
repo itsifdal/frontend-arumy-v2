@@ -114,7 +114,7 @@ export default function Booking() {
     data: bookings,
     refetch: bookingsRefetch,
     isLoading: isLoadingBookings,
-  } = useQuery(["BOOKINGS", cleanQuery(queryParam)], () =>
+  } = useQuery([queryKey.bookings, cleanQuery(queryParam)], () =>
     axios.get(`${process.env.REACT_APP_BASE_URL}/api/booking${queryToString(queryParam)}`).then((res) => res.data)
   );
 
@@ -382,7 +382,7 @@ export default function Booking() {
       <Container maxWidth="xl" sx={{ paddingTop: 4 }}>
         <ToastContainer pauseOnFocusLoss={false} />
         {!isLoadingBookings ? (
-          <Box padding={3} marginBottom={3}>
+          <Box marginBottom={3}>
             <Scrollbar>
               <BasicTable header={tableHeader} body={tableBody} />
             </Scrollbar>

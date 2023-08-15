@@ -20,6 +20,7 @@ import PageHeader from "../components/PageHeader";
 import BasicTable from "../components/BasicTable";
 import InputBasic from "../components/input/inputBasic";
 import { modalStyle } from "../constants/modalStyle";
+import { queryKey } from "../constants/queryKey";
 
 // ----------------------------------------------------------------------
 export default function Branches() {
@@ -36,7 +37,9 @@ export default function Branches() {
     data: branches,
     refetch: branchesRefetch,
     isLoading: isLoadingBranches,
-  } = useQuery(["BRANCHES"], () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/cabang`).then((res) => res.data));
+  } = useQuery([queryKey.branches], () =>
+    axios.get(`${process.env.REACT_APP_BASE_URL}/api/cabang`).then((res) => res.data)
+  );
 
   const submitAddBranch = useMutation((data) => axios.post(`${process.env.REACT_APP_BASE_URL}/api/cabang`, data));
   const submitUpdateBranch = useMutation((data) =>
