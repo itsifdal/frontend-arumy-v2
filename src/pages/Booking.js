@@ -400,7 +400,9 @@ export default function Booking() {
               )}
             />
           </Box>
-        ) : null}
+        ) : (
+          <Typography>Loading data...</Typography>
+        )}
         <CreateBooking
           open={openModalCreate}
           onClose={() => setOpenModalCreate(false)}
