@@ -1,7 +1,7 @@
 const IMAGES = {
-    ILLUSTRATION_LOGIN: '/static/illustrations/illustration-owly-hi.png',
-    LOGIN_BG: '/static/login-bg-white.png',
-    LOGIN_LOGO: '/static/logo-blue.png',
-}
+  ILLUSTRATION_LOGIN: "/static/illustrations/illustration-owly-hi.svg",
+  LOGIN_BG: "/static/login-bg-white.png",
+  LOGIN_LOGO: "/static/logo-blue.svg",
+};
 
-export default IMAGES
+export default IMAGES;

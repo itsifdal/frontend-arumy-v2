@@ -66,7 +66,7 @@ export default function Login() {
   return (
     <Page title="Login">
       <LoginLayout>
-        <Typography variant="h4" align="center">
+        <Typography variant="h3" align="center" fontWeight={"bold"} color={"primary.darker"}>
           Sign in
         </Typography>
 

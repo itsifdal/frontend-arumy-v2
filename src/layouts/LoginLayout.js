@@ -35,6 +35,9 @@ const LoginLayout = forwardRef(({ children }, ref) => (
             py: "55px",
             px: "33px",
             mb: "60px",
+            zIndex: "2",
+            borderRadius: "20px",
+            boxShadow: "3px 4px 30px 0px rgba(0, 0, 0, 0.15)",
           }}
         >
           {children}
