@@ -1,13 +1,8 @@
 /* eslint-disable camelcase */
-// import { Link as RouterLink } from 'react-router-dom';
 import React, { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, Link as RouterLink } from "react-router-dom";
 import { useQuery, useMutation } from "react-query";
 import { format, parse, addMinutes } from "date-fns";
-// Date Picker
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { TimePicker } from "@mui/x-date-pickers/";
 // React Toasts
 import { ToastContainer, toast } from "react-toastify";
 import axios from "axios";
@@ -25,11 +20,11 @@ import {
   Typography,
   Modal,
   FormControl,
-  TextField,
-  MenuItem,
   Box,
   Stack,
   Grid,
+  Pagination,
+  PaginationItem,
 } from "@mui/material";
 import { InfoRounded } from "@mui/icons-material";
 
@@ -40,6 +35,7 @@ import Iconify from "../components/Iconify";
 import PageHeader from "../components/PageHeader";
 import BasicTable from "../components/BasicTable";
 import CreateBooking from "../components/modal/createBooking";
+import ConfirmBooking from "../components/modal/confirmBooking";
 import { cleanQuery } from "../utils/cleanQuery";
 import { urlSearchParamsToQuery } from "../utils/urlSearchParamsToQuery";
 import { queryToString } from "../utils/queryToString";
@@ -55,7 +51,8 @@ const style = {
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: 400,
+  width: "100%",
+  maxWidth: "400px",
   bgcolor: "background.paper",
   border: "2px solid #000",
   boxShadow: 24,
@@ -72,11 +69,8 @@ const initFilter = {
 
 // ----------------------------------------------------------------------
 export default function Booking() {
-  const [id, setBookingId] = useState();
+  const [bookingId, setBookingId] = useState();
   const [user, setUser] = useState("");
-  const [statusKelas, setStatusKelas] = useState("all");
-  const [tm_start, setTmStart] = useState(null);
-  const [tm_end, setTmEnd] = useState(null);
   const [openModalCreate, setOpenModalCreate] = useState(false);
   const [stateModalCreate, setStateModalCreate] = useState("create");
   const [filters, setFilters] = useState(initFilter);
@@ -98,11 +92,7 @@ export default function Booking() {
     setFilters(urlSearchParamsToQuery(searchParams));
   }, [searchParams]);
 
-  const tmstr = tm_start;
-  const tmend = tm_end;
-
   const [openDel, setOpenDel] = useState(false);
-  const [openUpdTime, setOpenUpdTime] = useState(false);
   const [openUpdStatus, setOpenUpdStatus] = useState(false);
 
   const [openRoom, setOpenRoom] = useState(false);
@@ -115,10 +105,6 @@ export default function Booking() {
     }
   );
 
-  const handleChangeStatus = (e) => {
-    setStatusKelas(e.target.value);
-  };
-
   const SubmitFilter = () => {
     setSearchParams(filters);
   };
@@ -128,7 +114,7 @@ export default function Booking() {
     data: bookings,
     refetch: bookingsRefetch,
     isLoading: isLoadingBookings,
-  } = useQuery(["BOOKINGS", cleanQuery(queryParam)], () =>
+  } = useQuery([queryKey.bookings, cleanQuery(queryParam)], () =>
     axios.get(`${process.env.REACT_APP_BASE_URL}/api/booking${queryToString(queryParam)}`).then((res) => res.data)
   );
 
@@ -144,7 +130,9 @@ export default function Booking() {
   };
   const handleCloseModalDelete = () => setOpenDel(false);
 
-  const submitDeleteBooking = useMutation(() => axios.delete(`${process.env.REACT_APP_BASE_URL}/api/booking/${id}`));
+  const submitDeleteBooking = useMutation(() =>
+    axios.delete(`${process.env.REACT_APP_BASE_URL}/api/booking/${bookingId}`)
+  );
 
   const handleSubmitDelete = (e) => {
     e.preventDefault();
@@ -166,6 +154,7 @@ export default function Booking() {
     bookingsRefetch();
     setOpenDel(false);
     setOpenModalCreate(false);
+    setOpenUpdStatus(false);
     toast.success(response.data.message, {
       position: "top-center",
       autoClose: 1000,
@@ -174,35 +163,13 @@ export default function Booking() {
   };
 
   const onErrorMutateBooking = (error) => {
-    if (error.response) {
-      toast.error(error.response, {
+    if (error) {
+      toast.error("Booking Error", {
         position: "top-center",
         autoClose: 1000,
         theme: "colored",
       });
     }
-  };
-  // END
-
-  // UPDATE DATA SCHEDULE OLEH ADMIN
-  const CloseModalUpdTime = () => setOpenUpdTime(false);
-
-  const SubmitUpdateTime = (e) => {
-    e.preventDefault();
-    const data = {
-      time_start: tmstr,
-      time_end: tmend,
-    };
-    console.log(data);
-    axios.put(`${process.env.REACT_APP_BASE_URL}/api/booking/updateSchedule/${id}`, data).then((response) => {
-      bookingsRefetch();
-      setOpenUpdTime(false);
-      toast.success(response.data.message, {
-        position: "top-center",
-        autoClose: 1000,
-        theme: "colored",
-      });
-    });
   };
   // END
 
@@ -212,21 +179,6 @@ export default function Booking() {
     setOpenUpdStatus(true);
   };
   const handleCloseModalUpdateStatus = () => setOpenUpdStatus(false);
-  const handleSubmitUpdStatus = (e) => {
-    e.preventDefault();
-    const data = {
-      status: statusKelas,
-    };
-    axios.put(`${process.env.REACT_APP_BASE_URL}/api/booking/updateStatus/${id}`, data).then((response) => {
-      bookingsRefetch();
-      setOpenUpdStatus(false);
-      toast.success(response.data.message, {
-        position: "top-center",
-        autoClose: 1000,
-        theme: "colored",
-      });
-    });
-  };
 
   const handleOpenModalCreate = (e) => {
     e.preventDefault();
@@ -243,8 +195,6 @@ export default function Booking() {
   // Cek loggedin user admin
   const isUserAdmin = user.role === "Admin";
   const isUserGuru = user.role === "Guru";
-  const tableHeader = ["TGL KELAS", "JAM BOOKING", "RUANG KELAS", "MURID", "PENGAJAR", "STATUS"];
-  if (isUserAdmin || isUserGuru) tableHeader.push(" ");
 
   const generateStatus = (status) => {
     if (status === "pending") {
@@ -282,14 +232,13 @@ export default function Booking() {
         </Stack>
       );
     }
-    if (isUserGuru) {
+    if (isUserGuru && book.status === "pending") {
       return (
         <Button
           variant="contained"
           color="primary"
           size="small"
           margin="normal"
-          startIcon={<Iconify icon="eva:pencil-fill" />}
           data-durasi={book.durasi}
           data-id={book.id}
           onClick={handleOpenModalUpdateStatus}
@@ -298,7 +247,7 @@ export default function Booking() {
         </Button>
       );
     }
-    return false;
+    return <></>;
   };
 
   const hourModel = ({ timeStart, timeEnd, duration }) => {
@@ -327,6 +276,23 @@ export default function Booking() {
     }
     return <></>;
   };
+
+  const tableHeader = ["TGL KELAS", "JAM BOOKING", "RUANG KELAS", "MURID", "PENGAJAR", "STATUS", ""];
+  const tableBody = bookings?.data
+    ? bookings.data.map((booking) => [
+        format(parse(booking.tgl_kelas, "yyyy-MM-dd", new Date()), "dd-MM-yyyy"),
+        hourModel({ timeStart: booking.jam_booking, timeEnd: booking.selesai, duration: booking.durasi }),
+        booking.room.nama_ruang,
+        studentModel({ students: booking.user_group }),
+        booking.teacher.nama_pengajar,
+        generateStatus(booking.status),
+        { ...((isUserAdmin || isUserGuru) && generateButtonAction(booking)) },
+      ])
+    : [];
+  if (!isUserAdmin && !isUserGuru) {
+    tableHeader.pop();
+    tableBody.map((body) => body.pop());
+  }
 
   //----
   return (
@@ -416,25 +382,29 @@ export default function Booking() {
       <Container maxWidth="xl" sx={{ paddingTop: 4 }}>
         <ToastContainer pauseOnFocusLoss={false} />
         {!isLoadingBookings ? (
-          <Scrollbar>
-            <BasicTable
-              header={tableHeader}
-              body={bookings.data.map((booking) => [
-                format(parse(booking.tgl_kelas, "yyyy-MM-dd", new Date()), "dd-MM-yyyy"),
-                hourModel({ timeStart: booking.jam_booking, timeEnd: booking.selesai, duration: booking.durasi }),
-                booking.room.nama_ruang,
-                studentModel({ students: booking.user_group }),
-                booking.teacher.nama_pengajar,
-                generateStatus(booking.status),
-                { ...((isUserAdmin || isUserGuru) && generateButtonAction(booking)) },
-              ])}
+          <Box marginBottom={3}>
+            <Scrollbar>
+              <BasicTable header={tableHeader} body={tableBody} />
+            </Scrollbar>
+            <Pagination
+              page={bookings.pagination.current_page}
+              count={bookings.pagination.total_pages}
+              shape="rounded"
+              sx={[{ ul: { justifyContent: "center" } }]}
+              renderItem={(item) => (
+                <PaginationItem
+                  component={RouterLink}
+                  to={`/dashboard/booking${item.page === 1 ? "" : `?page=${item.page}`}`}
+                  {...item}
+                />
+              )}
             />
-          </Scrollbar>
+          </Box>
         ) : null}
         <CreateBooking
           open={openModalCreate}
           onClose={() => setOpenModalCreate(false)}
-          id={Number(id)}
+          id={Number(bookingId)}
           state={stateModalCreate}
           callbackSuccess={(response) => {
             onSuccessMutateBooking(response);
@@ -462,75 +432,17 @@ export default function Booking() {
           </Box>
         </Modal>
 
-        <Modal
+        <ConfirmBooking
           open={openUpdStatus}
           onClose={handleCloseModalUpdateStatus}
-          aria-labelledby="modal-modal-title"
-          aria-describedby="modal-modal-description"
-        >
-          <Box sx={style}>
-            <Typography id="modal-modal-title" variant="h6" component="h2" marginBottom={5}>
-              Confirm Class
-            </Typography>
-            <FormControl fullWidth>
-              <TextField
-                id="outlined-select-currency jenis"
-                select
-                margin="normal"
-                label="Status Kelas"
-                value={statusKelas}
-                onChange={handleChangeStatus}
-              >
-                <MenuItem value={"Jenis Kelas"}>Jenis kelas</MenuItem>
-                <MenuItem value={"Pending"}>Pending</MenuItem>
-                <MenuItem value={"Confirmed"}>Confirmed</MenuItem>
-              </TextField>
-              <Button variant="contained" type="submit" onClick={handleSubmitUpdStatus}>
-                Submit
-              </Button>
-            </FormControl>
-          </Box>
-        </Modal>
-
-        <Modal
-          open={openUpdTime}
-          onClose={CloseModalUpdTime}
-          aria-labelledby="modal-modal-title"
-          aria-describedby="modal-modal-description"
-        >
-          <Box sx={style}>
-            <Typography id="modal-modal-title" variant="h6" component="h2" marginBottom={5}>
-              Update Times
-            </Typography>
-            <FormControl fullWidth>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <TimePicker
-                  label="Time Start"
-                  ampm={false}
-                  margin="normal"
-                  format="hh:mm"
-                  value={tmstr}
-                  onChange={(newValue) => {
-                    setTmStart(new Date(newValue));
-                  }}
-                  renderInput={(params) => <TextField {...params} margin="normal" />}
-                />
-                <TimePicker
-                  label="Time End"
-                  ampm={false}
-                  value={tmend}
-                  onChange={(newValue) => {
-                    setTmEnd(new Date(newValue));
-                  }}
-                  renderInput={(params) => <TextField {...params} margin="normal" />}
-                />
-              </LocalizationProvider>
-              <Button variant="contained" type="submit" onClick={SubmitUpdateTime}>
-                Update Times
-              </Button>
-            </FormControl>
-          </Box>
-        </Modal>
+          id={Number(bookingId)}
+          callbackSuccess={(response) => {
+            onSuccessMutateBooking(response);
+          }}
+          callbackError={(error) => {
+            onErrorMutateBooking(error);
+          }}
+        />
       </Container>
     </Page>
   );

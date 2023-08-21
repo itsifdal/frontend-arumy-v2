@@ -1,26 +1,21 @@
-export const initialRoomFormState = {
+export const initialBranchFormState = {
   values: {
-    nama_ruang: "",
-    cabangId: "",
+    nama_cabang: "",
   },
   errors: {
-    nama_ruang: "",
-    cabangId: "",
+    nama_cabang: "",
   },
 };
 
-export function validateRoomForm(values) {
+export function validateBranchForm(values) {
   const errors = {};
-  if (!values.nama_ruang) {
-    errors.nama_ruang = "Nama ruang is required";
-  }
-  if (!values.cabangId) {
-    errors.cabangId = "Cabang is required";
+  if (!values.nama_cabang) {
+    errors.nama_cabang = "Nama cabang is required";
   }
   return errors;
 }
 
-export function roomFormReducer(state, payload) {
+export function branchFormReducer(state, payload) {
   if (payload.type === "change-field") {
     const values = {
       ...state.values,
@@ -32,7 +27,7 @@ export function roomFormReducer(state, payload) {
       errors: payload.isEnableValidate
         ? {
             ...state.errors,
-            [payload.name]: validateRoomForm(values)[payload.name],
+            [payload.name]: validateBranchForm(values)[payload.name],
           }
         : state.errors,
     };
@@ -45,7 +40,7 @@ export function roomFormReducer(state, payload) {
   }
   if (payload.type === "reset-field") {
     return {
-      ...initialRoomFormState,
+      ...initialBranchFormState,
     };
   }
   return state;

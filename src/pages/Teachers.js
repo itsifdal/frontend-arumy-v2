@@ -4,11 +4,23 @@ import React, { useState, useReducer, useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import { useQuery, useMutation } from "react-query";
 import axios from "axios";
+import { useSearchParams, Link as RouterLink } from "react-router-dom";
 
 import "react-toastify/dist/ReactToastify.css";
 
 // material
-import { Stack, Button, Container, Typography, Modal, FormControl, Box, Grid } from "@mui/material";
+import {
+  Stack,
+  Button,
+  Container,
+  Typography,
+  Modal,
+  FormControl,
+  Box,
+  Grid,
+  Pagination,
+  PaginationItem,
+} from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 
 // components
@@ -20,6 +32,10 @@ import PageHeader from "../components/PageHeader";
 import BasicTable from "../components/BasicTable";
 import InputBasic from "../components/input/inputBasic";
 import { modalStyle } from "../constants/modalStyle";
+import { queryKey } from "../constants/queryKey";
+import { urlSearchParamsToQuery } from "../utils/urlSearchParamsToQuery";
+import { cleanQuery } from "../utils/cleanQuery";
+import { queryToString } from "../utils/queryToString";
 
 // ----------------------------------------------------------------------
 export default function Teachers() {
@@ -32,22 +48,26 @@ export default function Teachers() {
 
   const [stateForm, dispatchStateForm] = useReducer(teacherFormReducer, initialTeacherFormState);
 
+  const [searchParams] = useSearchParams();
+  const queryParam = urlSearchParamsToQuery(searchParams);
+
   // query
   const {
     data: teachers,
     refetch: teachersRefetch,
     isLoading: isLoadingTeachers,
-  } = useQuery(["TEACHERS"], () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/teacher`).then((res) => res.data));
+  } = useQuery([queryKey.teachers, cleanQuery(queryParam)], () =>
+    axios.get(`${process.env.REACT_APP_BASE_URL}/api/teacher${queryToString(queryParam)}`).then((res) => res.data)
+  );
 
   const { refetch: teacherRefetch } = useQuery(
-    ["TEACHERS", "DETAIL"],
+    [queryKey.teachers, "DETAIL"],
     () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/teacher/${id}`).then((res) => res.data),
     {
       enabled: Boolean(id),
       onSuccess: (res) => {
         if (res.data) {
           const entries = Object.entries(res.data);
-          console.log("entries ", entries);
           entries.forEach((student) => {
             dispatchStateForm({
               type: "change-field",
@@ -185,39 +205,54 @@ export default function Teachers() {
           </Button>
         }
       />
-      <Container maxWidth="xl" sx={{ paddingTop: 4, background: "white" }}>
+      <Container maxWidth="xl" sx={{ paddingTop: 4 }}>
         <ToastContainer pauseOnFocusLoss={false} />
         {!isLoadingTeachers ? (
-          <Scrollbar>
-            <BasicTable
-              header={["TEACHER NAME", "TELEPON", " "]}
-              body={teachers.map((teacher) => [
-                teacher.nama_pengajar,
-                teacher.telepon,
-                <Stack key={teacher.id} direction="row" spacing={2}>
-                  <Button
-                    variant="contained"
-                    color="success"
-                    size="small"
-                    data-id={teacher.id}
-                    onClick={handleOpenModalUpdate}
-                  >
-                    Update
-                  </Button>
-                  <Button
-                    variant="contained"
-                    color="error"
-                    size="small"
-                    data-label={teacher.nama_pengajar}
-                    data-id={teacher.id}
-                    onClick={handleOpenModalDelete}
-                  >
-                    Delete
-                  </Button>
-                </Stack>,
-              ])}
+          <Box marginBottom={3}>
+            <Scrollbar>
+              <BasicTable
+                header={["TEACHER NAME", "TELEPON", " "]}
+                body={teachers.data.map((teacher) => [
+                  teacher.nama_pengajar,
+                  teacher.telepon,
+                  <Stack key={teacher.id} direction="row" spacing={2}>
+                    <Button
+                      variant="contained"
+                      color="success"
+                      size="small"
+                      data-id={teacher.id}
+                      onClick={handleOpenModalUpdate}
+                    >
+                      Update
+                    </Button>
+                    <Button
+                      variant="contained"
+                      color="error"
+                      size="small"
+                      data-label={teacher.nama_pengajar}
+                      data-id={teacher.id}
+                      onClick={handleOpenModalDelete}
+                    >
+                      Delete
+                    </Button>
+                  </Stack>,
+                ])}
+              />
+            </Scrollbar>
+            <Pagination
+              page={teachers.pagination.current_page}
+              count={teachers.pagination.total_pages}
+              shape="rounded"
+              sx={[{ ul: { justifyContent: "center" } }]}
+              renderItem={(item) => (
+                <PaginationItem
+                  component={RouterLink}
+                  to={`/dashboard/teachers${item.page === 1 ? "" : `?page=${item.page}`}`}
+                  {...item}
+                />
+              )}
             />
-          </Scrollbar>
+          </Box>
         ) : null}
 
         <Modal

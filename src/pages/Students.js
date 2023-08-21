@@ -4,11 +4,23 @@ import React, { useState, useReducer, useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import { useQuery, useMutation } from "react-query";
 import axios from "axios";
+import { useSearchParams, Link as RouterLink } from "react-router-dom";
 
 import "react-toastify/dist/ReactToastify.css";
 
 // material
-import { Stack, Button, Container, Typography, Modal, FormControl, Box, Grid } from "@mui/material";
+import {
+  Stack,
+  Button,
+  Container,
+  Typography,
+  Modal,
+  FormControl,
+  Box,
+  Grid,
+  Pagination,
+  PaginationItem,
+} from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 
 // components
@@ -21,6 +33,9 @@ import BasicTable from "../components/BasicTable";
 import InputBasic from "../components/input/inputBasic";
 import { modalStyle } from "../constants/modalStyle";
 import { queryKey } from "../constants/queryKey";
+import { urlSearchParamsToQuery } from "../utils/urlSearchParamsToQuery";
+import { cleanQuery } from "../utils/cleanQuery";
+import { queryToString } from "../utils/queryToString";
 
 // ----------------------------------------------------------------------
 export default function Students() {
@@ -33,17 +48,20 @@ export default function Students() {
 
   const [stateForm, dispatchStateForm] = useReducer(studentFormReducer, initialStudentFormState);
 
+  const [searchParams] = useSearchParams();
+  const queryParam = urlSearchParamsToQuery(searchParams);
+
   // query
   const {
     data: students,
     refetch: studentsRefetch,
     isLoading: isLoadingStudents,
-  } = useQuery([queryKey.students], () =>
-    axios.get(`${process.env.REACT_APP_BASE_URL}/api/student`).then((res) => res.data)
+  } = useQuery([queryKey.students, cleanQuery(queryParam)], () =>
+    axios.get(`${process.env.REACT_APP_BASE_URL}/api/student${queryToString(queryParam)}`).then((res) => res.data)
   );
 
   const { refetch: studentRefetch } = useQuery(
-    ["STUDENTS", "DETAIL"],
+    [queryKey.students, "DETAIL"],
     () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/student/${id}`).then((res) => res.data),
     {
       enabled: Boolean(id),
@@ -185,40 +203,55 @@ export default function Students() {
           </Button>
         }
       />
-      <Container maxWidth="xl" sx={{ paddingTop: 4, background: "white" }}>
+      <Container maxWidth="xl" sx={{ paddingTop: 4 }}>
         <ToastContainer pauseOnFocusLoss={false} />
         {!isLoadingStudents ? (
-          <Scrollbar>
-            <BasicTable
-              header={["STUDENT NAME", "NOMOR VA", "TELEPON", " "]}
-              body={students.map((student) => [
-                student.nama_murid,
-                student.nomor_va,
-                student.telepon,
-                <Stack key={student.id} direction="row" spacing={2}>
-                  <Button
-                    variant="contained"
-                    color="success"
-                    size="small"
-                    data-id={student.id}
-                    onClick={handleOpenModalUpdate}
-                  >
-                    Update
-                  </Button>
-                  <Button
-                    variant="contained"
-                    color="error"
-                    size="small"
-                    data-label={student.nama_murid}
-                    data-id={student.id}
-                    onClick={handleOpenModalDelete}
-                  >
-                    Delete
-                  </Button>
-                </Stack>,
-              ])}
+          <Box marginBottom={3}>
+            <Scrollbar>
+              <BasicTable
+                header={["STUDENT NAME", "NOMOR VA", "TELEPON", " "]}
+                body={students.data.map((student) => [
+                  student.nama_murid,
+                  student.nomor_va,
+                  student.telepon,
+                  <Stack key={student.id} direction="row" spacing={2}>
+                    <Button
+                      variant="contained"
+                      color="success"
+                      size="small"
+                      data-id={student.id}
+                      onClick={handleOpenModalUpdate}
+                    >
+                      Update
+                    </Button>
+                    <Button
+                      variant="contained"
+                      color="error"
+                      size="small"
+                      data-label={student.nama_murid}
+                      data-id={student.id}
+                      onClick={handleOpenModalDelete}
+                    >
+                      Delete
+                    </Button>
+                  </Stack>,
+                ])}
+              />
+            </Scrollbar>
+            <Pagination
+              page={students.pagination.current_page}
+              count={students.pagination.total_pages}
+              shape="rounded"
+              sx={[{ ul: { justifyContent: "center" } }]}
+              renderItem={(item) => (
+                <PaginationItem
+                  component={RouterLink}
+                  to={`/dashboard/students${item.page === 1 ? "" : `?page=${item.page}`}`}
+                  {...item}
+                />
+              )}
             />
-          </Scrollbar>
+          </Box>
         ) : null}
 
         <Modal

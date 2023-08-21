@@ -17,7 +17,7 @@ const RootStyle = styled("div")({
 const MainStyle = styled("div")({
   flexGrow: 1,
   overflow: "auto",
-  minHeight: "100%",
+  minHeight: "100vh",
   backgroundColor: "#F9FAFB",
 });
 

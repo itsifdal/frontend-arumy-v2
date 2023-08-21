@@ -1,10 +1,22 @@
 import React, { useEffect, useState, useReducer } from "react";
-import { Typography, Modal, Box, Grid } from "@mui/material";
+import {
+  Typography,
+  Modal,
+  Box,
+  Grid,
+  Stack,
+  FormControl,
+  FormLabel,
+  RadioGroup,
+  FormControlLabel,
+  Radio,
+} from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import PropTypes from "prop-types";
 import { useQuery, useMutation } from "react-query";
 import axios from "axios";
 import { differenceInMinutes, format, parse } from "date-fns";
+import { toast } from "react-toastify";
 
 import InputBasic from "../input/inputBasic";
 import SelectBasic from "../input/selectBasic";
@@ -30,6 +42,14 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
       onChange({ target: { name: "durasi", value: duration } });
     }
   }, [stateForm.values.jam_booking, stateForm.values.jam_selesai_booking]);
+
+  useEffect(() => {
+    if (open) {
+      dispatchStateForm({
+        type: "reset-field",
+      });
+    }
+  }, [open]);
 
   const { data: students = [], isLoading: isLoadingStudents } = useQuery(
     [queryKey.students],
@@ -75,16 +95,24 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
 
   const submitAddBooking = useMutation((data) => axios.post(`${process.env.REACT_APP_BASE_URL}/api/booking`, data));
 
-  const handleCallbackMutate = {
+  const handleCallbackMutate = ({ addAnother }) => ({
     onSuccess: (response) => {
-      callbackSuccess(response);
+      if (!addAnother) {
+        callbackSuccess(response);
+      } else {
+        toast.success(response.data.message, {
+          position: "top-center",
+          autoClose: 1000,
+          theme: "colored",
+        });
+      }
     },
     onError: (error) => {
       callbackError(error);
     },
-  };
+  });
 
-  const handleSubmitCreate = () => {
+  const handleSubmitCreate = ({ addAnother = false }) => {
     const errors = validateBookingForm(stateForm.values);
     const hasError = Object.values(errors).some((value) => Boolean(value));
     if (!hasError) {
@@ -102,9 +130,9 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
       };
 
       if (state === "update") {
-        submitUpdateBooking.mutate(data, handleCallbackMutate);
+        submitUpdateBooking.mutate(data, handleCallbackMutate({ addAnother }));
       } else {
-        submitAddBooking.mutate(data, handleCallbackMutate);
+        submitAddBooking.mutate(data, handleCallbackMutate({ addAnother }));
       }
     } else {
       dispatchStateForm({
@@ -138,7 +166,7 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
             value: res.teacherId ?? "",
             label: res.teacher.nama_pengajar ?? "",
           },
-          user_group: res.user_group?.map((student) => ({ value: student.id, label: student.nama_murid })),
+          user_group: res.user_group?.map((student) => ({ value: student.id, label: student.nama_murid })) || [],
           instrumentId: {
             value: res.instrumentId ?? "",
             label: res.instrument.nama_instrument ?? "",
@@ -195,6 +223,7 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
               error={Boolean(stateForm.errors.jenis_kelas)}
               errorMessage={stateForm.errors.jenis_kelas}
               onChange={(e) => {
+                onChange({ target: { name: "user_group", value: [] } });
                 onChange(e);
               }}
               select
@@ -233,7 +262,12 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
                 setOpenStudent(false);
               }}
               onChange={(_, newValue) => {
-                onChange({ target: { name: "user_group", value: newValue } });
+                let values = newValue;
+                // reset when class not group
+                if (stateForm.values.jenis_kelas !== "group") {
+                  values = values.slice(-1);
+                }
+                onChange({ target: { name: "user_group", value: values } });
               }}
             />
           </Grid>
@@ -356,16 +390,47 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
               errorMessage={stateForm.errors.durasi}
             />
           </Grid>
+          {state === "update" ? (
+            <Grid item xs={12}>
+              <FormControl>
+                <FormLabel id="status-kelas">Status Kelas</FormLabel>
+                <RadioGroup
+                  row
+                  aria-labelledby="status-kelas"
+                  name="status"
+                  value={stateForm.values.status}
+                  onChange={onChange}
+                >
+                  <FormControlLabel value="pending" control={<Radio />} label="Hold" />
+                  <FormControlLabel value="confirmed" control={<Radio />} label="Konfirmasi" />
+                  <FormControlLabel value="cancel" control={<Radio />} label="Cancel" />
+                </RadioGroup>
+              </FormControl>
+            </Grid>
+          ) : null}
         </Grid>
-        <LoadingButton
-          loading={submitAddBooking.isLoading || submitUpdateBooking.isLoading}
-          variant="contained"
-          type="submit"
-          fullWidth
-          onClick={() => handleSubmitCreate()}
-        >
-          Save
-        </LoadingButton>
+        <Stack direction={"row"} spacing={2}>
+          <LoadingButton
+            loading={submitAddBooking.isLoading || submitUpdateBooking.isLoading}
+            variant="outlined"
+            type="submit"
+            fullWidth
+            onClick={() => handleSubmitCreate({ addAnother: false })}
+          >
+            Save and Close
+          </LoadingButton>
+          {state !== "update" ? (
+            <LoadingButton
+              loading={submitAddBooking.isLoading || submitUpdateBooking.isLoading}
+              variant="contained"
+              type="submit"
+              fullWidth
+              onClick={() => handleSubmitCreate({ addAnother: true })}
+            >
+              Save and add another
+            </LoadingButton>
+          ) : null}
+        </Stack>
       </Box>
     </Modal>
   );

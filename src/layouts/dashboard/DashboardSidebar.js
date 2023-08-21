@@ -50,6 +50,11 @@ const navConfigAdmin = [
     icon: getIcon("material-symbols:meeting-room"),
   },
   {
+    title: "branches",
+    path: "/dashboard/branches",
+    icon: getIcon("material-symbols:map"),
+  },
+  {
     title: "booking",
     path: "/dashboard/booking",
     icon: getIcon("ion:time"),
