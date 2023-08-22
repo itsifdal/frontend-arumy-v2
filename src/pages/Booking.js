@@ -369,11 +369,11 @@ export default function Booking() {
               </Grid>
             </Grid>
             <Stack spacing={1} direction={"row"} flexShrink={0} alignItems="flex-end">
-              <Button variant="outlined" onClick={SubmitFilter} sx={"height: 50px;"}>
-                Filter{" "}
+              <Button variant="outlined" onClick={SubmitFilter} sx={{ height: "50px" }}>
+                Filter
               </Button>
-              <Button variant="outlined" onClick={ResetFilter} sx={"height: 50px;"}>
-                Reset{" "}
+              <Button variant="outlined" onClick={ResetFilter} sx={{ height: "50px" }}>
+                Reset
               </Button>
             </Stack>
           </Stack>
