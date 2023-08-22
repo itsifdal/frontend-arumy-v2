@@ -29,7 +29,7 @@ import AutoCompleteBasic from "../input/autoCompleteBasic";
 
 import { bookingFormReducer, initialBookingFormState, validateBookingForm } from "../../utils/reducer/bookingReducer";
 
-export default function CreateBooking({ open, onClose, state, id, callbackSuccess, callbackError }) {
+export default function CreateBooking({ open, onClose, state, id, callbackSuccess, callbackError, userId }) {
   const [openStudent, setOpenStudent] = useState(false);
   const [openTeacher, setOpenTeacher] = useState(false);
   const [openRoom, setOpenRoom] = useState(false);
@@ -127,6 +127,7 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
         jenis_kelas: stateForm.values.jenis_kelas,
         durasi: stateForm.values.durasi,
         status: state === "create" ? "pending" : stateForm.values.status,
+        userId,
       };
 
       if (state === "update") {
@@ -443,4 +444,5 @@ CreateBooking.propTypes = {
   id: PropTypes.number,
   callbackSuccess: PropTypes.func,
   callbackError: PropTypes.func,
+  userId: PropTypes.number,
 };

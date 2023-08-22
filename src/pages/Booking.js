@@ -414,6 +414,7 @@ export default function Booking() {
           callbackError={(error) => {
             onErrorMutateBooking(error);
           }}
+          userId={user.id}
         />
 
         <Modal
