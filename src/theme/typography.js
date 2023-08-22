@@ -86,7 +86,11 @@ const typography = {
     textTransform: "uppercase",
   },
   button: {
-    fontSize: pxToRem(20),
+    fontSize: pxToRem(12),
+    textTransform: "none",
+  },
+  input: {
+    fontSize: pxToRem(12),
   },
 };
 

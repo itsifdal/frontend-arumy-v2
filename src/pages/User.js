@@ -218,7 +218,7 @@ export default function User() {
         title="Users"
         rightContent={
           <Button variant="outlined" startIcon={<Iconify icon="eva:plus-fill" />} onClick={handleOpenModalCreate}>
-            Add new User
+            Add New User
           </Button>
         }
       />

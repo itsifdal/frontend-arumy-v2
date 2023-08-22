@@ -14,7 +14,7 @@ export default function PageHeader({ title, rightContent }) {
       }}
     >
       <Container maxWidth="xl">
-        <Stack direction="row" paddingY={3} justifyContent={"space-between"}>
+        <Stack direction="row" paddingY={3} justifyContent={"space-between"} alignItems={"center"}>
           <Typography
             variant="h4"
             sx={{
