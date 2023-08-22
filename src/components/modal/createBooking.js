@@ -55,7 +55,7 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
     [queryKey.students],
     () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/student`).then((res) => res.data),
     {
-      select: (students) => students.map((student) => ({ value: student.id, label: student.nama_murid })),
+      select: (students) => students.data.map((student) => ({ value: student.id, label: student.nama_murid })),
       enabled: openStudent,
     }
   );
@@ -64,7 +64,7 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
     [queryKey.teachers],
     () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/teacher`).then((res) => res.data),
     {
-      select: (teachers) => teachers.map((teacher) => ({ value: teacher.id, label: teacher.nama_pengajar })),
+      select: (teachers) => teachers.data.map((teacher) => ({ value: teacher.id, label: teacher.nama_pengajar })),
       enabled: openTeacher,
     }
   );
