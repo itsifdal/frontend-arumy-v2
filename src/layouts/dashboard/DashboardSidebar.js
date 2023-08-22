@@ -74,6 +74,11 @@ const navConfigAdmin = [
     path: "/dashboard/teachers",
     icon: getIcon("mdi:teacher"),
   },
+  {
+    title: "instruments",
+    path: "/dashboard/instruments",
+    icon: getIcon("mdi:music"),
+  },
 ];
 
 const navConfigNonAdmin = [

@@ -25,6 +25,7 @@ import NotFound from "./pages/Page404";
 import DashboardApp from "./pages/DashboardApp";
 import Teachers from "./pages/Teachers";
 import Branches from "./pages/Branches";
+import Instruments from "./pages/Instruments";
 
 // ----------------------------------------------------------------------
 
@@ -57,6 +58,7 @@ export default function Router() {
         { path: "addbooking", element: <AddBooking /> },
         { path: "updatebooking/:id", element: <UpdateBooking /> },
         { path: "branches", element: <Branches /> },
+        { path: "instruments", element: <Instruments /> },
       ],
     },
     {
