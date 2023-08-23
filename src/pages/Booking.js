@@ -300,7 +300,7 @@ export default function Booking() {
               renderItem={(item) => (
                 <PaginationItem
                   component={RouterLink}
-                  to={`/dashboard/booking${item.page === 1 ? "" : `?page=${item.page}`}`}
+                  to={`/dashboard/booking${queryToString({ ...queryParam, page: item.page === 1 ? null : item.page })}`}
                   {...item}
                 />
               )}
