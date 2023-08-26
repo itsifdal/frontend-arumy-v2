@@ -17,11 +17,13 @@ const initFilter = {
   roomLabel: "",
   tgl_kelas: "",
   studentId: "",
+  studentLabel: "",
   teacherId: "",
 };
 
 export default function BookingFilters() {
   const [openRoom, setOpenRoom] = useState(false);
+  const [openStudent, setOpenStudent] = useState(false);
   const [filters, setFilters] = useState(initFilter);
 
   const [searchParams, setSearchParams] = useSearchParams();
@@ -32,6 +34,14 @@ export default function BookingFilters() {
     {
       select: (roomList) => roomList.map((room) => ({ value: room.id, label: room.nama_ruang })),
       enabled: openRoom,
+    }
+  );
+  const { data: students = [], isLoading: isLoadingStudents } = useQuery(
+    [queryKey.students],
+    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/student?perPage=9999`).then((res) => res.data),
+    {
+      select: (students) => students.data?.map((student) => ({ value: student.id, label: student.nama_murid })),
+      enabled: openStudent,
     }
   );
 
@@ -51,7 +61,30 @@ export default function BookingFilters() {
   return (
     <Stack width={"100%"} direction={"row"} spacing={2}>
       <Grid container spacing={1} flexGrow={1}>
-        <Grid item xs={4}>
+        <Grid item xs={3}>
+          <AutoCompleteBasic
+            label="Nama Murid"
+            name="studentId"
+            open={openStudent}
+            onOpen={() => {
+              setOpenStudent(true);
+            }}
+            onClose={() => {
+              setOpenStudent(false);
+            }}
+            onChange={(_, newValue) => {
+              setFilters((prevState) => ({
+                ...prevState,
+                studentId: newValue?.value || "",
+                studentLabel: newValue?.label || "",
+              }));
+            }}
+            options={students}
+            loading={isLoadingStudents}
+            value={{ value: filters.studentId || "", label: filters.studentLabel || "" }}
+          />
+        </Grid>
+        <Grid item xs={3}>
           <AutoCompleteBasic
             label="Ruang Kelas"
             name="roomId"
@@ -74,7 +107,7 @@ export default function BookingFilters() {
             value={{ value: filters.roomId || "", label: filters.roomLabel || "" }}
           />
         </Grid>
-        <Grid item xs={4}>
+        <Grid item xs={3}>
           <DateInputBasic
             disableValidation
             id="tgl_kelas"
@@ -86,7 +119,7 @@ export default function BookingFilters() {
             }}
           />
         </Grid>
-        <Grid item xs={4}>
+        <Grid item xs={3}>
           <NativeSelectBasic
             id="status"
             name="status"
