@@ -341,7 +341,7 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
               value={stateForm.values.jam_booking}
               error={Boolean(stateForm.errors.jam_booking)}
               errorMessage={stateForm.errors.jam_booking}
-              minutesStep={15}
+              minutesStep={5}
               onChange={onChange}
             />
           </Grid>
@@ -354,7 +354,7 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
               error={Boolean(stateForm.errors.jam_selesai_booking)}
               errorMessage={stateForm.errors.jam_selesai_booking}
               minTime={stateForm.values.jam_booking}
-              minutesStep={15}
+              minutesStep={5}
               onChange={onChange}
             />
           </Grid>
