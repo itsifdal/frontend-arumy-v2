@@ -36,47 +36,47 @@ const getIcon = (name) => <Iconify icon={name} width={22} height={22} />;
 const navConfigAdmin = [
   {
     title: "dashboard",
-    path: "/dashboard/app",
+    path: "/app/dashboard",
     icon: getIcon("mdi:dots-grid"),
   },
   {
     title: "user",
-    path: "/dashboard/user",
+    path: "/app/user",
     icon: getIcon("solar:user-bold"),
   },
   {
     title: "rooms",
-    path: "/dashboard/room",
+    path: "/app/room",
     icon: getIcon("material-symbols:meeting-room"),
   },
   {
     title: "branches",
-    path: "/dashboard/branches",
+    path: "/app/branches",
     icon: getIcon("material-symbols:map"),
   },
   {
     title: "booking",
-    path: "/dashboard/booking",
+    path: "/app/booking",
     icon: getIcon("ion:time"),
   },
   {
     title: "post",
-    path: "/dashboard/post",
+    path: "/app/post",
     icon: getIcon("fa6-solid:paper-plane"),
   },
   {
     title: "students",
-    path: "/dashboard/students",
+    path: "/app/students",
     icon: getIcon("mdi:account-student"),
   },
   {
     title: "teachers",
-    path: "/dashboard/teachers",
+    path: "/app/teachers",
     icon: getIcon("mdi:teacher"),
   },
   {
     title: "instruments",
-    path: "/dashboard/instruments",
+    path: "/app/instruments",
     icon: getIcon("mdi:music"),
   },
 ];
@@ -84,17 +84,17 @@ const navConfigAdmin = [
 const navConfigNonAdmin = [
   {
     title: "dashboard",
-    path: "/dashboard/app",
+    path: "/app/dashboard",
     icon: getIcon("mdi:dots-grid"),
   },
   {
     title: "booking",
-    path: "/dashboard/booking",
+    path: "/app/booking",
     icon: getIcon("ion:time"),
   },
   {
     title: "post",
-    path: "/dashboard/post",
+    path: "/app/post",
     icon: getIcon("fa6-solid:paper-plane"),
   },
 ];

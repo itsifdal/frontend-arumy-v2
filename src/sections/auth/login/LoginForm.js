@@ -49,7 +49,7 @@ export default function LoginForm() {
     };
     axios.post("http://localhost:8080/api/login", data).then((res) => {
       if (res.statusText === "OK") {
-        navigate("/dashboard/room", { replace: true });
+        navigate("/app/room", { replace: true });
         console.log(res.statusText);
       } else {
         setOpen(true);

@@ -1,4 +1,4 @@
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { Link as RouterLink, useSearchParams } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import { useQuery } from "react-query";
 import { format, parse } from "date-fns";
@@ -37,11 +37,8 @@ const initFilter = {
 
 // ----------------------------------------------------------------------
 
-export default function DashboardApp() {
-  const navigate = useNavigate();
-  const [foundUser, setFoundUser] = useState();
+export default function Dashboard() {
   const [filters, setFilters] = useState(initFilter);
-
   const [searchParams, setSearchParams] = useSearchParams();
   const queryParam = urlSearchParamsToQuery(searchParams);
 
@@ -78,22 +75,10 @@ export default function DashboardApp() {
   );
 
   useEffect(() => {
-    const loggedInUser = localStorage.getItem("user");
-    if (loggedInUser) {
-      const foundUser = JSON.parse(loggedInUser);
-      setFoundUser(foundUser);
-    }
-  }, []);
-
-  useEffect(() => {
     // use this for escape infinite loop
     setFilters((prevState) => ({ ...prevState, ...urlSearchParamsToQuery(searchParams) }));
     refetchBooking();
   }, [searchParams, refetchBooking]);
-
-  if (!foundUser || foundUser === undefined) {
-    navigate("/login", { replace: true });
-  }
 
   const StyledTableCell = styled(TableCell)({
     [`&.${tableCellClasses.head}`]: {
@@ -161,7 +146,7 @@ export default function DashboardApp() {
           </Table>
         </TableContainer>
         <Stack direction={"row"} justifyContent={"flex-end"} paddingY={2}>
-          <Link href={`/dashboard/booking?roomId=${roomId}`} sx={{ textDecoration: "none" }} fontSize={14}>
+          <Link href={`/app/booking?roomId=${roomId}`} sx={{ textDecoration: "none" }} fontSize={14}>
             See More ...
           </Link>
         </Stack>
@@ -175,8 +160,10 @@ export default function DashboardApp() {
         title="Dashboard"
         rightContent={
           <Stack direction={"row"} spacing={2}>
-            <Button variant="contained">ROOM</Button>
-            <Button variant="outlined">TEACHER</Button>
+            <Button variant="outlined" component={RouterLink} to="/app/dashboard/timeline">
+              ROOM
+            </Button>
+            <Button variant="contained">BOOKING</Button>
           </Stack>
         }
       />

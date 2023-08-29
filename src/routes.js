@@ -22,7 +22,8 @@ import User from "./pages/User";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/Page404";
-import DashboardApp from "./pages/DashboardApp";
+import Dashboard from "./pages/Dashboard";
+import DashboardTimeline from "./pages/DashboardTimeline";
 import Teachers from "./pages/Teachers";
 import Branches from "./pages/Branches";
 import Instruments from "./pages/Instruments";
@@ -40,10 +41,11 @@ export default function Router() {
       element: <Register />,
     },
     {
-      path: "/dashboard",
+      path: "/app",
       element: <DashboardLayout />,
       children: [
-        { path: "app", element: <DashboardApp /> },
+        { path: "dashboard", element: <Dashboard /> },
+        { path: "dashboard/timeline", element: <DashboardTimeline /> },
         { path: "user", element: <User /> },
         { path: "room", element: <Room /> },
         { path: "booking", element: <Booking /> },
@@ -77,7 +79,7 @@ export default function Router() {
       path: "/",
       element: <LogoOnlyLayout />,
       children: [
-        { path: "/", element: <Navigate to="/dashboard/app" /> },
+        { path: "/", element: <Navigate to="/app/dashboard" /> },
         { path: "404", element: <NotFound /> },
         { path: "*", element: <Navigate to="/404" /> },
       ],

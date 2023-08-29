@@ -94,7 +94,7 @@ export default function Booking() {
       status: "pending",
     };
     axios.put(`${process.env.REACT_APP_BASE_URL}/api/booking/${id}`, data).then(() => {
-      navigate(`/dashboard/booking`);
+      navigate(`/app/booking`);
     });
   };
 
@@ -121,7 +121,7 @@ export default function Booking() {
           <Typography variant="h4" gutterBottom>
             Update Booking
           </Typography>
-          <Button variant="contained" component={RouterLink} to="/dashboard/booking">
+          <Button variant="contained" component={RouterLink} to="/app/booking">
             Kembali
           </Button>
         </Stack>

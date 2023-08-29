@@ -39,7 +39,7 @@ export default function Login() {
   }, [email]);
 
   if (user) {
-    navigate("/dashboard/app", { replace: true });
+    navigate("/app/dashboard", { replace: true });
   }
 
   // login the user
@@ -48,7 +48,7 @@ export default function Login() {
     const data = { email, password };
     submitLogin.mutate(data, {
       onSuccess: (res) => {
-        navigate("/dashboard/app", { replace: true });
+        navigate("/app/dashboard", { replace: true });
         // set the state of the user
         setUser(res.data);
         // store the user in localStorage

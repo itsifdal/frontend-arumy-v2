@@ -246,7 +246,7 @@ export default function Students() {
               renderItem={(item) => (
                 <PaginationItem
                   component={RouterLink}
-                  to={`/dashboard/students${queryToString({
+                  to={`/app/students${queryToString({
                     ...queryParam,
                     page: item.page === 1 ? null : item.page,
                   })}`}

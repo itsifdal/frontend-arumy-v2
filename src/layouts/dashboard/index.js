@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Outlet } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Outlet, useNavigate } from "react-router-dom";
 // material
 import { styled } from "@mui/material/styles";
 //
@@ -16,7 +16,6 @@ const RootStyle = styled("div")({
 
 const MainStyle = styled("div")({
   flexGrow: 1,
-  overflow: "auto",
   minHeight: "100vh",
   backgroundColor: "#F9FAFB",
 });
@@ -25,6 +24,20 @@ const MainStyle = styled("div")({
 
 export default function DashboardLayout() {
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
+  const [foundUser, setFoundUser] = useState(true);
+
+  useEffect(() => {
+    const loggedInUser = localStorage.getItem("user");
+    if (loggedInUser) {
+      const foundUser = JSON.parse(loggedInUser);
+      setFoundUser(foundUser);
+    }
+  }, []);
+
+  if (!foundUser || foundUser === undefined) {
+    navigate("/login", { replace: true });
+  }
 
   return (
     <RootStyle>
