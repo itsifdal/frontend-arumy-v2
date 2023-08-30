@@ -1,14 +1,15 @@
-import { Link as RouterLink, useNavigate, useSearchParams } from "react-router-dom";
+import { Link as RouterLink, useSearchParams } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import { useQuery } from "react-query";
 import { format, parse } from "date-fns";
+import setDefaultOptions from "date-fns/setDefaultOptions";
 import axios from "axios";
 import randomColor from "randomcolor";
 import id from "date-fns/locale/id";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 // material
-import { Stack, Button, Container, Box, Grid } from "@mui/material";
+import { Stack, Button, Container, Box, Grid, Typography } from "@mui/material";
 // components
 import { queryKey } from "../constants/queryKey";
 import Page from "../components/Page";
@@ -28,15 +29,13 @@ const initFilter = {
 // ----------------------------------------------------------------------
 
 export default function DashboardTimeline() {
-  const navigate = useNavigate();
-  const [foundUser, setFoundUser] = useState(true);
   const [filters, setFilters] = useState(initFilter);
   const [openRoom, setOpenRoom] = useState(false);
 
   const [searchParams, setSearchParams] = useSearchParams();
   const queryParam = urlSearchParamsToQuery(searchParams);
 
-  const todayStr = new Date().toISOString().replace(/T.*$/, "");
+  setDefaultOptions({ locale: id });
 
   const { data: rooms = [], isLoading: isLoadingRooms } = useQuery(
     [queryKey.rooms],
@@ -68,9 +67,9 @@ export default function DashboardTimeline() {
       select: (bookingList) =>
         bookingList.data.map((booking) => ({
           id: booking.id,
-          title: JSON.parse(booking.user_group)
+          title: `${JSON.parse(booking.user_group)
             .map((student) => student.nama_murid)
-            .join(", "),
+            .join(", ")} (${booking.teacher?.nama_pengajar})`,
           start: `${booking.tgl_kelas}T${booking.jam_booking}`,
           end: `${booking.tgl_kelas}T${booking.selesai}`,
           color: randomColor({
@@ -82,28 +81,15 @@ export default function DashboardTimeline() {
   );
 
   useEffect(() => {
-    const loggedInUser = localStorage.getItem("user");
-    if (loggedInUser) {
-      const foundUser = JSON.parse(loggedInUser);
-      setFoundUser(foundUser);
-    }
-  }, []);
-
-  useEffect(() => {
     // use this for escape infinite loop
     setFilters((prevState) => ({ ...prevState, ...urlSearchParamsToQuery(searchParams) }));
     refetchBookings();
   }, [searchParams, refetchBookings]);
 
-  if (!foundUser || foundUser === undefined) {
-    navigate("/login", { replace: true });
-  }
-
   const SubmitFilter = (filter) => {
     setFilters((prevState) => ({ ...prevState, ...filter }));
     setSearchParams({ ...filters, ...filter });
   };
-  console.log(bookings);
 
   return (
     <Page title="Dashboard">
@@ -167,6 +153,9 @@ export default function DashboardTimeline() {
         </Container>
       </Box>
       <Container maxWidth="xl" sx={{ paddingTop: 4 }}>
+        <Typography as="h1" fontWeight={"bold"} fontSize={"20px"}>
+          {filters.roomLabel || "Online"} - {format(parse(filters.tgl_kelas, "yyyy-MM-dd", new Date()), "dd MMMM yyyy")}
+        </Typography>
         {!isLoadingBookings ? (
           <FullCalendar
             plugins={[timeGridPlugin]}
@@ -178,6 +167,7 @@ export default function DashboardTimeline() {
             now={parse(filters.tgl_kelas, "yyyy-MM-dd", new Date()) || new Date()}
             height="620px"
             locale={id}
+            dayHeaders={false}
             slotLabelFormat={{
               hour: "numeric",
               minute: "2-digit",
