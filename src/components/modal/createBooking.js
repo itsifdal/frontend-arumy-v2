@@ -402,9 +402,10 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
                   value={stateForm.values.status}
                   onChange={onChange}
                 >
-                  <FormControlLabel value="pending" control={<Radio />} label="Hold" />
-                  <FormControlLabel value="confirmed" control={<Radio />} label="Konfirmasi" />
-                  <FormControlLabel value="cancel" control={<Radio />} label="Cancel" />
+                  <FormControlLabel value="pending" control={<Radio />} label="Pending" />
+                  <FormControlLabel value="konfirmasi" control={<Radio />} label="Konfirmasi" />
+                  <FormControlLabel value="batal" control={<Radio />} label="Batal" />
+                  <FormControlLabel value="ijin" control={<Radio />} label="Ijin" />
                 </RadioGroup>
               </FormControl>
             </Grid>

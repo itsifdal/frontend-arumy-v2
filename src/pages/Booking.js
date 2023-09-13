@@ -164,13 +164,16 @@ export default function Booking() {
     if (status === "pending") {
       return <Chip label={status} color="warning" />;
     }
-    if (status === "cancel") {
-      return <Chip label={status} color="error" />;
-    }
-    if (status === "expired") {
+    if (status === "kadaluarsa") {
       return <Chip label={status} color="secondary" />;
     }
-    if (status === "confirmed") {
+    if (status === "ijin") {
+      return <Chip label={status} color="primary" />;
+    }
+    if (status === "batal") {
+      return <Chip label={status} color="error" />;
+    }
+    if (status === "konfirmasi") {
       return <Chip label={status} color="success" />;
     }
     return <></>;
