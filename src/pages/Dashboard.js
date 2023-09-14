@@ -160,6 +160,9 @@ export default function Dashboard() {
         title="Dashboard"
         rightContent={
           <Stack direction={"row"} spacing={2}>
+            <Button variant="outlined" component={RouterLink} to="/app/dashboard/teachers">
+              TEACHERS
+            </Button>
             <Button variant="outlined" component={RouterLink} to="/app/dashboard/timeline">
               ROOM
             </Button>

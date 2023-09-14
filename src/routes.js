@@ -24,6 +24,7 @@ import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/Page404";
 import Dashboard from "./pages/Dashboard";
 import DashboardTimeline from "./pages/DashboardTimeline";
+import DashboardTeachers from "./pages/DashboardTeachers";
 import Teachers from "./pages/Teachers";
 import Branches from "./pages/Branches";
 import Instruments from "./pages/Instruments";
@@ -46,6 +47,7 @@ export default function Router() {
       children: [
         { path: "dashboard", element: <Dashboard /> },
         { path: "dashboard/timeline", element: <DashboardTimeline /> },
+        { path: "dashboard/teachers", element: <DashboardTeachers /> },
         { path: "user", element: <User /> },
         { path: "room", element: <Room /> },
         { path: "booking", element: <Booking /> },

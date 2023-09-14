@@ -97,6 +97,9 @@ export default function DashboardTimeline() {
         title="Dashboard"
         rightContent={
           <Stack direction={"row"} spacing={2}>
+            <Button variant="outlined" component={RouterLink} to="/app/dashboard/teachers">
+              TEACHERS
+            </Button>
             <Button variant="contained">ROOM</Button>
             <Button variant="outlined" component={RouterLink} to="/app/dashboard">
               BOOKING
