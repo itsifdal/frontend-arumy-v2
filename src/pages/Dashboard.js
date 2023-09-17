@@ -127,7 +127,7 @@ export default function Dashboard() {
         if (!bookings.find((book) => book[0] === room.label)) {
           bookList.push([
             room.label,
-            "",
+            "Jadwal Kosong",
             parse("08:00:00", "HH:mm:ss", new Date()),
             parse("08:00:00", "HH:mm:ss", new Date()),
           ]);
@@ -273,7 +273,9 @@ export default function Dashboard() {
         </Container>
       </Box>
       <Container maxWidth="xl" sx={{ paddingTop: 4 }}>
-        {!isLoadingBookings ? <Chart chartType="Timeline" data={data} width="100%" height="850px" /> : null}
+        {!isLoadingBookings && bookings.length ? (
+          <Chart chartType="Timeline" data={data} width="100%" height="850px" />
+        ) : null}
         {renderContent()}
       </Container>
     </Page>
