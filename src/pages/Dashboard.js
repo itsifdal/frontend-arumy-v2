@@ -1,8 +1,9 @@
 import { Link as RouterLink, useSearchParams } from "react-router-dom";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useQuery } from "react-query";
 import { format, parse } from "date-fns";
 import axios from "axios";
+import { Chart } from "react-google-charts";
 // material
 import {
   Link,
@@ -30,6 +31,7 @@ import PageHeader from "../components/PageHeader";
 import DateInputBasic from "../components/input/dateInputBasic";
 import { urlSearchParamsToQuery } from "../utils/urlSearchParamsToQuery";
 import { queryToString } from "../utils/queryToString";
+import { cleanQuery } from "../utils/cleanQuery";
 
 const initFilter = {
   tgl_kelas: format(new Date(), "yyyy-MM-dd"),
@@ -74,11 +76,67 @@ export default function Dashboard() {
     }
   );
 
+  const { data: rooms = [] } = useQuery(
+    [queryKey.rooms],
+    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/room`).then((res) => res.data),
+    {
+      select: (roomList) => roomList.map((room) => ({ label: room.nama_ruang })),
+    }
+  );
+
+  const defaultQueryBooking = {
+    ...initFilter,
+    ...queryParam,
+    perPage: 9999,
+  };
+
+  const {
+    data: bookings = [],
+    isLoading: isLoadingBookings,
+    refetch: refetchBookings,
+  } = useQuery(
+    [queryKey.bookings, cleanQuery(defaultQueryBooking)],
+    () =>
+      axios
+        .get(`${process.env.REACT_APP_BASE_URL}/api/booking${queryToString(defaultQueryBooking)}`)
+        .then((res) => res.data),
+    {
+      select: (bookingList) =>
+        bookingList.data.map((booking) => [
+          booking.room.nama_ruang,
+          `${JSON.parse(booking.user_group)
+            .map((student) => student.nama_murid)
+            .join(", ")} - ${booking.teacher.nama_pengajar}`,
+          parse(booking.jam_booking, "HH:mm:ss", new Date()),
+          parse(booking.selesai, "HH:mm:ss", new Date()),
+        ]),
+    }
+  );
+
   useEffect(() => {
     // use this for escape infinite loop
     setFilters((prevState) => ({ ...prevState, ...urlSearchParamsToQuery(searchParams) }));
     refetchBooking();
-  }, [searchParams, refetchBooking]);
+    refetchBookings();
+  }, [searchParams, refetchBooking, refetchBookings]);
+
+  const unusedRoom = useMemo(() => {
+    if (rooms.length && bookings.length) {
+      const bookList = [];
+      rooms.forEach((room) => {
+        if (!bookings.find((book) => book[0] === room.label)) {
+          bookList.push([
+            room.label,
+            "",
+            parse("08:00:00", "HH:mm:ss", new Date()),
+            parse("08:00:00", "HH:mm:ss", new Date()),
+          ]);
+        }
+      });
+      return bookList;
+    }
+    return [];
+  }, [bookings, rooms]);
 
   const StyledTableCell = styled(TableCell)({
     [`&.${tableCellClasses.head}`]: {
@@ -154,6 +212,21 @@ export default function Dashboard() {
     ));
   }
 
+  function comparator(a, b) {
+    if (a[0] < b[0]) return -1;
+    if (a[0] > b[0]) return 1;
+    return 0;
+  }
+
+  const columns = [
+    { type: "string", id: "Ruang Kelas" },
+    { type: "string", id: "Nama Murid" },
+    { type: "date", id: "Start Booking" },
+    { type: "date", id: "End Booking" },
+  ];
+
+  const data = [columns, ...[...bookings, ...unusedRoom].sort(comparator)];
+
   return (
     <Page title="Dashboard">
       <PageHeader
@@ -200,6 +273,7 @@ export default function Dashboard() {
         </Container>
       </Box>
       <Container maxWidth="xl" sx={{ paddingTop: 4 }}>
+        {!isLoadingBookings ? <Chart chartType="Timeline" data={data} width="100%" height="850px" /> : null}
         {renderContent()}
       </Container>
     </Page>

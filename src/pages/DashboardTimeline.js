@@ -24,6 +24,7 @@ import { cleanQuery } from "../utils/cleanQuery";
 const initFilter = {
   tgl_kelas: format(new Date(), "yyyy-MM-dd"),
   roomId: 21,
+  roomLabel: "Online",
 };
 
 // ----------------------------------------------------------------------
@@ -47,8 +48,7 @@ export default function DashboardTimeline() {
   );
 
   const defaultQueryBooking = {
-    tgl_kelas: format(new Date(), "yyyy-MM-dd"),
-    roomId: 21,
+    ...initFilter,
     ...queryParam,
     perPage: 9999,
   };
@@ -132,11 +132,17 @@ export default function DashboardTimeline() {
                     setOpenRoom(false);
                   }}
                   onChange={(_, newValue) => {
-                    SubmitFilter({ roomId: newValue?.value || 21, roomLabel: newValue?.label || "Online" });
+                    SubmitFilter({
+                      roomId: newValue?.value || initFilter.roomId,
+                      roomLabel: newValue?.label || initFilter.roomLabel,
+                    });
                   }}
                   options={rooms}
                   loading={isLoadingRooms}
-                  value={{ value: filters.roomId || 21, label: filters.roomLabel || "Online" }}
+                  value={{
+                    value: filters.roomId || initFilter.roomId,
+                    label: filters.roomLabel || initFilter.roomLabel,
+                  }}
                 />
               </Grid>
               <Grid item xs={4}>

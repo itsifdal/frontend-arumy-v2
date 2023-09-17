@@ -135,6 +135,7 @@ export default function Room() {
     roomsRefetch();
     setOpen(false);
     setOpenDel(false);
+    setStateModal("create");
     toast.success(response.data.message, {
       position: "top-center",
       autoClose: 1000,
