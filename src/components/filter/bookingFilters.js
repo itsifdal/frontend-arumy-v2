@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import axios from "axios";
 import { useQuery } from "react-query";
-import { format, parse } from "date-fns";
+import { format, parse, isValid } from "date-fns";
 import { Button, Stack, Grid } from "@mui/material";
 import AutoCompleteBasic from "../input/autoCompleteBasic";
 import DateInputBasic from "../input/dateInputBasic";
@@ -115,7 +115,8 @@ export default function BookingFilters() {
             label="Date"
             value={parse(filters.tgl_kelas, "yyyy-MM-dd", new Date())}
             onChange={(e) => {
-              setFilters((prevState) => ({ ...prevState, tgl_kelas: format(e.target.value, "yyyy-MM-dd") }));
+              if (!isValid(e.target.value)) return false;
+              return setFilters((prevState) => ({ ...prevState, tgl_kelas: format(e.target.value, "yyyy-MM-dd") }));
             }}
           />
         </Grid>

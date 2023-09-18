@@ -1,7 +1,7 @@
 import { Link as RouterLink, useSearchParams } from "react-router-dom";
 import React, { useEffect, useState, useMemo } from "react";
 import { useQuery } from "react-query";
-import { format, parse } from "date-fns";
+import { format, parse, isValid } from "date-fns";
 import axios from "axios";
 import { Chart } from "react-google-charts";
 // material
@@ -264,7 +264,8 @@ export default function Dashboard() {
                   label="Date"
                   value={parse(filters.tgl_kelas, "yyyy-MM-dd", new Date())}
                   onChange={(e) => {
-                    SubmitFilter({ tgl_kelas: format(e.target.value, "yyyy-MM-dd") });
+                    if (!isValid(e.target.value)) return false;
+                    return SubmitFilter({ tgl_kelas: format(e.target.value, "yyyy-MM-dd") });
                   }}
                 />
               </Grid>

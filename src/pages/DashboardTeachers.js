@@ -1,11 +1,13 @@
 import { Link as RouterLink, useSearchParams } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import { useQuery } from "react-query";
+import { format, parse, sub, isValid } from "date-fns";
 import setDefaultOptions from "date-fns/setDefaultOptions";
 import axios from "axios";
 import id from "date-fns/locale/id";
 // material
 import {
+  Chip,
   Link,
   Stack,
   Button,
@@ -28,12 +30,16 @@ import Page from "../components/Page";
 // sections
 import PageHeader from "../components/PageHeader";
 import AutoCompleteBasic from "../components/input/autoCompleteBasic";
+import DateInputBasic from "../components/input/dateInputBasic";
 import { urlSearchParamsToQuery } from "../utils/urlSearchParamsToQuery";
 import { cleanQuery } from "../utils/cleanQuery";
+import { queryToString } from "../utils/queryToString";
 
 const initFilter = {
   teacherId: 1,
   teacherLabel: "Adi Nugroho",
+  tglAwal: format(sub(new Date(), { months: 1 }), "yyyy-MM-dd"),
+  tglAkhir: format(new Date(), "yyyy-MM-dd"),
 };
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
@@ -78,6 +84,8 @@ export default function DashboardTeachers() {
 
   const defaultQueryBooking = {
     teacherId: initFilter.teacherId,
+    tglAwal: initFilter.tglAwal,
+    tglAkhir: initFilter.tglAkhir,
     ...queryParam,
   };
 
@@ -89,7 +97,11 @@ export default function DashboardTeachers() {
     [queryKey.teachers, "DASHBOARD", cleanQuery(defaultQueryBooking)],
     () =>
       axios
-        .get(`${process.env.REACT_APP_BASE_URL}/api/teacher/dashboard/${defaultQueryBooking.teacherId}`)
+        .get(
+          `${process.env.REACT_APP_BASE_URL}/api/teacher/dashboard/${defaultQueryBooking.teacherId}${queryToString(
+            defaultQueryBooking
+          )}`
+        )
         .then((res) => res.data),
     {
       select: (summaries) => summaries.data?.map((summary) => ({ ...summary })),
@@ -162,6 +174,34 @@ export default function DashboardTeachers() {
                   }}
                 />
               </Grid>
+              <Grid item xs={4}>
+                <DateInputBasic
+                  disableValidation
+                  id="tglAwal"
+                  name="tglAwal"
+                  label="Tanggal Awal"
+                  value={parse(filters.tglAwal, "yyyy-MM-dd", new Date())}
+                  onChange={(e) => {
+                    if (!isValid(e.target.value)) return false;
+                    return SubmitFilter({ tglAwal: format(e.target.value, "yyyy-MM-dd") });
+                  }}
+                  maxDate={parse(filters.tglAkhir, "yyyy-MM-dd", new Date())}
+                />
+              </Grid>
+              <Grid item xs={4}>
+                <DateInputBasic
+                  disableValidation
+                  id="tglAkhir"
+                  name="tglAkhir"
+                  label="Tanggal Akhir"
+                  value={parse(filters.tglAkhir, "yyyy-MM-dd", new Date())}
+                  onChange={(e) => {
+                    if (!isValid(e.target.value)) return false;
+                    return SubmitFilter({ tglAkhir: format(e.target.value, "yyyy-MM-dd") });
+                  }}
+                  minDate={parse(filters.tglAwal, "yyyy-MM-dd", new Date())}
+                />
+              </Grid>
             </Grid>
           </Stack>
         </Container>
@@ -186,7 +226,8 @@ export default function DashboardTeachers() {
                 <TableRow>
                   <StyledTableCell>Nama Murid</StyledTableCell>
                   <StyledTableCell align="right">Durasi Private</StyledTableCell>
-                  <StyledTableCell align="right">Durasi Group</StyledTableCell>
+                  <StyledTableCell align="right">Sesi Group</StyledTableCell>
+                  <StyledTableCell align="right">Sisa Private</StyledTableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -198,6 +239,12 @@ export default function DashboardTeachers() {
                       </StyledTableCell>
                       <StyledTableCell align="right">{summary.privateDuration} menit</StyledTableCell>
                       <StyledTableCell align="right">{summary.groupCount}</StyledTableCell>
+                      <StyledTableCell width={"100px"}>
+                        <Stack direction={"row"} gap={1} width={"auto"} justifyContent={"flex-end"}>
+                          <Chip label={`${summary.privateExpiredDuration} menit kadaluarsa`} color="secondary" />
+                          <Chip label={`${summary.privatePendingDuration} menit pending`} color="warning" />
+                        </Stack>
+                      </StyledTableCell>
                     </StyledTableRow>
                   ))
                 ) : (

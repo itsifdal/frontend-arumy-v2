@@ -1,7 +1,7 @@
 import { Link as RouterLink, useSearchParams } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import { useQuery } from "react-query";
-import { format, parse } from "date-fns";
+import { format, parse, isValid } from "date-fns";
 import setDefaultOptions from "date-fns/setDefaultOptions";
 import axios from "axios";
 import randomColor from "randomcolor";
@@ -153,7 +153,8 @@ export default function DashboardTimeline() {
                   label="Date"
                   value={parse(filters.tgl_kelas, "yyyy-MM-dd", new Date())}
                   onChange={(e) => {
-                    SubmitFilter({ tgl_kelas: format(e.target.value, "yyyy-MM-dd") });
+                    if (!isValid(e.target.value)) return false;
+                    return SubmitFilter({ tgl_kelas: format(e.target.value, "yyyy-MM-dd") });
                   }}
                 />
               </Grid>
