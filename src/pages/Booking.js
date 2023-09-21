@@ -290,28 +290,7 @@ export default function Booking() {
       </Box>
       <Container maxWidth="xl" sx={{ paddingTop: 4 }}>
         <ToastContainer pauseOnFocusLoss={false} />
-        {!isLoadingBookings ? (
-          <Box marginBottom={3}>
-            <Scrollbar>
-              <BasicTable header={tableHeader} body={tableBody} />
-            </Scrollbar>
-            <Pagination
-              page={bookings.pagination.current_page}
-              count={bookings.pagination.total_pages}
-              shape="rounded"
-              sx={[{ ul: { justifyContent: "center" } }]}
-              renderItem={(item) => (
-                <PaginationItem
-                  component={RouterLink}
-                  to={`/app/booking${queryToString({ ...queryParam, page: item.page === 1 ? null : item.page })}`}
-                  {...item}
-                />
-              )}
-            />
-          </Box>
-        ) : (
-          <Typography>Loading data...</Typography>
-        )}
+        {renderData({ bookings, tableHeader, tableBody, queryParam, isLoadingBookings })}
         <CreateBooking
           open={openModalCreate}
           onClose={() => setOpenModalCreate(false)}
@@ -357,5 +336,32 @@ export default function Booking() {
         />
       </Container>
     </Page>
+  );
+}
+
+function renderData({ bookings, tableHeader, tableBody, queryParam, isLoadingBookings }) {
+  if (!bookings) return <Typography>Error load data</Typography>;
+  if (!bookings.length) return <Typography>No data</Typography>;
+  if (isLoadingBookings) return <Typography>Loading data...</Typography>;
+
+  return (
+    <Box marginBottom={3}>
+      <Scrollbar>
+        <BasicTable header={tableHeader} body={tableBody} />
+      </Scrollbar>
+      <Pagination
+        page={bookings.pagination.current_page}
+        count={bookings.pagination.total_pages}
+        shape="rounded"
+        sx={[{ ul: { justifyContent: "center" } }]}
+        renderItem={(item) => (
+          <PaginationItem
+            component={RouterLink}
+            to={`/app/booking${queryToString({ ...queryParam, page: item.page === 1 ? null : item.page })}`}
+            {...item}
+          />
+        )}
+      />
+    </Box>
   );
 }
