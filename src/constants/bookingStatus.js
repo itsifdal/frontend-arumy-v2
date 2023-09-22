@@ -8,7 +8,19 @@ export const bookingStatus = [
     label: "Pending",
   },
   {
-    value: "confirmed",
-    label: "Confirmed",
+    value: "kadaluarsa",
+    label: "Kadaluarsa",
+  },
+  {
+    value: "ijin",
+    label: "Ijin",
+  },
+  {
+    value: "batal",
+    label: "Batal",
+  },
+  {
+    value: "konfirmasi",
+    label: "Konfirmasi",
   },
 ];

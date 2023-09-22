@@ -55,7 +55,7 @@ export default function BookingFilters() {
   };
 
   const ResetFilter = () => {
-    setSearchParams(initFilter);
+    setSearchParams();
   };
 
   return (
@@ -127,7 +127,7 @@ export default function BookingFilters() {
             label="Class Status"
             value={filters.status}
             onChange={(e) => {
-              setFilters((prevState) => ({ ...prevState, status: e }));
+              setFilters((prevState) => ({ ...prevState, status: e.target.value }));
             }}
             options={bookingStatus}
           />

@@ -62,7 +62,7 @@ export default function Booking() {
   const [openModalCreate, setOpenModalCreate] = useState(false);
   const [stateModalCreate, setStateModalCreate] = useState("create");
 
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const queryParam = urlSearchParamsToQuery(searchParams);
 
   // localStorage
@@ -244,9 +244,57 @@ export default function Booking() {
     return <></>;
   };
 
-  const tableHeader = ["TGL KELAS", "JAM BOOKING", "RUANG KELAS", "MURID", "PENGAJAR", "STATUS", ""];
+  const tableHeader = [
+    <Stack key={"tgl_kelas"} gap={1} direction={"row"} alignItems={"center"}>
+      <Typography
+        sx={{
+          fontSize: "14px",
+        }}
+      >
+        TGL KELAS
+      </Typography>
+      <Button
+        sx={{
+          minWidth: 0,
+          padding: 0,
+          fontSize: "20px",
+          ":hover": {
+            bgcolor: "transparent",
+          },
+        }}
+        disabled={queryParam.sort === "asc" && queryParam.sort_by === "tgl_kelas"}
+        onClick={() => {
+          setSearchParams({ ...queryParam, sort: "asc", sort_by: "tgl_kelas" });
+        }}
+      >
+        <Iconify icon="octicon:sort-asc-16" />
+      </Button>
+      <Button
+        sx={{
+          minWidth: 0,
+          padding: 0,
+          fontSize: "20px",
+          ":hover": {
+            bgcolor: "transparent",
+          },
+        }}
+        onClick={() => {
+          setSearchParams({ ...queryParam, sort: "desc", sort_by: "tgl_kelas" });
+        }}
+        disabled={queryParam.sort === "desc" && queryParam.sort_by === "tgl_kelas"}
+      >
+        <Iconify icon="octicon:sort-desc-16" />
+      </Button>
+    </Stack>,
+    "JAM BOOKING",
+    "RUANG KELAS",
+    "MURID",
+    "PENGAJAR",
+    "STATUS",
+    "",
+  ];
   const tableBody = bookings?.data
-    ? bookings.data.map((booking) => [
+    ? bookings.data?.map((booking) => [
         format(parse(booking.tgl_kelas, "yyyy-MM-dd", new Date()), "dd-MM-yyyy"),
         hourModel({ timeStart: booking.jam_booking, timeEnd: booking.selesai, duration: booking.durasi }),
         booking.room.nama_ruang,
@@ -340,9 +388,9 @@ export default function Booking() {
 }
 
 function renderData({ bookings, tableHeader, tableBody, queryParam, isLoadingBookings }) {
-  if (!bookings) return <Typography>Error load data</Typography>;
-  if (!bookings.data.length) return <Typography>No data</Typography>;
   if (isLoadingBookings) return <Typography>Loading data...</Typography>;
+  if (!bookings) return <Typography>Error load data</Typography>;
+  if (!bookings.data?.length) return <Typography>No data</Typography>;
 
   return (
     <Box marginBottom={3}>
