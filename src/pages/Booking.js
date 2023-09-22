@@ -341,7 +341,7 @@ export default function Booking() {
 
 function renderData({ bookings, tableHeader, tableBody, queryParam, isLoadingBookings }) {
   if (!bookings) return <Typography>Error load data</Typography>;
-  if (!bookings.length) return <Typography>No data</Typography>;
+  if (!bookings.data.length) return <Typography>No data</Typography>;
   if (isLoadingBookings) return <Typography>Loading data...</Typography>;
 
   return (
