@@ -206,8 +206,8 @@ export default function User() {
     });
   }
 
-  const handleOpenModalUpdate = (e) => {
-    setUserId(e.target.getAttribute("data-id"));
+  const handleOpenModalUpdate = async (e) => {
+    await setUserId(e.target.getAttribute("data-id"));
     setStateModal("update");
     setOpen(true);
   };
