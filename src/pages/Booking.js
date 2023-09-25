@@ -77,14 +77,6 @@ export default function Booking() {
   const [openDel, setOpenDel] = useState(false);
   const [openUpdStatus, setOpenUpdStatus] = useState(false);
 
-  const { data: userDetail } = useQuery(
-    [queryKey.users, "DETAIL"],
-    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/user/${user?.id}`).then((res) => res.data),
-    {
-      enabled: Boolean(user?.id),
-    }
-  );
-
   // GET DATA BOOKING ALL
   const {
     data: bookings,
@@ -95,7 +87,7 @@ export default function Booking() {
       queryKey.bookings,
       cleanQuery({
         ...queryParam,
-        ...(user.role === "Guru" && { teacherId: userDetail?.teacherId }),
+        ...(user.role === "Guru" && { teacherId: user?.teacherId }),
       }),
     ],
     () =>
@@ -103,11 +95,11 @@ export default function Booking() {
         .get(
           `${process.env.REACT_APP_BASE_URL}/api/booking${queryToString({
             ...queryParam,
-            ...(user.role === "Guru" && { teacherId: userDetail?.teacherId }),
+            ...(user.role === "Guru" && { teacherId: user?.teacherId }),
           })}`
         )
         .then((res) => res.data),
-    { enabled: !!userDetail }
+    { enabled: !!user?.teacherId }
   );
 
   // Open Modal Delete
