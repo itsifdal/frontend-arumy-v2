@@ -77,13 +77,37 @@ export default function Booking() {
   const [openDel, setOpenDel] = useState(false);
   const [openUpdStatus, setOpenUpdStatus] = useState(false);
 
+  const { data: userDetail } = useQuery(
+    [queryKey.users, "DETAIL"],
+    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/user/${user?.id}`).then((res) => res.data),
+    {
+      enabled: Boolean(user?.id),
+    }
+  );
+
   // GET DATA BOOKING ALL
   const {
     data: bookings,
     refetch: bookingsRefetch,
     isLoading: isLoadingBookings,
-  } = useQuery([queryKey.bookings, cleanQuery(queryParam)], () =>
-    axios.get(`${process.env.REACT_APP_BASE_URL}/api/booking${queryToString(queryParam)}`).then((res) => res.data)
+  } = useQuery(
+    [
+      queryKey.bookings,
+      cleanQuery({
+        ...queryParam,
+        ...(user.role === "Guru" && { teacherId: userDetail?.teacherId }),
+      }),
+    ],
+    () =>
+      axios
+        .get(
+          `${process.env.REACT_APP_BASE_URL}/api/booking${queryToString({
+            ...queryParam,
+            ...(user.role === "Guru" && { teacherId: userDetail?.teacherId }),
+          })}`
+        )
+        .then((res) => res.data),
+    { enabled: !!userDetail }
   );
 
   // Open Modal Delete
