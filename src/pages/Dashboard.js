@@ -40,6 +40,7 @@ const initFilter = {
 // ----------------------------------------------------------------------
 
 export default function Dashboard() {
+  const [user, setUser] = useState("");
   const [filters, setFilters] = useState(initFilter);
   const [searchParams, setSearchParams] = useSearchParams();
   const queryParam = urlSearchParamsToQuery(searchParams);
@@ -119,6 +120,15 @@ export default function Dashboard() {
     refetchBooking();
     refetchBookings();
   }, [searchParams, refetchBooking, refetchBookings]);
+
+  // localStorage
+  useEffect(() => {
+    const loggedInUser = localStorage.getItem("user");
+    if (loggedInUser) {
+      const foundUser = JSON.parse(loggedInUser);
+      setUser(foundUser);
+    }
+  }, []);
 
   const unusedRoom = useMemo(() => {
     if (rooms.length && bookings.length) {
@@ -233,9 +243,11 @@ export default function Dashboard() {
         title="Dashboard"
         rightContent={
           <Stack direction={"row"} spacing={2}>
-            <Button variant="outlined" component={RouterLink} to="/app/dashboard/teachers">
-              TEACHERS
-            </Button>
+            {user.role !== "Guru" ? (
+              <Button variant="outlined" component={RouterLink} to="/app/dashboard/teachers">
+                TEACHERS
+              </Button>
+            ) : null}
             <Button variant="outlined" component={RouterLink} to="/app/dashboard/timeline">
               ROOM
             </Button>

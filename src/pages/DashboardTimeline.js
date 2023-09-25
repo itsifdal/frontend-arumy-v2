@@ -30,6 +30,7 @@ const initFilter = {
 // ----------------------------------------------------------------------
 
 export default function DashboardTimeline() {
+  const [user, setUser] = useState("");
   const [filters, setFilters] = useState(initFilter);
   const [openRoom, setOpenRoom] = useState(false);
 
@@ -86,6 +87,15 @@ export default function DashboardTimeline() {
     refetchBookings();
   }, [searchParams, refetchBookings]);
 
+  // localStorage
+  useEffect(() => {
+    const loggedInUser = localStorage.getItem("user");
+    if (loggedInUser) {
+      const foundUser = JSON.parse(loggedInUser);
+      setUser(foundUser);
+    }
+  }, []);
+
   const SubmitFilter = (filter) => {
     setFilters((prevState) => ({ ...prevState, ...filter }));
     setSearchParams({ ...filters, ...filter });
@@ -97,9 +107,11 @@ export default function DashboardTimeline() {
         title="Dashboard"
         rightContent={
           <Stack direction={"row"} spacing={2}>
-            <Button variant="outlined" component={RouterLink} to="/app/dashboard/teachers">
-              TEACHERS
-            </Button>
+            {user.role !== "Guru" ? (
+              <Button variant="outlined" component={RouterLink} to="/app/dashboard/teachers">
+                TEACHERS
+              </Button>
+            ) : null}
             <Button variant="contained">ROOM</Button>
             <Button variant="outlined" component={RouterLink} to="/app/dashboard">
               BOOKING
