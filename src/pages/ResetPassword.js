@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink, useParams } from "react-router-dom";
 import { useState } from "react";
 // form
 import { useMutation } from "react-query";
@@ -19,10 +19,13 @@ export default function ResetPassword() {
   const [showPassword, setShowPassword] = useState(false);
   const [password, setPassword] = useState("");
   const [openAlert500, setOpenAlert500] = useState(false);
+  const params = useParams();
 
   const submitResetPassword = useMutation(({ password }) => {
-    const data = { password };
-    return axios.post(`${process.env.REACT_APP_BASE_URL}/api/resetpassword`, data);
+    if (params.token) {
+      const data = { password };
+      return axios.post(`${process.env.REACT_APP_BASE_URL}/api/resetpassword/${params.token}`, data);
+    }
   });
 
   const onSubmit = () => {
