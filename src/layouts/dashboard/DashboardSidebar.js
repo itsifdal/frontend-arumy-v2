@@ -1,9 +1,10 @@
 import PropTypes from "prop-types";
+import axios from "axios";
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { NavLink as RouterLink, useLocation, useNavigate } from "react-router-dom";
 // material
 import { styled } from "@mui/material/styles";
-import { Box, Drawer } from "@mui/material";
+import { Box, Drawer, BottomNavigation, BottomNavigationAction } from "@mui/material";
 // hooks
 import useResponsive from "../../hooks/useResponsive";
 // components
@@ -59,11 +60,11 @@ const navConfigAdmin = [
     path: "/app/booking",
     icon: getIcon("ion:time"),
   },
-  {
+  /* {
     title: "post",
     path: "/app/post",
     icon: getIcon("fa6-solid:paper-plane"),
-  },
+  }, */
   {
     title: "students",
     path: "/app/students",
@@ -83,19 +84,28 @@ const navConfigAdmin = [
 
 const navConfigNonAdmin = [
   {
-    title: "dashboard",
+    title: "Dashboard",
     path: "/app/dashboard",
     icon: getIcon("mdi:dots-grid"),
   },
   {
-    title: "booking",
+    title: "Booking",
     path: "/app/booking",
     icon: getIcon("ion:time"),
   },
-  {
+  /* {
     title: "post",
     path: "/app/post",
     icon: getIcon("fa6-solid:paper-plane"),
+  }, */
+];
+
+const navConfigNonAdminMobile = [
+  ...navConfigNonAdmin,
+  {
+    title: "Logout",
+    path: "/logout",
+    icon: getIcon("heroicons-outline:logout"),
   },
 ];
 
@@ -103,6 +113,7 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
   const { pathname } = useLocation();
 
   const [user, setUser] = useState();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const loggedInUser = localStorage.getItem("user");
@@ -121,11 +132,40 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
+  const onLogout = () => {
+    axios.get(`${process.env.REACT_APP_BASE_URL}/api/login/logout`).then(() => {
+      localStorage.clear();
+      navigate("/login", { replace: true });
+    });
+  };
+
+  const renderBottomNavigation = (menus) =>
+    menus.map((menu) => (
+      <BottomNavigationAction
+        key={menu.path}
+        label={menu.title}
+        icon={menu.icon}
+        sx={{ span: { fontSize: "12px" }, "span.Mui-selected": { fontSize: "12px" } }}
+        {...(menu.path === "/logout"
+          ? {
+              onClick: () => onLogout(),
+            }
+          : {
+              LinkComponent: RouterLink,
+              to: menu.path,
+            })}
+      />
+    ));
+
   let nav;
-  if (user && user.role === "Admin") {
+  if (user && user.role === "Admin" && isDesktop) {
     nav = <NavSection navConfig={navConfigAdmin} />;
-  } else {
+  } else if (user && user.role === "Admin" && !isDesktop) {
     nav = <NavSection navConfig={navConfigNonAdmin} />;
+  } else if (user && isDesktop) {
+    nav = <NavSection navConfig={navConfigNonAdmin} />;
+  } else if (user && !isDesktop) {
+    nav = renderBottomNavigation(navConfigNonAdminMobile);
   }
 
   const renderContent = (
@@ -150,7 +190,7 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
 
   return (
     <RootStyle>
-      {!isDesktop && (
+      {/* !isDesktop && (
         <Drawer
           open={isOpenSidebar}
           onClose={onCloseSidebar}
@@ -160,6 +200,15 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
         >
           {renderContent}
         </Drawer>
+      ) */}
+      {!isDesktop && (
+        <BottomNavigation
+          showLabels
+          value={navConfigAdmin.findIndex((menu) => menu.path === pathname)}
+          sx={{ position: "fixed", width: "100%", zIndex: "10", bottom: 0, left: 0 }}
+        >
+          {nav}
+        </BottomNavigation>
       )}
 
       {isDesktop && (
