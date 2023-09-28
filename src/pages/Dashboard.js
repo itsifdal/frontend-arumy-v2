@@ -21,6 +21,7 @@ import {
   Typography,
   Box,
   Grid,
+  Avatar,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 // components
@@ -33,6 +34,8 @@ import { urlSearchParamsToQuery } from "../utils/urlSearchParamsToQuery";
 import { queryToString } from "../utils/queryToString";
 import { cleanQuery } from "../utils/cleanQuery";
 import { mapRoomChart } from "../utils/map/roomChart";
+import { stringAvatar } from "../utils/avatarProps";
+import Iconify from "../components/Iconify";
 
 const initFilter = {
   tgl_kelas: format(new Date(), "yyyy-MM-dd"),
@@ -41,7 +44,7 @@ const initFilter = {
 // ----------------------------------------------------------------------
 
 export default function Dashboard() {
-  /* const [user, setUser] = useState(""); */
+  const [user, setUser] = useState("");
   const [isTeacher, setIsTeacher] = useState("");
   const [filters, setFilters] = useState(initFilter);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -52,7 +55,7 @@ export default function Dashboard() {
     const loggedInUser = localStorage.getItem("user");
     if (loggedInUser) {
       const foundUser = JSON.parse(loggedInUser);
-      /* setUser(foundUser); */
+      setUser(foundUser);
       setIsTeacher(foundUser.role === "Guru");
     }
   }, []);
@@ -101,6 +104,7 @@ export default function Dashboard() {
     ...initFilter,
     ...queryParam,
     perPage: 9999,
+    ...(isTeacher && { teacherId: user.teacherId }),
   };
 
   const {
@@ -215,13 +219,13 @@ export default function Dashboard() {
         {!isLoadingBookings && bookings.length && !isTeacher ? (
           <Chart chartType="Timeline" data={data} width="100%" height="850px" />
         ) : null}
-        {renderContent({ isLoadingDashboard, dashboard })}
+        {renderContent({ isLoadingDashboard, isTeacher, dashboard, bookings })}
       </Container>
     </Page>
   );
 }
 
-function renderContent({ isLoadingDashboard, dashboard }) {
+function renderContent({ isLoadingDashboard, isTeacher, dashboard, bookings }) {
   const StyledTableCell = styled(TableCell)({
     [`&.${tableCellClasses.head}`]: {
       borderColor: "#c7c7e4",
@@ -248,6 +252,14 @@ function renderContent({ isLoadingDashboard, dashboard }) {
   if (isLoadingDashboard) return <Typography>Loading Data</Typography>;
 
   if (!dashboard.length) return <Typography>No Data Found</Typography>;
+
+  if (isTeacher) {
+    return (
+      <Stack gap="11px">
+        <CardBooking bookings={bookings} />
+      </Stack>
+    );
+  }
 
   return dashboard.map(({ roomName, roomId, bookings }) => (
     <Box key={roomId}>
@@ -284,5 +296,77 @@ function renderContent({ isLoadingDashboard, dashboard }) {
         </Link>
       </Stack>
     </Box>
+  ));
+}
+
+function CardBooking({ bookings }) {
+  return bookings.map((booking) => (
+    <Stack
+      key={booking.id}
+      borderRadius={"7px"}
+      boxShadow={"2px 12px 20px 0px rgba(90, 117, 167, 0.10)"}
+      padding={"15px"}
+      sx={{
+        background: "white",
+      }}
+      gap={"11px"}
+    >
+      <Stack direction={"row"} gap={"10px"}>
+        <Avatar {...stringAvatar("Privat")} sx={{ width: 48, height: 48 }} />
+        <Stack gap={"2px"}>
+          <Typography fontWeight={"bold"} fontSize={"14px"} color={"#0D1B34"}>
+            Student Name
+          </Typography>
+          <Typography fontSize={"14px"} color={"#8696BB"}>
+            Room
+          </Typography>
+        </Stack>
+      </Stack>
+      <Box width={"100%"} height={"1px"} sx={{ background: "#F5F5F5" }} />
+      <Grid container>
+        <Grid item xs={6}>
+          <Stack direction={"row"} gap={"6px"}>
+            <Iconify icon="ic:round-date-range" sx={{ width: "16px", height: "16px", color: "#8696BB" }} />
+            <Typography fontSize={"12px"} color={"#8696BB"}>
+              Sunday, 12 June
+            </Typography>
+          </Stack>
+        </Grid>
+        <Grid item xs={6}>
+          <Stack direction={"row"} gap={"6px"}>
+            <Iconify icon="tabler:clock" sx={{ width: "16px", height: "16px", color: "#8696BB" }} />
+            <Typography fontSize={"12px"} color={"#8696BB"}>
+              11:00 - 12:00 AM
+            </Typography>
+          </Stack>
+        </Grid>
+      </Grid>
+      <Stack direction={"row"} justifyContent={"space-around"}>
+        <Button
+          sx={{
+            width: "117px",
+            height: "27px",
+            padding: "12px 32px",
+            borderRadius: "7px",
+            background: "rgba(255, 165, 0, 0.20)",
+            color: "#FFA500",
+          }}
+        >
+          Detail
+        </Button>
+        <Button
+          sx={{
+            width: "117px",
+            height: "27px",
+            padding: "12px 32px",
+            borderRadius: "7px",
+            background: "#19A551",
+            color: "#FFF",
+          }}
+        >
+          Masuk
+        </Button>
+      </Stack>
+    </Stack>
   ));
 }
