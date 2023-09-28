@@ -32,6 +32,7 @@ import DateInputBasic from "../components/input/dateInputBasic";
 import { urlSearchParamsToQuery } from "../utils/urlSearchParamsToQuery";
 import { queryToString } from "../utils/queryToString";
 import { cleanQuery } from "../utils/cleanQuery";
+import { mapRoomChart } from "../utils/map/roomChart";
 
 const initFilter = {
   tgl_kelas: format(new Date(), "yyyy-MM-dd"),
@@ -40,10 +41,21 @@ const initFilter = {
 // ----------------------------------------------------------------------
 
 export default function Dashboard() {
-  const [user, setUser] = useState("");
+  /* const [user, setUser] = useState(""); */
+  const [isTeacher, setIsTeacher] = useState("");
   const [filters, setFilters] = useState(initFilter);
   const [searchParams, setSearchParams] = useSearchParams();
   const queryParam = urlSearchParamsToQuery(searchParams);
+
+  // localStorage
+  useEffect(() => {
+    const loggedInUser = localStorage.getItem("user");
+    if (loggedInUser) {
+      const foundUser = JSON.parse(loggedInUser);
+      /* setUser(foundUser); */
+      setIsTeacher(foundUser.role === "Guru");
+    }
+  }, []);
 
   const {
     data: dashboard,
@@ -102,15 +114,7 @@ export default function Dashboard() {
         .get(`${process.env.REACT_APP_BASE_URL}/api/booking${queryToString(defaultQueryBooking)}`)
         .then((res) => res.data),
     {
-      select: (bookingList) =>
-        bookingList.data.map((booking) => [
-          booking.room.nama_ruang,
-          `${JSON.parse(booking.user_group)
-            .map((student) => student.nama_murid)
-            .join(", ")} - ${booking.teacher.nama_pengajar}`,
-          parse(booking.jam_booking, "HH:mm:ss", new Date()),
-          parse(booking.selesai, "HH:mm:ss", new Date()),
-        ]),
+      select: (bookingList) => bookingList.data,
     }
   );
 
@@ -121,20 +125,11 @@ export default function Dashboard() {
     refetchBookings();
   }, [searchParams, refetchBooking, refetchBookings]);
 
-  // localStorage
-  useEffect(() => {
-    const loggedInUser = localStorage.getItem("user");
-    if (loggedInUser) {
-      const foundUser = JSON.parse(loggedInUser);
-      setUser(foundUser);
-    }
-  }, []);
-
   const unusedRoom = useMemo(() => {
     if (rooms.length && bookings.length) {
       const bookList = [];
       rooms.forEach((room) => {
-        if (!bookings.find((book) => book[0] === room.label)) {
+        if (!mapRoomChart(bookings).find((book) => book[0] === room.label)) {
           bookList.push([
             room.label,
             "Jadwal Kosong",
@@ -148,79 +143,10 @@ export default function Dashboard() {
     return [];
   }, [bookings, rooms]);
 
-  const StyledTableCell = styled(TableCell)({
-    [`&.${tableCellClasses.head}`]: {
-      borderColor: "#c7c7e4",
-      color: "#737DAA",
-      textAlign: "left",
-      paddingTop: 10,
-      paddingBottom: 10,
-    },
-    [`&.${tableCellClasses.body}`]: {
-      border: 0,
-      textAlign: "left",
-      paddingTop: 8,
-      paddingBottom: 8,
-    },
-  });
-
-  const StyledTableRow = styled(TableRow)({
-    // hide last border
-    "&:last-child td": {
-      paddingBottom: 20,
-    },
-  });
-
   const SubmitFilter = (filter) => {
     setFilters((prevState) => ({ ...prevState, ...filter }));
     setSearchParams({ ...filters, ...filter });
   };
-
-  function renderContent() {
-    if (isLoadingDashboard) return <Typography>Loading Data</Typography>;
-
-    if (!dashboard.length) return <Typography>No Data Found</Typography>;
-
-    return dashboard.map(({ roomName, roomId, bookings }) => (
-      <Box key={roomId}>
-        <Typography marginBottom={2} fontWeight={"700"}>
-          {roomName}
-        </Typography>
-        <TableContainer
-          component={Paper}
-          sx={{ boxShadow: "3px 4px 20px 0px rgba(0, 0, 0, 0.10)", background: "white" }}
-        >
-          <Table size="small" aria-label="customized table">
-            <TableHead>
-              <TableRow>
-                <StyledTableCell>WAKTU</StyledTableCell>
-                <StyledTableCell>JENIS KELAS</StyledTableCell>
-                <StyledTableCell>NAMA ANAK</StyledTableCell>
-                <StyledTableCell>INSTRUMENT</StyledTableCell>
-                <StyledTableCell>PENGAJAR</StyledTableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {bookings.map((booking) => (
-                <StyledTableRow key={booking.id}>
-                  <StyledTableCell>{booking.startTime}</StyledTableCell>
-                  <StyledTableCell>{booking.classType}</StyledTableCell>
-                  <StyledTableCell>{booking.studentName}</StyledTableCell>
-                  <StyledTableCell>{booking.instrument}</StyledTableCell>
-                  <StyledTableCell>{booking.teacherName}</StyledTableCell>
-                </StyledTableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <Stack direction={"row"} justifyContent={"flex-end"} paddingY={2}>
-          <Link href={`/app/booking?roomId=${roomId}`} sx={{ textDecoration: "none" }} fontSize={14}>
-            See More ...
-          </Link>
-        </Stack>
-      </Box>
-    ));
-  }
 
   function comparator(a, b) {
     if (a[0] < b[0]) return -1;
@@ -235,7 +161,7 @@ export default function Dashboard() {
     { type: "date", id: "End Booking" },
   ];
 
-  const data = [columns, ...[...bookings, ...unusedRoom].sort(comparator)];
+  const data = [columns, ...[...mapRoomChart(bookings), ...unusedRoom].sort(comparator)];
 
   return (
     <Page title="Dashboard">
@@ -243,7 +169,7 @@ export default function Dashboard() {
         title="Dashboard"
         rightContent={
           <Stack direction={"row"} spacing={2}>
-            {user.role !== "Guru" ? (
+            {!isTeacher ? (
               <Button variant="outlined" component={RouterLink} to="/app/dashboard/teachers">
                 TEACHERS
               </Button>
@@ -286,11 +212,77 @@ export default function Dashboard() {
         </Container>
       </Box>
       <Container maxWidth="xl" sx={{ paddingTop: 4 }}>
-        {!isLoadingBookings && bookings.length ? (
+        {!isLoadingBookings && bookings.length && !isTeacher ? (
           <Chart chartType="Timeline" data={data} width="100%" height="850px" />
         ) : null}
-        {renderContent()}
+        {renderContent({ isLoadingDashboard, dashboard })}
       </Container>
     </Page>
   );
+}
+
+function renderContent({ isLoadingDashboard, dashboard }) {
+  const StyledTableCell = styled(TableCell)({
+    [`&.${tableCellClasses.head}`]: {
+      borderColor: "#c7c7e4",
+      color: "#737DAA",
+      textAlign: "left",
+      paddingTop: 10,
+      paddingBottom: 10,
+    },
+    [`&.${tableCellClasses.body}`]: {
+      border: 0,
+      textAlign: "left",
+      paddingTop: 8,
+      paddingBottom: 8,
+    },
+  });
+
+  const StyledTableRow = styled(TableRow)({
+    // hide last border
+    "&:last-child td": {
+      paddingBottom: 20,
+    },
+  });
+
+  if (isLoadingDashboard) return <Typography>Loading Data</Typography>;
+
+  if (!dashboard.length) return <Typography>No Data Found</Typography>;
+
+  return dashboard.map(({ roomName, roomId, bookings }) => (
+    <Box key={roomId}>
+      <Typography marginBottom={2} fontWeight={"700"}>
+        {roomName}
+      </Typography>
+      <TableContainer component={Paper} sx={{ boxShadow: "3px 4px 20px 0px rgba(0, 0, 0, 0.10)", background: "white" }}>
+        <Table size="small" aria-label="customized table">
+          <TableHead>
+            <TableRow>
+              <StyledTableCell>WAKTU</StyledTableCell>
+              <StyledTableCell>JENIS KELAS</StyledTableCell>
+              <StyledTableCell>NAMA ANAK</StyledTableCell>
+              <StyledTableCell>INSTRUMENT</StyledTableCell>
+              <StyledTableCell>PENGAJAR</StyledTableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {bookings.map((booking) => (
+              <StyledTableRow key={booking.id}>
+                <StyledTableCell>{booking.startTime}</StyledTableCell>
+                <StyledTableCell>{booking.classType}</StyledTableCell>
+                <StyledTableCell>{booking.studentName}</StyledTableCell>
+                <StyledTableCell>{booking.instrument}</StyledTableCell>
+                <StyledTableCell>{booking.teacherName}</StyledTableCell>
+              </StyledTableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <Stack direction={"row"} justifyContent={"flex-end"} paddingY={2}>
+        <Link href={`/app/booking?roomId=${roomId}`} sx={{ textDecoration: "none" }} fontSize={14}>
+          See More ...
+        </Link>
+      </Stack>
+    </Box>
+  ));
 }

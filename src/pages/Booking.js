@@ -98,8 +98,7 @@ export default function Booking() {
             ...(user.role === "Guru" && { teacherId: user?.teacherId }),
           })}`
         )
-        .then((res) => res.data),
-    { enabled: !!user?.teacherId }
+        .then((res) => res.data)
   );
 
   // Open Modal Delete
