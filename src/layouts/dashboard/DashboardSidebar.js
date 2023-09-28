@@ -159,10 +159,10 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
 
   let nav;
   let activeNav;
-  if (user && user.role === "Admin" && isDesktop) {
+  if (user && user?.role === "Admin" && isDesktop) {
     nav = <NavSection navConfig={navConfigAdmin} />;
     activeNav = navConfigAdmin;
-  } else if (user && user.role === "Admin" && !isDesktop) {
+  } else if (user && user?.role === "Admin" && !isDesktop) {
     nav = <NavSection navConfig={navConfigNonAdmin} />;
     activeNav = navConfigNonAdmin;
   } else if (user && isDesktop) {
@@ -206,7 +206,7 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
           {renderContent}
         </Drawer>
       ) */}
-      {!isDesktop && (
+      {!isDesktop && user?.role !== "Admin" && (
         <BottomNavigation
           showLabels
           value={activeNav?.findIndex((menu) => menu.path === pathname)}

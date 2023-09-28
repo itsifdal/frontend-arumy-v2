@@ -1,10 +1,25 @@
-import { Stack, Button, Typography, Box, Grid, Avatar } from "@mui/material";
+import { Stack, Button, Typography, Box, Grid, Avatar, Chip } from "@mui/material";
 import { format, parse } from "date-fns";
 
 import { stringAvatar } from "../utils/avatarProps";
 import Iconify from "./Iconify";
+import { bookingStatusObj } from "../constants/bookingStatus";
 
-export default function CardBooking({ bookings }) {
+const generateStatus = (status) => {
+  if (status) {
+    return (
+      <Chip
+        size="small"
+        sx={{ fontSize: "12px", height: "auto" }}
+        label={bookingStatusObj[status].label}
+        color={bookingStatusObj[status].color}
+      />
+    );
+  }
+  return <></>;
+};
+
+export default function CardBooking({ bookings, onClickConfirm }) {
   return bookings.map((booking) => (
     <Stack
       key={booking.id}
@@ -18,15 +33,18 @@ export default function CardBooking({ bookings }) {
     >
       <Stack direction={"row"} gap={"10px"}>
         <Avatar {...stringAvatar("Privat")} sx={{ width: 48, height: 48 }} />
-        <Stack gap={"2px"}>
+        <Stack gap={"2px"} width={"100%"}>
           <Typography fontWeight={"bold"} fontSize={"14px"} color={"#0D1B34"}>
             {JSON.parse(booking.user_group)
               .map((student) => student.nama_murid)
               .join(", ")}
           </Typography>
-          <Typography fontSize={"14px"} color={"#8696BB"}>
-            {booking.room.nama_ruang}
-          </Typography>
+          <Stack direction={"row"} justifyContent={"space-between"}>
+            <Typography fontSize={"14px"} color={"#8696BB"}>
+              {booking.room.nama_ruang}
+            </Typography>
+            {generateStatus(booking.status)}
+          </Stack>
         </Stack>
       </Stack>
       <Box width={"100%"} height={"1px"} sx={{ background: "#F5F5F5" }} />
@@ -59,21 +77,26 @@ export default function CardBooking({ bookings }) {
             background: "rgba(255, 165, 0, 0.20)",
             color: "#FFA500",
           }}
+          {...(booking.status !== "konfirmasi" && booking.status !== "batal" && { fullWidth: true })}
         >
           Detail
         </Button>
-        <Button
-          sx={{
-            width: "117px",
-            height: "27px",
-            padding: "12px 32px",
-            borderRadius: "7px",
-            background: "#19A551",
-            color: "#FFF",
-          }}
-        >
-          Masuk
-        </Button>
+        {booking.status !== "konfirmasi" && booking.status !== "batal" ? (
+          <Button
+            onClick={onClickConfirm}
+            data-id={booking.id}
+            sx={{
+              width: "117px",
+              height: "27px",
+              padding: "12px 32px",
+              borderRadius: "7px",
+              background: "#19A551",
+              color: "#FFF",
+            }}
+          >
+            Masuk
+          </Button>
+        ) : null}
       </Stack>
     </Stack>
   ));

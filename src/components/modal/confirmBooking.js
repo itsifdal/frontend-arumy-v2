@@ -26,6 +26,55 @@ import { bookingFormReducer, initialBookingFormState, validateBookingForm } from
 export default function ConfirmBooking({ open, onClose, id, callbackSuccess, callbackError }) {
   const [stateForm, dispatchStateForm] = useReducer(bookingFormReducer, initialBookingFormState);
 
+  const { refetch: bookingRefetch } = useQuery(
+    [queryKey.bookings, "DETAIL"],
+    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/booking/${id}`).then((res) => res.data),
+    {
+      enabled: Boolean(id),
+      onSuccess: (res) => {
+        const modelData = {
+          roomId: {
+            value: res.roomId ?? "",
+            label: res.room.nama_ruang ?? "",
+          },
+          teacherId: {
+            value: res.teacherId ?? "",
+            label: res.teacher.nama_pengajar ?? "",
+          },
+          user_group: res.user_group?.map((student) => ({ value: student.id, label: student.nama_murid })),
+          instrumentId: {
+            value: res.instrumentId ?? "",
+            label: res.instrument.nama_instrument ?? "",
+          },
+          tgl_kelas: parse(res.tgl_kelas, "yyyy-MM-dd", new Date()),
+          cabang: res.cabang,
+          jam_booking: parse(res.jam_booking, "HH:mm:ss", new Date()),
+          jam_selesai_booking: parse(res.selesai, "HH:mm:ss", new Date()),
+          jenis_kelas: res.jenis_kelas,
+          durasi: Number(res.durasi),
+          status: res.status,
+        };
+        const entries = Object.entries(modelData);
+        console.log(res);
+        entries.forEach((booking) => {
+          dispatchStateForm({
+            type: "change-field",
+            name: booking[0],
+            value: booking[1],
+            isEnableValidate: true,
+          });
+        });
+      },
+    }
+  );
+
+  useEffect(() => {
+    if (id) {
+      bookingRefetch();
+      console.log("id ", id);
+    }
+  }, [id, bookingRefetch]);
+
   useEffect(() => {
     if (stateForm.values.jam_booking && stateForm.values.jam_selesai_booking) {
       const duration = differenceInMinutes(stateForm.values.jam_selesai_booking, stateForm.values.jam_booking);
@@ -81,57 +130,10 @@ export default function ConfirmBooking({ open, onClose, id, callbackSuccess, cal
     });
   };
 
-  const { refetch: bookingRefetch } = useQuery(
-    [queryKey.bookings, "DETAIL"],
-    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/booking/${id}`).then((res) => res.data),
-    {
-      enabled: Boolean(id),
-      onSuccess: (res) => {
-        const modelData = {
-          roomId: {
-            value: res.roomId ?? "",
-            label: res.room.nama_ruang ?? "",
-          },
-          teacherId: {
-            value: res.teacherId ?? "",
-            label: res.teacher.nama_pengajar ?? "",
-          },
-          user_group: res.user_group?.map((student) => ({ value: student.id, label: student.nama_murid })),
-          instrumentId: {
-            value: res.instrumentId ?? "",
-            label: res.instrument.nama_instrument ?? "",
-          },
-          tgl_kelas: parse(res.tgl_kelas, "yyyy-MM-dd", new Date()),
-          cabang: res.cabang,
-          jam_booking: parse(res.jam_booking, "HH:mm:ss", new Date()),
-          jam_selesai_booking: parse(res.selesai, "HH:mm:ss", new Date()),
-          jenis_kelas: res.jenis_kelas,
-          durasi: Number(res.durasi),
-          status: res.status,
-        };
-        const entries = Object.entries(modelData);
-        entries.forEach((booking) => {
-          dispatchStateForm({
-            type: "change-field",
-            name: booking[0],
-            value: booking[1],
-            isEnableValidate: true,
-          });
-        });
-      },
-    }
-  );
-
-  useEffect(() => {
-    if (id) {
-      bookingRefetch();
-    }
-  }, [id, bookingRefetch]);
-
   return (
     <Modal open={open} onClose={onClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
       <Box sx={{ ...modalStyle, maxWidth: 800 }}>
-        <Typography id="modal-modal-title" variant="h6" component="h2" marginBottom={2}>
+        <Typography id="modal-modal-title" variant="h4" component="h2" marginBottom={2}>
           Confirm Class
         </Typography>
         <Grid container marginBottom={3}>
@@ -167,9 +169,8 @@ export default function ConfirmBooking({ open, onClose, id, callbackSuccess, cal
                 value={stateForm.values.status}
                 onChange={onChange}
               >
-                <FormControlLabel value="pending" control={<Radio />} label="Pending" />
-                <FormControlLabel value="konfirmasi" control={<Radio />} label="Konfirmasi" />
-                <FormControlLabel value="batal" control={<Radio />} label="Batal" />
+                <FormControlLabel value="konfirmasi" control={<Radio />} label="Masuk" />
+                <FormControlLabel value="batal" control={<Radio />} label="Hangus" />
                 <FormControlLabel value="ijin" control={<Radio />} label="Ijin" />
               </RadioGroup>
             </FormControl>

@@ -177,19 +177,19 @@ export default function Booking() {
 
   const generateStatus = (status) => {
     if (status === "pending") {
-      return <Chip label={status} color="warning" />;
+      return <Chip label={"Pending"} color="warning" />;
     }
     if (status === "kadaluarsa") {
-      return <Chip label={status} color="secondary" />;
+      return <Chip label={"Kadaluarsa"} color="secondary" />;
     }
     if (status === "ijin") {
-      return <Chip label={status} color="primary" />;
+      return <Chip label={"Ijin"} color="primary" />;
     }
     if (status === "batal") {
-      return <Chip label={status} color="error" />;
+      return <Chip label={"Hangus"} color="error" />;
     }
     if (status === "konfirmasi") {
-      return <Chip label={status} color="success" />;
+      return <Chip label={"Masuk"} color="success" />;
     }
     return <></>;
   };

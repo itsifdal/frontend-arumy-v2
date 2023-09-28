@@ -4,6 +4,7 @@ import { useQuery } from "react-query";
 import { format, parse, isValid } from "date-fns";
 import axios from "axios";
 import { Chart } from "react-google-charts";
+import { ToastContainer, toast } from "react-toastify";
 // material
 import {
   Link,
@@ -30,6 +31,7 @@ import Page from "../components/Page";
 import PageHeader from "../components/PageHeader";
 import CardBooking from "../components/CardBooking";
 import DateInputBasic from "../components/input/dateInputBasic";
+import ConfirmBooking from "../components/modal/confirmBooking";
 import { urlSearchParamsToQuery } from "../utils/urlSearchParamsToQuery";
 import { queryToString } from "../utils/queryToString";
 import { cleanQuery } from "../utils/cleanQuery";
@@ -47,6 +49,8 @@ export default function Dashboard() {
   const [filters, setFilters] = useState(initFilter);
   const [searchParams, setSearchParams] = useSearchParams();
   const queryParam = urlSearchParamsToQuery(searchParams);
+  const [openUpdStatus, setOpenUpdStatus] = useState(false);
+  const [bookingId, setBookingId] = useState();
 
   // localStorage
   useEffect(() => {
@@ -165,6 +169,31 @@ export default function Dashboard() {
 
   const data = [columns, ...[...mapRoomChart(bookings), ...unusedRoom].sort(comparator)];
 
+  const handleOpenModalUpdateStatus = (e) => {
+    setBookingId(e.target.getAttribute("data-id"));
+    setOpenUpdStatus(true);
+  };
+  const handleCloseModalUpdateStatus = () => setOpenUpdStatus(false);
+  const onSuccessMutateBooking = (response) => {
+    setOpenUpdStatus(false);
+    refetchBookings();
+    toast.success(response.data.message, {
+      position: "top-center",
+      autoClose: 1000,
+      theme: "colored",
+    });
+  };
+
+  const onErrorMutateBooking = (error) => {
+    if (error) {
+      toast.error("Booking Error", {
+        position: "top-center",
+        autoClose: 1000,
+        theme: "colored",
+      });
+    }
+  };
+
   return (
     <Page title="Dashboard">
       <PageHeader
@@ -196,7 +225,7 @@ export default function Dashboard() {
         <Container maxWidth="xl">
           <Stack width={"100%"} direction={"row"} spacing={2}>
             <Grid container spacing={1} flexGrow={1}>
-              <Grid item xs={4}>
+              <Grid item xs={12} sm={6} md={4}>
                 <DateInputBasic
                   disableValidation
                   id="tgl_kelas"
@@ -214,16 +243,28 @@ export default function Dashboard() {
         </Container>
       </Box>
       <Container maxWidth="xl" sx={{ paddingTop: 4 }}>
+        <ToastContainer pauseOnFocusLoss={false} />
         {!isLoadingBookings && bookings.length && !isTeacher ? (
           <Chart chartType="Timeline" data={data} width="100%" height="850px" />
         ) : null}
-        {renderContent({ isLoadingDashboard, isTeacher, dashboard, bookings })}
+        {renderContent({ isLoadingDashboard, isTeacher, dashboard, bookings, handleOpenModalUpdateStatus })}
       </Container>
+      <ConfirmBooking
+        open={openUpdStatus}
+        onClose={handleCloseModalUpdateStatus}
+        id={Number(bookingId)}
+        callbackSuccess={(response) => {
+          onSuccessMutateBooking(response);
+        }}
+        callbackError={(error) => {
+          onErrorMutateBooking(error);
+        }}
+      />
     </Page>
   );
 }
 
-function renderContent({ isLoadingDashboard, isTeacher, dashboard, bookings }) {
+function renderContent({ isLoadingDashboard, isTeacher, dashboard, bookings, handleOpenModalUpdateStatus }) {
   const StyledTableCell = styled(TableCell)({
     [`&.${tableCellClasses.head}`]: {
       borderColor: "#c7c7e4",
@@ -254,7 +295,7 @@ function renderContent({ isLoadingDashboard, isTeacher, dashboard, bookings }) {
   if (isTeacher) {
     return (
       <Stack gap="11px">
-        <CardBooking bookings={bookings} />
+        <CardBooking bookings={bookings} onClickConfirm={handleOpenModalUpdateStatus} />
       </Stack>
     );
   }
