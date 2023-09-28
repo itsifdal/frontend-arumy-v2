@@ -5,6 +5,7 @@ import { styled } from "@mui/material/styles";
 //
 /* import DashboardNavbar from "./DashboardNavbar"; */
 import DashboardSidebar from "./DashboardSidebar";
+import useResponsive from "../../hooks/useResponsive";
 
 // ----------------------------------------------------------------------
 
@@ -26,6 +27,7 @@ export default function DashboardLayout() {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const [foundUser, setFoundUser] = useState(true);
+  const isDesktop = useResponsive("up", "lg");
 
   useEffect(() => {
     const loggedInUser = localStorage.getItem("user");
@@ -43,7 +45,7 @@ export default function DashboardLayout() {
     <RootStyle>
       {/* <DashboardNavbar onOpenSidebar={() => setOpen(true)} /> */}
       <DashboardSidebar isOpenSidebar={open} onCloseSidebar={() => setOpen(false)} />
-      <MainStyle>
+      <MainStyle sx={{ ...(!isDesktop && { paddingBottom: "66px" }) }}>
         <Outlet />
       </MainStyle>
     </RootStyle>

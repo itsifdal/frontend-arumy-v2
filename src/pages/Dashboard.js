@@ -21,7 +21,6 @@ import {
   Typography,
   Box,
   Grid,
-  Avatar,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 // components
@@ -29,13 +28,12 @@ import { queryKey } from "../constants/queryKey";
 import Page from "../components/Page";
 // sections
 import PageHeader from "../components/PageHeader";
+import CardBooking from "../components/CardBooking";
 import DateInputBasic from "../components/input/dateInputBasic";
 import { urlSearchParamsToQuery } from "../utils/urlSearchParamsToQuery";
 import { queryToString } from "../utils/queryToString";
 import { cleanQuery } from "../utils/cleanQuery";
 import { mapRoomChart } from "../utils/map/roomChart";
-import { stringAvatar } from "../utils/avatarProps";
-import Iconify from "../components/Iconify";
 
 const initFilter = {
   tgl_kelas: format(new Date(), "yyyy-MM-dd"),
@@ -296,77 +294,5 @@ function renderContent({ isLoadingDashboard, isTeacher, dashboard, bookings }) {
         </Link>
       </Stack>
     </Box>
-  ));
-}
-
-function CardBooking({ bookings }) {
-  return bookings.map((booking) => (
-    <Stack
-      key={booking.id}
-      borderRadius={"7px"}
-      boxShadow={"2px 12px 20px 0px rgba(90, 117, 167, 0.10)"}
-      padding={"15px"}
-      sx={{
-        background: "white",
-      }}
-      gap={"11px"}
-    >
-      <Stack direction={"row"} gap={"10px"}>
-        <Avatar {...stringAvatar("Privat")} sx={{ width: 48, height: 48 }} />
-        <Stack gap={"2px"}>
-          <Typography fontWeight={"bold"} fontSize={"14px"} color={"#0D1B34"}>
-            Student Name
-          </Typography>
-          <Typography fontSize={"14px"} color={"#8696BB"}>
-            Room
-          </Typography>
-        </Stack>
-      </Stack>
-      <Box width={"100%"} height={"1px"} sx={{ background: "#F5F5F5" }} />
-      <Grid container>
-        <Grid item xs={6}>
-          <Stack direction={"row"} gap={"6px"}>
-            <Iconify icon="ic:round-date-range" sx={{ width: "16px", height: "16px", color: "#8696BB" }} />
-            <Typography fontSize={"12px"} color={"#8696BB"}>
-              Sunday, 12 June
-            </Typography>
-          </Stack>
-        </Grid>
-        <Grid item xs={6}>
-          <Stack direction={"row"} gap={"6px"}>
-            <Iconify icon="tabler:clock" sx={{ width: "16px", height: "16px", color: "#8696BB" }} />
-            <Typography fontSize={"12px"} color={"#8696BB"}>
-              11:00 - 12:00 AM
-            </Typography>
-          </Stack>
-        </Grid>
-      </Grid>
-      <Stack direction={"row"} justifyContent={"space-around"}>
-        <Button
-          sx={{
-            width: "117px",
-            height: "27px",
-            padding: "12px 32px",
-            borderRadius: "7px",
-            background: "rgba(255, 165, 0, 0.20)",
-            color: "#FFA500",
-          }}
-        >
-          Detail
-        </Button>
-        <Button
-          sx={{
-            width: "117px",
-            height: "27px",
-            padding: "12px 32px",
-            borderRadius: "7px",
-            background: "#19A551",
-            color: "#FFF",
-          }}
-        >
-          Masuk
-        </Button>
-      </Stack>
-    </Stack>
   ));
 }

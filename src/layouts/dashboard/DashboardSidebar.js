@@ -158,14 +158,19 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
     ));
 
   let nav;
+  let activeNav;
   if (user && user.role === "Admin" && isDesktop) {
     nav = <NavSection navConfig={navConfigAdmin} />;
+    activeNav = navConfigAdmin;
   } else if (user && user.role === "Admin" && !isDesktop) {
     nav = <NavSection navConfig={navConfigNonAdmin} />;
+    activeNav = navConfigNonAdmin;
   } else if (user && isDesktop) {
     nav = <NavSection navConfig={navConfigNonAdmin} />;
+    activeNav = navConfigNonAdmin;
   } else if (user && !isDesktop) {
     nav = renderBottomNavigation(navConfigNonAdminMobile);
+    activeNav = navConfigNonAdminMobile;
   }
 
   const renderContent = (
@@ -204,7 +209,7 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
       {!isDesktop && (
         <BottomNavigation
           showLabels
-          value={navConfigAdmin.findIndex((menu) => menu.path === pathname)}
+          value={activeNav?.findIndex((menu) => menu.path === pathname)}
           sx={{ position: "fixed", width: "100%", zIndex: "10", bottom: 0, left: 0 }}
         >
           {nav}
