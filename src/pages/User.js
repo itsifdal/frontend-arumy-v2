@@ -70,7 +70,6 @@ export default function User() {
     () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/teacher?perPage=9999`).then((res) => res.data),
     {
       select: (teachers) => teachers.data.map((teacher) => ({ value: teacher.id, label: teacher.nama_pengajar })),
-      enabled: openTeacher || Boolean(userId),
     }
   );
 
@@ -123,6 +122,8 @@ export default function User() {
     if (!hasError) {
       const remapData = { ...stateForm.values, teacherId: stateForm.values.teacherId?.value };
       if (stateModal === "update") {
+        delete remapData.password;
+        delete remapData.token;
         submitUpdateUser.mutate(remapData, {
           onSuccess: (response) => {
             onSuccessMutateUser(response);
@@ -353,7 +354,7 @@ export default function User() {
                     errorMessage={stateForm.errors.teacherId}
                     options={teachers}
                     loading={isLoadingTeachers}
-                    open={openTeacher}
+                    open={teachers.length && openTeacher}
                     onOpen={() => {
                       setOpenTeacher(true);
                     }}
