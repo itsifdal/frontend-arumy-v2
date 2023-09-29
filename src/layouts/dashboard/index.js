@@ -34,8 +34,10 @@ export default function DashboardLayout() {
     if (loggedInUser) {
       const foundUser = JSON.parse(loggedInUser);
       setFoundUser(foundUser);
+    } else {
+      navigate("/login", { replace: true });
     }
-  }, []);
+  }, [navigate]);
 
   if (!foundUser || foundUser === undefined) {
     navigate("/login", { replace: true });
