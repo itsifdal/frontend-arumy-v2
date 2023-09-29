@@ -14,6 +14,7 @@ import AddBooking from "./pages/AddBooking";
 import UpdateBooking from "./pages/UpdateBooking";
 import UpdatePost from "./pages/UpdatePost";
 import Booking from "./pages/Booking";
+import BookingDetail from "./pages/BookingDetail";
 import UpdateBookingPage from "./pages/UpdateBookingPage";
 import Students from "./pages/Students";
 
@@ -51,6 +52,7 @@ export default function Router() {
         { path: "user", element: <User /> },
         { path: "room", element: <Room /> },
         { path: "booking", element: <Booking /> },
+        { path: "booking/:id", element: <BookingDetail /> },
         { path: "updateBookingPage/:id", element: <UpdateBookingPage /> },
         { path: "post", element: <Post /> },
         { path: "rooms", element: <Rooms /> },

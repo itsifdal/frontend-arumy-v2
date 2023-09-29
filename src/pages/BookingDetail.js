@@ -1,11 +1,19 @@
-import { Stack, Button, Typography, Box, Grid, Avatar, Chip } from "@mui/material";
+/* eslint-disable camelcase */
+import React from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { Stack, Button, Typography, Box, Grid, Avatar, Chip, IconButton } from "@mui/material";
 import { format, parse } from "date-fns";
-import { Link as RouterLink } from "react-router-dom";
+import { useQuery } from "react-query";
+import axios from "axios";
 
+import Page from "../components/Page";
+import PageHeader from "../components/PageHeader";
 import { stringAvatar } from "../utils/avatarProps";
-import Iconify from "./Iconify";
+import Iconify from "../components/Iconify";
 import { bookingStatusObj } from "../constants/bookingStatus";
+import { queryKey } from "../constants/queryKey";
 
+// ----------------------------------------------------------------------
 const generateStatus = (status) => {
   if (status) {
     return (
@@ -20,10 +28,44 @@ const generateStatus = (status) => {
   return <></>;
 };
 
-export default function CardBooking({ bookings, onClickConfirm }) {
-  return bookings.map((booking) => (
+export default function BookingDetail() {
+  const navigate = useNavigate();
+
+  return (
+    <Page title="Booking">
+      <PageHeader
+        title="Bookings"
+        leftContent={
+          <IconButton aria-label="back" onClick={() => navigate(-1)}>
+            <Iconify icon="ph:arrow-left-bold" sx={{ width: "20px", height: "20px" }} />
+          </IconButton>
+        }
+      />
+      <Box p={2}>
+        <BookingData />
+      </Box>
+    </Page>
+  );
+}
+
+function BookingData() {
+  const { id } = useParams();
+  const {
+    data: booking,
+    isLoading,
+    isError,
+  } = useQuery(
+    [queryKey.bookings, "DETAIL"],
+    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/booking/${id}`).then((res) => res.data),
+    {
+      enabled: Boolean(id),
+    }
+  );
+
+  if (isLoading) return <Typography>Loading data...</Typography>;
+  if (isError) return <Typography>Error data</Typography>;
+  return (
     <Stack
-      key={booking.id}
       borderRadius={"7px"}
       boxShadow={"2px 12px 20px 0px rgba(90, 117, 167, 0.10)"}
       padding={"15px"}
@@ -36,9 +78,7 @@ export default function CardBooking({ bookings, onClickConfirm }) {
         <Avatar {...stringAvatar("Privat")} sx={{ width: 48, height: 48 }} />
         <Stack gap={"2px"} width={"100%"}>
           <Typography fontWeight={"bold"} fontSize={"14px"} color={"#0D1B34"}>
-            {JSON.parse(booking.user_group)
-              .map((student) => student.nama_murid)
-              .join(", ")}
+            {booking.user_group.map((student) => student.nama_murid).join(", ")}
           </Typography>
           <Stack direction={"row"} justifyContent={"space-between"}>
             <Typography fontSize={"14px"} color={"#8696BB"}>
@@ -63,15 +103,13 @@ export default function CardBooking({ bookings, onClickConfirm }) {
             <Iconify icon="tabler:clock" sx={{ width: "16px", height: "16px", color: "#8696BB" }} />
             <Typography fontSize={"12px"} color={"#8696BB"}>
               {`${format(parse(booking.jam_booking, "HH:mm:ss", new Date()), "HH:mm")} - 
-              ${format(parse(booking.selesai, "HH:mm:ss", new Date()), "HH:mm")}`}
+          ${format(parse(booking.selesai, "HH:mm:ss", new Date()), "HH:mm")}`}
             </Typography>
           </Stack>
         </Grid>
       </Grid>
       <Stack direction={"row"} justifyContent={"space-around"}>
         <Button
-          component={RouterLink}
-          to={`/app/booking/${booking.id}`}
           sx={{
             width: "117px",
             height: "27px",
@@ -86,7 +124,6 @@ export default function CardBooking({ bookings, onClickConfirm }) {
         </Button>
         {booking.status !== "konfirmasi" && booking.status !== "batal" ? (
           <Button
-            onClick={onClickConfirm}
             data-id={booking.id}
             sx={{
               width: "117px",
@@ -102,5 +139,5 @@ export default function CardBooking({ bookings, onClickConfirm }) {
         ) : null}
       </Stack>
     </Stack>
-  ));
+  );
 }

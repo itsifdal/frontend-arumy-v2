@@ -66,6 +66,7 @@ export default function Dashboard() {
     data: dashboard,
     isLoading: isLoadingDashboard,
     refetch: refetchBooking,
+    isError: isErrorDashboard,
   } = useQuery(
     [queryKey.dashboard],
     () =>
@@ -247,7 +248,14 @@ export default function Dashboard() {
         {!isLoadingBookings && bookings.length && !isTeacher ? (
           <Chart chartType="Timeline" data={data} width="100%" height="850px" />
         ) : null}
-        {renderContent({ isLoadingDashboard, isTeacher, dashboard, bookings, handleOpenModalUpdateStatus })}
+        {renderContent({
+          isErrorDashboard,
+          isLoadingDashboard,
+          isTeacher,
+          dashboard,
+          bookings,
+          handleOpenModalUpdateStatus,
+        })}
       </Container>
       <ConfirmBooking
         open={openUpdStatus}
@@ -264,7 +272,14 @@ export default function Dashboard() {
   );
 }
 
-function renderContent({ isLoadingDashboard, isTeacher, dashboard, bookings, handleOpenModalUpdateStatus }) {
+function renderContent({
+  isErrorDashboard,
+  isLoadingDashboard,
+  isTeacher,
+  dashboard,
+  bookings,
+  handleOpenModalUpdateStatus,
+}) {
   const StyledTableCell = styled(TableCell)({
     [`&.${tableCellClasses.head}`]: {
       borderColor: "#c7c7e4",
@@ -289,7 +304,7 @@ function renderContent({ isLoadingDashboard, isTeacher, dashboard, bookings, han
   });
 
   if (isLoadingDashboard) return <Typography>Loading Data</Typography>;
-
+  if (isErrorDashboard) return <Typography>Error Data</Typography>;
   if (!dashboard.length) return <Typography>No Data Found</Typography>;
 
   if (isTeacher) {

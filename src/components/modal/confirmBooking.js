@@ -55,7 +55,6 @@ export default function ConfirmBooking({ open, onClose, id, callbackSuccess, cal
           status: res.status,
         };
         const entries = Object.entries(modelData);
-        console.log(res);
         entries.forEach((booking) => {
           dispatchStateForm({
             type: "change-field",
@@ -71,7 +70,6 @@ export default function ConfirmBooking({ open, onClose, id, callbackSuccess, cal
   useEffect(() => {
     if (id) {
       bookingRefetch();
-      console.log("id ", id);
     }
   }, [id, bookingRefetch]);
 
