@@ -214,7 +214,7 @@ export default function Booking() {
         </Stack>
       );
     }
-    if (isUserGuru && (book.status === "pending" || book.status === "kadaluarsa")) {
+    if (isUserGuru && (book.status === "pending" || book.status === "ijin")) {
       return (
         <Button
           variant="contained"

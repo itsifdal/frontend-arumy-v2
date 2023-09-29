@@ -81,11 +81,11 @@ export default function CardBooking({ bookings, onClickConfirm }) {
             background: "rgba(255, 165, 0, 0.20)",
             color: "#FFA500",
           }}
-          {...(booking.status !== "konfirmasi" && booking.status !== "batal" && { fullWidth: true })}
+          {...(booking.status === "pending" || (booking.status === "ijin" && { fullWidth: true }))}
         >
           Detail
         </Button>
-        {booking.status !== "konfirmasi" && booking.status !== "batal" ? (
+        {booking.status === "pending" || booking.status === "ijin" ? (
           <Button
             onClick={onClickConfirm}
             data-id={booking.id}
