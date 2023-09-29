@@ -7,6 +7,7 @@ import { format, parse, addMinutes } from "date-fns";
 import { ToastContainer, toast } from "react-toastify";
 import axios from "axios";
 import { LoadingButton } from "@mui/lab";
+import PropTypes from "prop-types";
 
 // Toastify
 import "react-toastify/dist/ReactToastify.css";
@@ -27,9 +28,10 @@ import {
 } from "@mui/material";
 import { InfoRounded } from "@mui/icons-material";
 
+// hooks
+import useResponsive from "../hooks/useResponsive";
 // components
 import Page from "../components/Page";
-import Scrollbar from "../components/Scrollbar";
 import Iconify from "../components/Iconify";
 import PageHeader from "../components/PageHeader";
 import BasicTable from "../components/BasicTable";
@@ -40,6 +42,8 @@ import { urlSearchParamsToQuery } from "../utils/urlSearchParamsToQuery";
 import { queryToString } from "../utils/queryToString";
 import { queryKey } from "../constants/queryKey";
 import BookingFilters from "../components/filter/bookingFilters";
+import CollapsibleTable from "../components/CollapsibleTable";
+import { bookingStatusObj } from "../constants/bookingStatus";
 
 // Style box
 const style = {
@@ -55,6 +59,46 @@ const style = {
   p: 4,
 };
 
+const hourModel = ({ timeStart, timeEnd, duration }) => {
+  const formatTimeStart = format(parse(timeStart, "HH:mm:ss", new Date()), "HH:mm");
+  const formatTimeEnd = timeEnd
+    ? format(parse(timeEnd, "HH:mm:ss", new Date()), "HH:mm")
+    : format(addMinutes(parse(timeStart, "HH:mm:ss", new Date()), duration), "HH:mm");
+  return `${formatTimeStart}-${formatTimeEnd}`;
+};
+
+const studentModel = ({ students }) => {
+  if (students) {
+    const arrayStudents = JSON.parse(students);
+    return (
+      <Stack direction={"row"}>
+        <Typography noWrap maxWidth={"200px"} fontSize={["12px", "14px"]}>
+          {arrayStudents.map((student) => student.nama_murid).join(", ")}
+        </Typography>
+        {arrayStudents.length > 1 && (
+          <Tooltip title={arrayStudents.map((student) => student.nama_murid).join(", ")} placement="bottom">
+            <InfoRounded fontSize="small" />
+          </Tooltip>
+        )}
+      </Stack>
+    );
+  }
+  return <></>;
+};
+
+const generateStatus = ({ status, isMobile }) => {
+  if (status) {
+    return (
+      <Chip
+        label={bookingStatusObj[status].label}
+        color={bookingStatusObj[status].color}
+        {...(isMobile && { size: "small", sx: { fontSize: "12px", height: "auto" } })}
+      />
+    );
+  }
+  return <></>;
+};
+
 // ----------------------------------------------------------------------
 export default function Booking() {
   const [bookingId, setBookingId] = useState();
@@ -64,6 +108,7 @@ export default function Booking() {
 
   const [searchParams, setSearchParams] = useSearchParams();
   const queryParam = urlSearchParamsToQuery(searchParams);
+  const isDesktop = useResponsive("up", "lg");
 
   // localStorage
   useEffect(() => {
@@ -175,25 +220,6 @@ export default function Booking() {
   const isUserAdmin = user.role === "Admin";
   const isUserGuru = user.role === "Guru";
 
-  const generateStatus = (status) => {
-    if (status === "pending") {
-      return <Chip label={"Pending"} color="warning" />;
-    }
-    if (status === "kadaluarsa") {
-      return <Chip label={"Kadaluarsa"} color="secondary" />;
-    }
-    if (status === "ijin") {
-      return <Chip label={"Ijin"} color="primary" />;
-    }
-    if (status === "batal") {
-      return <Chip label={"Hangus"} color="error" />;
-    }
-    if (status === "konfirmasi") {
-      return <Chip label={"Masuk"} color="success" />;
-    }
-    return <></>;
-  };
-
   const generateButtonAction = (book) => {
     if (isUserAdmin) {
       return (
@@ -224,6 +250,11 @@ export default function Booking() {
           data-durasi={book.durasi}
           data-id={book.id}
           onClick={handleOpenModalUpdateStatus}
+          {...(!isDesktop && {
+            sx: {
+              fontSize: "12px",
+            },
+          })}
         >
           Confirm
         </Button>
@@ -231,98 +262,6 @@ export default function Booking() {
     }
     return <></>;
   };
-
-  const hourModel = ({ timeStart, timeEnd, duration }) => {
-    const formatTimeStart = format(parse(timeStart, "HH:mm:ss", new Date()), "HH:mm");
-    const formatTimeEnd = timeEnd
-      ? format(parse(timeEnd, "HH:mm:ss", new Date()), "HH:mm")
-      : format(addMinutes(parse(timeStart, "HH:mm:ss", new Date()), duration), "HH:mm");
-    return `${formatTimeStart}-${formatTimeEnd}`;
-  };
-
-  const studentModel = ({ students }) => {
-    if (students) {
-      const arrayStudents = JSON.parse(students);
-      return (
-        <Stack direction={"row"}>
-          <Typography noWrap maxWidth={"200px"} fontSize={"0.875rem"}>
-            {arrayStudents.map((student) => student.nama_murid).join(", ")}
-          </Typography>
-          {arrayStudents.length > 1 && (
-            <Tooltip title={arrayStudents.map((student) => student.nama_murid).join(", ")} placement="bottom">
-              <InfoRounded fontSize="small" />
-            </Tooltip>
-          )}
-        </Stack>
-      );
-    }
-    return <></>;
-  };
-
-  const tableHeader = [
-    <Stack key={"tgl_kelas"} gap={1} direction={"row"} alignItems={"center"}>
-      <Typography
-        sx={{
-          fontSize: "14px",
-        }}
-      >
-        TGL KELAS
-      </Typography>
-      <Button
-        sx={{
-          minWidth: 0,
-          padding: 0,
-          fontSize: "20px",
-          ":hover": {
-            bgcolor: "transparent",
-          },
-        }}
-        disabled={queryParam.sort === "asc" && queryParam.sort_by === "tgl_kelas"}
-        onClick={() => {
-          setSearchParams({ ...queryParam, sort: "asc", sort_by: "tgl_kelas" });
-        }}
-      >
-        <Iconify icon="octicon:sort-asc-16" />
-      </Button>
-      <Button
-        sx={{
-          minWidth: 0,
-          padding: 0,
-          fontSize: "20px",
-          ":hover": {
-            bgcolor: "transparent",
-          },
-        }}
-        onClick={() => {
-          setSearchParams({ ...queryParam, sort: "desc", sort_by: "tgl_kelas" });
-        }}
-        disabled={queryParam.sort === "desc" && queryParam.sort_by === "tgl_kelas"}
-      >
-        <Iconify icon="octicon:sort-desc-16" />
-      </Button>
-    </Stack>,
-    "JAM BOOKING",
-    "RUANG KELAS",
-    "MURID",
-    "PENGAJAR",
-    "STATUS",
-    "",
-  ];
-  const tableBody = bookings?.data
-    ? bookings.data?.map((booking) => [
-        format(parse(booking.tgl_kelas, "yyyy-MM-dd", new Date()), "dd-MM-yyyy"),
-        hourModel({ timeStart: booking.jam_booking, timeEnd: booking.selesai, duration: booking.durasi }),
-        booking.room.nama_ruang,
-        studentModel({ students: booking.user_group }),
-        booking.teacher.nama_pengajar,
-        generateStatus(booking.status),
-        { ...((isUserAdmin || isUserGuru) && generateButtonAction(booking)) },
-      ])
-    : [];
-  if (!isUserAdmin && !isUserGuru) {
-    tableHeader.pop();
-    tableBody.map((body) => body.pop());
-  }
 
   //----
   return (
@@ -353,7 +292,15 @@ export default function Booking() {
       </Box>
       <Container maxWidth="xl" sx={{ paddingTop: 4 }}>
         <ToastContainer pauseOnFocusLoss={false} />
-        {renderData({ bookings, tableHeader, tableBody, queryParam, isLoadingBookings })}
+        <BookingData
+          bookings={bookings}
+          queryParam={queryParam}
+          isLoadingBookings={isLoadingBookings}
+          setSearchParams={setSearchParams}
+          buttonAction={generateButtonAction}
+          isUserAdmin={isUserAdmin}
+          isUserGuru={isUserGuru}
+        />
         <CreateBooking
           open={openModalCreate}
           onClose={() => setOpenModalCreate(false)}
@@ -402,16 +349,91 @@ export default function Booking() {
   );
 }
 
-function renderData({ bookings, tableHeader, tableBody, queryParam, isLoadingBookings }) {
+function BookingData({
+  bookings,
+  queryParam,
+  isLoadingBookings,
+  setSearchParams,
+  isUserAdmin,
+  isUserGuru,
+  buttonAction,
+}) {
+  const isDesktop = useResponsive("up", "lg");
+
+  const tableHeader = [
+    <Stack key={"tgl_kelas"} gap={1} direction={"row"} alignItems={"center"}>
+      <Typography fontSize={["12px", "14px"]} {...(!isDesktop && { fontWeight: "bold" })}>
+        TGL KELAS
+      </Typography>
+      <Button
+        sx={{
+          minWidth: 0,
+          padding: 0,
+          fontSize: "20px",
+          ":hover": {
+            bgcolor: "transparent",
+          },
+        }}
+        disabled={queryParam.sort === "asc" && queryParam.sort_by === "tgl_kelas"}
+        onClick={() => {
+          setSearchParams({ ...queryParam, sort: "asc", sort_by: "tgl_kelas" });
+        }}
+      >
+        <Iconify icon="octicon:sort-asc-16" />
+      </Button>
+      <Button
+        sx={{
+          minWidth: 0,
+          padding: 0,
+          fontSize: "20px",
+          ":hover": {
+            bgcolor: "transparent",
+          },
+        }}
+        onClick={() => {
+          setSearchParams({ ...queryParam, sort: "desc", sort_by: "tgl_kelas" });
+        }}
+        disabled={queryParam.sort === "desc" && queryParam.sort_by === "tgl_kelas"}
+      >
+        <Iconify icon="octicon:sort-desc-16" />
+      </Button>
+    </Stack>,
+    "JAM BOOKING",
+    "RUANG KELAS",
+    "MURID",
+    "PENGAJAR",
+    "STATUS",
+    "",
+  ];
+
+  const tableBody = bookings?.data
+    ? bookings.data?.map((booking) => [
+        format(parse(booking.tgl_kelas, "yyyy-MM-dd", new Date()), "dd-MM-yyyy"),
+        hourModel({ timeStart: booking.jam_booking, timeEnd: booking.selesai, duration: booking.durasi }),
+        booking.room.nama_ruang,
+        studentModel({ students: booking.user_group }),
+        booking.teacher.nama_pengajar,
+        generateStatus({ status: booking.status, isMobile: !isDesktop }),
+        { ...((isUserAdmin || isUserGuru) && buttonAction(booking)) },
+      ])
+    : [];
+
+  if (!isUserAdmin && !isUserGuru) {
+    tableHeader.pop();
+    tableBody.map((body) => body.pop());
+  }
+
   if (isLoadingBookings) return <Typography>Loading data...</Typography>;
   if (!bookings) return <Typography>Error load data</Typography>;
   if (!bookings.data?.length) return <Typography>No data</Typography>;
 
   return (
     <Box marginBottom={3}>
-      <Scrollbar>
+      {isDesktop ? (
         <BasicTable header={tableHeader} body={tableBody} />
-      </Scrollbar>
+      ) : (
+        <CollapsibleTable header={tableHeader} body={tableBody} />
+      )}
       <Pagination
         page={bookings.pagination.current_page}
         count={bookings.pagination.total_pages}
@@ -428,3 +450,12 @@ function renderData({ bookings, tableHeader, tableBody, queryParam, isLoadingBoo
     </Box>
   );
 }
+BookingData.propTypes = {
+  bookings: PropTypes.object,
+  queryParam: PropTypes.object.isRequired,
+  isLoadingBookings: PropTypes.bool.isRequired,
+  setSearchParams: PropTypes.func.isRequired,
+  buttonAction: PropTypes.func.isRequired,
+  isUserAdmin: PropTypes.bool.isRequired,
+  isUserGuru: PropTypes.bool.isRequired,
+};
