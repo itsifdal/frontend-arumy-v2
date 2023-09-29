@@ -216,7 +216,9 @@ export default function Students() {
                   student.nama_murid,
                   student.nomor_va,
                   student.telepon,
-                  student.tgl_lahir ? format(parse(student.tgl_lahir, "yyyy-MM-dd", new Date()), "dd-MM-yyyy") : "-",
+                  student.tgl_lahir && student.tgl_lahir !== "0000-00-00"
+                    ? format(parse(student.tgl_lahir, "yyyy-MM-dd", new Date()), "dd-MM-yyyy")
+                    : "-",
                   <Stack key={student.id} direction="row" spacing={2}>
                     <Button
                       variant="contained"
