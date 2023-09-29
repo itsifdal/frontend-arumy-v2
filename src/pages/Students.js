@@ -178,7 +178,7 @@ export default function Students() {
 
   function onErrorMutateStudent(error) {
     if (error.response) {
-      toast.error(error.response, {
+      toast.error(error.response?.data?.message || "Terjadi kesalahan pada sistem.", {
         position: "top-center",
         autoClose: 1000,
         theme: "colored",
