@@ -27,6 +27,7 @@ export default function CardBooking({ bookings, onClickConfirm }) {
       borderRadius={"7px"}
       boxShadow={"2px 12px 20px 0px rgba(90, 117, 167, 0.10)"}
       padding={"15px"}
+      minWidth={"400px"}
       sx={{
         background: "white",
       }}
