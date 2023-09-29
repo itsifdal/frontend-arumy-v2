@@ -309,9 +309,9 @@ function renderContent({
 
   if (isTeacher) {
     return (
-      <Stack gap="11px" direction={"row"} flexWrap={"wrap"}>
+      <Grid container spacing="11px">
         <CardBooking bookings={bookings} onClickConfirm={handleOpenModalUpdateStatus} />
-      </Stack>
+      </Grid>
     );
   }
 
