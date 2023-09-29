@@ -99,7 +99,7 @@ export default function Room() {
     dispatchStateForm({
       type: "change-field",
       name: "cabangId",
-      value: e.target.getAttribute("data-cabangId"),
+      value: e.target.getAttribute("data-cabangid"),
     });
     dispatchStateForm({
       type: "change-field",
@@ -191,7 +191,7 @@ export default function Room() {
                     size="small"
                     startIcon={<Iconify icon="mdi:pencil" />}
                     data-id={room.id}
-                    data-cabangId={room.cabangId}
+                    data-cabangid={room.cabangId}
                     data-nama_ruang={room.nama_ruang}
                     onClick={handleOpenModalUpdate}
                   >
