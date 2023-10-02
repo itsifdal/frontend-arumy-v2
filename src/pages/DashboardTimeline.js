@@ -80,6 +80,7 @@ export default function DashboardTimeline() {
         })),
     }
   );
+  console.log(bookings);
 
   useEffect(() => {
     // use this for escape infinite loop
@@ -196,7 +197,7 @@ export default function DashboardTimeline() {
               omitZeroMinute: false,
               meridiem: "short",
             }}
-            initialEvents={bookings}
+            events={bookings}
             allDaySlot={false}
           />
         ) : null}
