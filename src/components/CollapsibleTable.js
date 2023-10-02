@@ -57,7 +57,14 @@ Row.propTypes = {
 
 export default function CollapsibleTable({ header, body }) {
   return (
-    <TableContainer sx={{ marginBottom: "15px", backgroundColor: "white", borderRadius: "4px" }}>
+    <TableContainer
+      sx={{
+        marginBottom: "15px",
+        backgroundColor: "white",
+        borderRadius: "10px",
+        boxShadow: "rgba(0, 0, 0, 0.1) 3px 4px 20px 0px",
+      }}
+    >
       <Table size="small" aria-label="collapsible table">
         <TableHead>
           <TableRow>

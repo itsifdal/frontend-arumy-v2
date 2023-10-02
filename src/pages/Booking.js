@@ -280,7 +280,7 @@ export default function Booking() {
         sx={{
           background: "#FFF",
           boxShadow: "0px 4px 20px 0px rgba(0, 0, 0, 0.05)",
-          paddingY: "20px",
+          paddingY: isDesktop ? "20px" : "5px",
           zIndex: 2,
           position: "relative",
           borderTop: "1px solid #c3c3e1",
@@ -369,7 +369,7 @@ function BookingData({
         sx={{
           minWidth: 0,
           padding: 0,
-          fontSize: "20px",
+          fontSize: isDesktop ? "20px" : "14px",
           ":hover": {
             bgcolor: "transparent",
           },
@@ -385,7 +385,7 @@ function BookingData({
         sx={{
           minWidth: 0,
           padding: 0,
-          fontSize: "20px",
+          fontSize: isDesktop ? "20px" : "14px",
           ":hover": {
             bgcolor: "transparent",
           },
