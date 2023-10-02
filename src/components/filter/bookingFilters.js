@@ -112,12 +112,12 @@ function BookingFilterForm({ toggleDrawer }) {
   }, [searchParams]);
 
   const SubmitFilter = () => {
-    toggleDrawer(false);
+    if (toggleDrawer) toggleDrawer(false);
     setSearchParams(filters);
   };
 
   const ResetFilter = () => {
-    toggleDrawer(false);
+    if (toggleDrawer) toggleDrawer(false);
     setSearchParams();
   };
 

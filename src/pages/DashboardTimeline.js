@@ -80,7 +80,6 @@ export default function DashboardTimeline() {
         })),
     }
   );
-  console.log(bookings);
 
   useEffect(() => {
     // use this for escape infinite loop
