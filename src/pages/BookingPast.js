@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 import React, { useEffect, useState } from "react";
-import { useSearchParams, Link } from "react-router-dom";
+import { useSearchParams, Link as RouterLink } from "react-router-dom";
 import { useQuery, useMutation } from "react-query";
 import { format, parse, addMinutes } from "date-fns";
 // React Toasts
@@ -100,7 +100,7 @@ const generateStatus = ({ status, isMobile }) => {
 };
 
 // ----------------------------------------------------------------------
-export default function Booking() {
+export default function BookingPast() {
   const [bookingId, setBookingId] = useState();
   const [user, setUser] = useState("");
   const [openModalCreate, setOpenModalCreate] = useState(false);
@@ -287,7 +287,7 @@ export default function Booking() {
         }}
       >
         <Container maxWidth="xl">
-          <BookingFilters />
+          <BookingFilters toggleValue={"past"} />
         </Container>
       </Box>
       <Container maxWidth="xl" sx={{ paddingTop: 4 }}>
@@ -441,7 +441,7 @@ function BookingData({
         sx={[{ ul: { justifyContent: "center" } }]}
         renderItem={(item) => (
           <PaginationItem
-            component={Link}
+            component={RouterLink}
             to={`/app/booking${queryToString({ ...queryParam, page: item.page === 1 ? null : item.page })}`}
             {...item}
           />

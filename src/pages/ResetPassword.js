@@ -111,7 +111,7 @@ export default function ResetPassword() {
             color="warning"
             onClick={onSubmit}
           >
-            Send Email
+            Set New Password
           </LoadingButton>
         </FormControl>
       </LoginLayout>

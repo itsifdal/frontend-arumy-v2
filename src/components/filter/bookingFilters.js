@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useQuery } from "react-query";
 import { format, parse, isValid } from "date-fns";
 import PropTypes from "prop-types";
-import { Button, Stack, Grid, Drawer, IconButton, Typography, Box } from "@mui/material";
+import { Button, Stack, Grid, Drawer, IconButton, Box, ToggleButtonGroup, ToggleButton } from "@mui/material";
 
 import AutoCompleteBasic from "../input/autoCompleteBasic";
 import DateInputBasic from "../input/dateInputBasic";
@@ -12,7 +12,6 @@ import NativeSelectBasic from "../input/nativeSelectBasic";
 import { queryKey } from "../../constants/queryKey";
 import { bookingStatus, bookingStatusObj } from "../../constants/bookingStatus";
 import { urlSearchParamsToQuery } from "../../utils/urlSearchParamsToQuery";
-import useResponsive from "../../hooks/useResponsive";
 import Iconify from "../Iconify";
 
 const initFilter = {
@@ -25,8 +24,7 @@ const initFilter = {
   teacherId: "",
 };
 
-export default function BookingFilters() {
-  const isDesktop = useResponsive("up", "lg");
+export default function BookingFilters({ toggleValue }) {
   const [openDrawer, setOpenDrawer] = useState(false);
   const [searchParams] = useSearchParams();
   const [filters, setFilters] = useState(initFilter);
@@ -39,6 +37,15 @@ export default function BookingFilters() {
     ],
     [filters]
   );
+  const navigate = useNavigate();
+
+  const handleChange = (event, newValue) => {
+    if (!newValue) {
+      navigate(`/app/booking/`);
+    } else {
+      navigate(`/app/booking/${newValue}`);
+    }
+  };
 
   useEffect(() => {
     // use this for escape infinite loop
@@ -53,19 +60,18 @@ export default function BookingFilters() {
     setOpenDrawer(open);
   };
 
-  return isDesktop ? (
-    <BookingFilterForm />
-  ) : (
+  return (
     <>
-      <Stack justifyItems={"center"}>
-        <IconButton aria-label="expand row" size="small" onClick={toggleDrawer(true)} sx={{ borderRadius: "10px" }}>
-          <Iconify icon="mdi:filter-outline" />
-          <Typography marginLeft={"10px"} fontSize={"12px"}>
-            {filterString.filter((element) => element !== undefined).length
-              ? `${filterString.filter((element) => element !== undefined).join(", ")}`
-              : "Filter"}
-          </Typography>
-        </IconButton>
+      <Stack justifyContent={"flex-end"} direction={"row"} gap={2}>
+        <ToggleButtonGroup value={toggleValue} exclusive onChange={handleChange} aria-label="Platform">
+          <ToggleButton value="upcoming">Upcoming</ToggleButton>
+          <ToggleButton value="past">Past</ToggleButton>
+        </ToggleButtonGroup>
+        <Button variant="outlined" startIcon={<Iconify icon="mdi:filter-outline" />} onClick={toggleDrawer(true)}>
+          {filterString.filter((element) => element !== undefined).length
+            ? `${filterString.filter((element) => element !== undefined).join(", ")}`
+            : "Filter"}
+        </Button>
       </Stack>
       <Drawer anchor={"right"} open={openDrawer} onClose={toggleDrawer(false)}>
         <Stack padding={1} paddingRight={3} direction={"row"} alignItems={"flex-start"}>
@@ -80,13 +86,15 @@ export default function BookingFilters() {
     </>
   );
 }
+BookingFilters.propTypes = {
+  toggleValue: PropTypes.string,
+};
 
 function BookingFilterForm({ toggleDrawer }) {
   const [openRoom, setOpenRoom] = useState(false);
   const [openStudent, setOpenStudent] = useState(false);
   const [filters, setFilters] = useState(initFilter);
   const [searchParams, setSearchParams] = useSearchParams();
-  const isDesktop = useResponsive("up", "lg");
 
   const { data: students = [], isLoading: isLoadingStudents } = useQuery(
     [queryKey.students],
@@ -122,9 +130,9 @@ function BookingFilterForm({ toggleDrawer }) {
   };
 
   return (
-    <Stack width={"100%"} direction={isDesktop ? "row" : "column"} spacing={2}>
-      <Grid container spacing={isDesktop ? 1 : 0} flexGrow={1} gap={isDesktop ? 0 : 1}>
-        <Grid item xs={12} lg={3}>
+    <Stack width={"100%"} direction={"column"} spacing={2}>
+      <Grid container flexGrow={1} gap={1}>
+        <Grid item xs={12}>
           <AutoCompleteBasic
             label="Nama Murid"
             name="studentId"
@@ -147,7 +155,7 @@ function BookingFilterForm({ toggleDrawer }) {
             value={{ value: filters.studentId || "", label: filters.studentLabel || "" }}
           />
         </Grid>
-        <Grid item xs={12} lg={3}>
+        <Grid item xs={12}>
           <AutoCompleteBasic
             label="Ruang Kelas"
             name="roomId"
@@ -170,7 +178,7 @@ function BookingFilterForm({ toggleDrawer }) {
             value={{ value: filters.roomId || "", label: filters.roomLabel || "" }}
           />
         </Grid>
-        <Grid item xs={12} lg={3}>
+        <Grid item xs={12}>
           <DateInputBasic
             disableValidation
             id="tgl_kelas"
@@ -183,7 +191,7 @@ function BookingFilterForm({ toggleDrawer }) {
             }}
           />
         </Grid>
-        <Grid item xs={12} lg={3}>
+        <Grid item xs={12}>
           <NativeSelectBasic
             id="status"
             name="status"
@@ -196,23 +204,13 @@ function BookingFilterForm({ toggleDrawer }) {
           />
         </Grid>
       </Grid>
-      <Stack
-        spacing={1}
-        direction={"row"}
-        flexShrink={0}
-        alignItems="flex-end"
-        {...(!isDesktop && {
-          width: "100%",
-        })}
-      >
+      <Stack spacing={1} direction={"row"} flexShrink={0} alignItems="flex-end" width={"100%"}>
         <Button
           variant="contained"
           onClick={SubmitFilter}
           sx={{
             height: "50px",
-            ...(!isDesktop && {
-              width: "100%",
-            }),
+            width: "100%",
           }}
         >
           Filter
@@ -222,9 +220,7 @@ function BookingFilterForm({ toggleDrawer }) {
           onClick={ResetFilter}
           sx={{
             height: "50px",
-            ...(!isDesktop && {
-              width: "100%",
-            }),
+            width: "100%",
           }}
         >
           Reset
