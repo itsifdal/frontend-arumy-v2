@@ -4,15 +4,15 @@ import { useEffect, useState } from "react";
 import { NavLink as RouterLink, useLocation, useNavigate } from "react-router-dom";
 // material
 import { styled } from "@mui/material/styles";
-import { Box, Drawer, BottomNavigation, BottomNavigationAction } from "@mui/material";
+import { Box, Drawer, BottomNavigation, BottomNavigationAction, Grid, Button, Stack } from "@mui/material";
 // hooks
 import useResponsive from "../../hooks/useResponsive";
 // components
-import Iconify from "../../components/Iconify";
 import Scrollbar from "../../components/Scrollbar";
 import NavSection from "../../components/NavSection";
 import AccountPopover from "./AccountPopover";
 import IMAGES from "../../constants/images";
+import { MENU } from "../../constants/menu";
 
 // ----------------------------------------------------------------------
 
@@ -32,87 +32,28 @@ DashboardSidebar.propTypes = {
   onCloseSidebar: PropTypes.func,
 };
 
-const getIcon = (name) => <Iconify icon={name} width={22} height={22} />;
-
 const navConfigAdmin = [
-  {
-    title: "dashboard",
-    path: "/app/dashboard",
-    icon: getIcon("mdi:dots-grid"),
-  },
-  {
-    title: "user",
-    path: "/app/user",
-    icon: getIcon("solar:user-bold"),
-  },
-  {
-    title: "rooms",
-    path: "/app/room",
-    icon: getIcon("material-symbols:meeting-room"),
-  },
-  {
-    title: "branches",
-    path: "/app/branches",
-    icon: getIcon("material-symbols:map"),
-  },
-  {
-    title: "booking",
-    path: "/app/booking",
-    icon: getIcon("ion:time"),
-  },
-  /* {
-    title: "post",
-    path: "/app/post",
-    icon: getIcon("fa6-solid:paper-plane"),
-  }, */
-  {
-    title: "students",
-    path: "/app/students",
-    icon: getIcon("mdi:account-student"),
-  },
-  {
-    title: "teachers",
-    path: "/app/teachers",
-    icon: getIcon("mdi:teacher"),
-  },
-  {
-    title: "instruments",
-    path: "/app/instruments",
-    icon: getIcon("mdi:music"),
-  },
+  MENU.dashboard,
+  MENU.users,
+  MENU.rooms,
+  MENU.branches,
+  MENU.bookings,
+  MENU.students,
+  MENU.teachers,
+  MENU.instruments,
 ];
 
-const navConfigNonAdmin = [
-  {
-    title: "Dashboard",
-    path: "/app/dashboard",
-    icon: getIcon("mdi:dots-grid"),
-  },
-  {
-    title: "Booking",
-    path: "/app/booking",
-    icon: getIcon("ion:time"),
-  },
-  /* {
-    title: "post",
-    path: "/app/post",
-    icon: getIcon("fa6-solid:paper-plane"),
-  }, */
-];
+const navConfigAdminMobile = [MENU.dashboard, MENU.bookings, MENU.users, MENU.students, MENU.more];
+const navConfigAdminMore = [MENU.rooms, MENU.branches, MENU.bookings, MENU.teachers, MENU.instruments, MENU.logout];
 
-const navConfigNonAdminMobile = [
-  ...navConfigNonAdmin,
-  {
-    title: "Logout",
-    path: "/logout",
-    icon: getIcon("heroicons-outline:logout"),
-  },
-];
+const navConfigNonAdmin = [MENU.dashboard, MENU.bookings];
+const navConfigNonAdminMobile = [...navConfigNonAdmin, MENU.logout];
 
 export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
   const { pathname } = useLocation();
 
   const [user, setUser] = useState();
+  const [openMore, setOpenMore] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -139,6 +80,23 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
     });
   };
 
+  const toggleDrawer = (open) => (event) => {
+    if (event.type === "keydown" && (event.key === "Tab" || event.key === "Shift")) {
+      return;
+    }
+
+    setOpenMore(open);
+  };
+
+  const linkMenu = (menu) => {
+    if (menu.path === "/logout") return { onClick: () => onLogout() };
+    if (menu.path === "/more") return { onClick: toggleDrawer(true) };
+    return {
+      LinkComponent: RouterLink,
+      to: menu.path,
+    };
+  };
+
   const renderBottomNavigation = (menus) =>
     menus.map((menu) => (
       <BottomNavigationAction
@@ -146,14 +104,7 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
         label={menu.title}
         icon={menu.icon}
         sx={{ span: { fontSize: "12px" }, "span.Mui-selected": { fontSize: "12px" } }}
-        {...(menu.path === "/logout"
-          ? {
-              onClick: () => onLogout(),
-            }
-          : {
-              LinkComponent: RouterLink,
-              to: menu.path,
-            })}
+        {...linkMenu(menu)}
       />
     ));
 
@@ -163,8 +114,8 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
     nav = <NavSection navConfig={navConfigAdmin} />;
     activeNav = navConfigAdmin;
   } else if (user && user?.role === "Admin" && !isDesktop) {
-    nav = <NavSection navConfig={navConfigNonAdmin} />;
-    activeNav = navConfigNonAdmin;
+    nav = renderBottomNavigation(navConfigAdminMobile);
+    activeNav = navConfigAdminMobile;
   } else if (user && isDesktop) {
     nav = <NavSection navConfig={navConfigNonAdmin} />;
     activeNav = navConfigNonAdmin;
@@ -206,14 +157,19 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
           {renderContent}
         </Drawer>
       ) */}
-      {!isDesktop && user?.role !== "Admin" && (
-        <BottomNavigation
-          showLabels
-          value={activeNav?.findIndex((menu) => menu.path === pathname)}
-          sx={{ position: "fixed", width: "100%", zIndex: "10", bottom: 0, left: 0 }}
-        >
-          {nav}
-        </BottomNavigation>
+      {!isDesktop && (
+        <>
+          <BottomNavigation
+            showLabels
+            value={activeNav?.findIndex((menu) => menu.path === pathname)}
+            sx={{ position: "fixed", width: "100%", zIndex: "10", bottom: 0, left: 0 }}
+          >
+            {nav}
+          </BottomNavigation>
+          <Drawer anchor={"bottom"} open={openMore} onClose={toggleDrawer(false)}>
+            <MoreMenu menus={navConfigAdminMore} linkMenu={linkMenu} />
+          </Drawer>
+        </>
       )}
 
       {isDesktop && (
@@ -233,3 +189,25 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
     </RootStyle>
   );
 }
+
+function MoreMenu({ menus, linkMenu }) {
+  return (
+    <Grid container paddingX={2} paddingY={4} spacing={2}>
+      {menus.map((menu) => (
+        <Grid key={menu.title} item xs={4} sm={3} md={2} textAlign={"center"}>
+          <Button variant="text" {...linkMenu(menu)}>
+            <Stack alignItems={"center"}>
+              {menu.icon}
+              {menu.title}
+            </Stack>
+          </Button>
+        </Grid>
+      ))}
+    </Grid>
+  );
+}
+
+MoreMenu.propTypes = {
+  menus: PropTypes.array,
+  linkMenu: PropTypes.func,
+};
