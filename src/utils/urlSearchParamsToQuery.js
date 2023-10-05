@@ -1,6 +1,6 @@
 export function urlSearchParamsToQuery(urlSearchParams) {
   const query = {};
-  if (urlSearchParams && urlSearchParams.size >= 1) {
+  if (urlSearchParams) {
     urlSearchParams.forEach((value, key) => {
       query[key] = value;
     });

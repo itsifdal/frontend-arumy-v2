@@ -1,7 +1,7 @@
 import { Container, Stack, Typography, Box } from "@mui/material";
 import PropTypes from "prop-types";
 
-export default function PageHeader({ title, rightContent }) {
+export default function PageHeader({ title, rightContent, leftContent }) {
   return (
     <Box
       sx={{
@@ -14,15 +14,19 @@ export default function PageHeader({ title, rightContent }) {
       }}
     >
       <Container maxWidth="xl">
-        <Stack direction="row" paddingY={3} justifyContent={"space-between"}>
-          <Typography
-            variant="h4"
-            sx={{
-              color: "primary.main",
-            }}
-          >
-            {title}
-          </Typography>
+        <Stack direction="row" paddingY={[1, 3]} justifyContent={"space-between"} alignItems={"center"}>
+          <Stack direction="row" alignItems={"center"}>
+            <Box>{leftContent}</Box>
+            <Typography
+              as="h3"
+              fontSize={{ xs: "16px", sm: "35px" }}
+              sx={{
+                color: "primary.main",
+              }}
+            >
+              {title}
+            </Typography>
+          </Stack>
           <Box>{rightContent}</Box>
         </Stack>
       </Container>
@@ -33,4 +37,5 @@ export default function PageHeader({ title, rightContent }) {
 PageHeader.propTypes = {
   title: PropTypes.string.isRequired,
   rightContent: PropTypes.node,
+  leftContent: PropTypes.node,
 };

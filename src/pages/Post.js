@@ -179,7 +179,7 @@ export default function Post() {
                         <TableRow hover tabIndex={-1} role="checkbox" key={post.id}>
                           <TableCell align="center" component="td">
                             <Stack direction="row" alignItems="center" spacing={2}>
-                              <Link href={`/dashboard/postDetail/${post.slug}`}>
+                              <Link href={`/app/postDetail/${post.slug}`}>
                                 <Typography variant="subtitle2" noWrap>
                                   {post.title}
                                 </Typography>
@@ -197,7 +197,7 @@ export default function Post() {
                                 <Button
                                   variant="contained"
                                   component={RouterLink}
-                                  to={`/dashboard/updatepost/${post.slug}`}
+                                  to={`/app/updatepost/${post.slug}`}
                                   color="success"
                                   size="small"
                                   startIcon={<Iconify icon="eva:pencil-fill" />}

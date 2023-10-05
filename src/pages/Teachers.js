@@ -178,7 +178,7 @@ export default function Teachers() {
 
   function onErrorMutateTeacher(error) {
     if (error.response) {
-      toast.error(error.response, {
+      toast.error(error.response?.data?.message || "Terjadi kesalahan pada sistem.", {
         position: "top-center",
         autoClose: 1000,
         theme: "colored",
@@ -247,7 +247,10 @@ export default function Teachers() {
               renderItem={(item) => (
                 <PaginationItem
                   component={RouterLink}
-                  to={`/dashboard/teachers${item.page === 1 ? "" : `?page=${item.page}`}`}
+                  to={`/app/teachers${queryToString({
+                    ...queryParam,
+                    page: item.page === 1 ? null : item.page,
+                  })}`}
                   {...item}
                 />
               )}

@@ -5,7 +5,7 @@ import { FormControl, InputLabel, TextField } from "@mui/material";
 
 export const CustomTextField = styled(TextField)({
   input: {
-    fontSize: "14px",
+    fontSize: "12px",
   },
   ".MuiInputBase-root": { borderRadius: "15px" },
   ".MuiOutlinedInput-notchedOutline": {

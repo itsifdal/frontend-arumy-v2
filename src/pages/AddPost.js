@@ -32,7 +32,7 @@ export default function Post() {
     };
     try {
       await axios.post(`${process.env.REACT_APP_BASE_URL}/api/post`, data);
-      navigate("/dashboard/post", { replace: true });
+      navigate("/app/post", { replace: true });
     } catch (error) {
       console.log(error);
     }
@@ -45,7 +45,7 @@ export default function Post() {
           <Typography variant="h4" gutterBottom>
             Posts
           </Typography>
-          <Button variant="contained" component={RouterLink} to="/dashboard/post">
+          <Button variant="contained" component={RouterLink} to="/app/post">
             Kembali
           </Button>
         </Stack>

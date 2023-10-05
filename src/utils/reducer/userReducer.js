@@ -4,12 +4,14 @@ export const initialUserFormState = {
     email: "",
     password: "",
     role: "",
+    teacherId: "",
   },
   errors: {
     name: "",
     email: "",
     password: "",
     role: "",
+    teacherId: "",
   },
 };
 

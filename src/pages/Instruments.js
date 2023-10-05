@@ -12,7 +12,11 @@ import { Stack, Button, Container, Typography, Modal, FormControl, Box } from "@
 import { LoadingButton } from "@mui/lab";
 
 // components
-import { roomFormReducer, initialRoomFormState, validateRoomForm } from "../utils/reducer/roomReducer";
+import {
+  instrumentFormReducer,
+  initialInstrumentFormState,
+  validateInstrumentForm,
+} from "../utils/reducer/instrumentsReducer";
 import Page from "../components/Page";
 import Scrollbar from "../components/Scrollbar";
 import Iconify from "../components/Iconify";
@@ -21,35 +25,34 @@ import BasicTable from "../components/BasicTable";
 import InputBasic from "../components/input/inputBasic";
 import { modalStyle } from "../constants/modalStyle";
 import { queryKey } from "../constants/queryKey";
-import SelectBasic from "../components/input/selectBasic";
 
 // ----------------------------------------------------------------------
-export default function Room() {
+export default function Instruments() {
   const [id, setId] = useState("");
-  const [nama_ruang, setRoomName] = useState("");
+  const [nama_instrument, setInstrumentName] = useState("");
   const [stateModal, setStateModal] = useState("create");
 
   const [open, setOpen] = useState(false);
   const [openDel, setOpenDel] = useState(false);
 
-  const [stateForm, dispatchStateForm] = useReducer(roomFormReducer, initialRoomFormState);
+  const [stateForm, dispatchStateForm] = useReducer(instrumentFormReducer, initialInstrumentFormState);
   // query
   const {
-    data: rooms,
-    refetch: roomsRefetch,
-    isLoading: isLoadingRooms,
-  } = useQuery([queryKey.rooms], () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/room`).then((res) => res.data));
+    data: instruments,
+    refetch: instrumentsRefetch,
+    isLoading: isLoadingInstruments,
+  } = useQuery([queryKey.instruments], () =>
+    axios.get(`${process.env.REACT_APP_BASE_URL}/api/instrument`).then((res) => res.data)
+  );
 
-  const submitAddRoom = useMutation((data) => axios.post(`${process.env.REACT_APP_BASE_URL}/api/room`, data));
-  const submitUpdateRoom = useMutation((data) => axios.put(`${process.env.REACT_APP_BASE_URL}/api/room/${id}`, data));
-  const submitDeleteRoom = useMutation(() => axios.delete(`${process.env.REACT_APP_BASE_URL}/api/room/${id}`));
-
-  const { data: branches = [{ value: "", label: "" }] } = useQuery(
-    [queryKey.branches],
-    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/cabang`).then((res) => res.data),
-    {
-      select: (branches) => branches.data.map((branch) => ({ value: branch.id, label: branch.nama_cabang })),
-    }
+  const submitAddInstrument = useMutation((data) =>
+    axios.post(`${process.env.REACT_APP_BASE_URL}/api/instrument`, data)
+  );
+  const submitUpdateInstrument = useMutation((data) =>
+    axios.put(`${process.env.REACT_APP_BASE_URL}/api/instrument/${id}`, data)
+  );
+  const submitDeleteInstrument = useMutation(() =>
+    axios.delete(`${process.env.REACT_APP_BASE_URL}/api/instrument/${id}`)
   );
 
   //----
@@ -64,25 +67,25 @@ export default function Room() {
 
   const handleSubmitCreate = (e) => {
     e.preventDefault();
-    const errors = validateRoomForm(stateForm.values);
+    const errors = validateInstrumentForm(stateForm.values);
     const hasError = Object.values(errors).some((value) => Boolean(value));
     if (!hasError) {
       if (stateModal === "update") {
-        submitUpdateRoom.mutate(stateForm.values, {
+        submitUpdateInstrument.mutate(stateForm.values, {
           onSuccess: (response) => {
-            onSuccessMutateRoom(response);
+            onSuccessMutateInstrument(response);
           },
           onError: (error) => {
-            onErrorMutateRoom(error);
+            onErrorMutateInstrument(error);
           },
         });
       } else {
-        submitAddRoom.mutate(stateForm.values, {
+        submitAddInstrument.mutate(stateForm.values, {
           onSuccess: (response) => {
-            onSuccessMutateRoom(response);
+            onSuccessMutateInstrument(response);
           },
           onError: (error) => {
-            onErrorMutateRoom(error);
+            onErrorMutateInstrument(error);
           },
         });
       }
@@ -98,13 +101,8 @@ export default function Room() {
     setId(e.target.getAttribute("data-id"));
     dispatchStateForm({
       type: "change-field",
-      name: "cabangId",
-      value: e.target.getAttribute("data-cabangid"),
-    });
-    dispatchStateForm({
-      type: "change-field",
-      name: "nama_ruang",
-      value: e.target.getAttribute("data-nama_ruang"),
+      name: "nama_instrument",
+      value: e.target.getAttribute("data-nama_instrument"),
     });
     setStateModal("update");
     setOpen(true);
@@ -112,30 +110,29 @@ export default function Room() {
 
   const handleOpenModalDelete = (e) => {
     setId(e.target.getAttribute("data-id"));
-    setRoomName(e.target.getAttribute("data-nama_ruang"));
+    setInstrumentName(e.target.getAttribute("data-nama_instrument"));
     setOpenDel(true);
   };
   const handleCloseModalDelete = () => setOpenDel(false);
   const handleSubmitDelete = (e) => {
     e.preventDefault();
-    submitDeleteRoom.mutate(
+    submitDeleteInstrument.mutate(
       {},
       {
         onSuccess: (response) => {
-          onSuccessMutateRoom(response);
+          onSuccessMutateInstrument(response);
         },
         onError: (error) => {
-          onErrorMutateRoom(error);
+          onErrorMutateInstrument(error);
         },
       }
     );
   };
 
-  function onSuccessMutateRoom(response) {
-    roomsRefetch();
+  function onSuccessMutateInstrument(response) {
+    instrumentsRefetch();
     setOpen(false);
     setOpenDel(false);
-    setStateModal("create");
     toast.success(response.data.message, {
       position: "top-center",
       autoClose: 1000,
@@ -146,7 +143,7 @@ export default function Room() {
     });
   }
 
-  function onErrorMutateRoom(error) {
+  function onErrorMutateInstrument(error) {
     if (error.response) {
       toast.error(error.response?.data?.message || "Terjadi kesalahan pada sistem.", {
         position: "top-center",
@@ -166,24 +163,23 @@ export default function Room() {
   }
 
   return (
-    <Page title="Room">
+    <Page title="Instrument">
       <PageHeader
-        title="Rooms"
+        title="Instruments"
         rightContent={
           <Button variant="outlined" startIcon={<Iconify icon="eva:plus-fill" />} onClick={handleOpenModalCreate}>
-            Add new Room
+            Add new instrument
           </Button>
         }
       />
       <Container maxWidth="xl" sx={{ paddingTop: 4 }}>
         <ToastContainer pauseOnFocusLoss={false} />
-        {!isLoadingRooms ? (
+        {!isLoadingInstruments ? (
           <Scrollbar>
             <BasicTable
-              header={["ROOM NAME", "CABANG", " "]}
-              body={rooms.map((room) => [
-                room.nama_ruang,
-                room.cabang?.nama_cabang,
+              header={["INSTRUMENT NAME", " "]}
+              body={instruments.map((room) => [
+                room.nama_instrument,
                 <Stack key={room.id} direction="row" spacing={2}>
                   <Button
                     variant="contained"
@@ -191,8 +187,7 @@ export default function Room() {
                     size="small"
                     startIcon={<Iconify icon="mdi:pencil" />}
                     data-id={room.id}
-                    data-cabangid={room.cabangId}
-                    data-nama_ruang={room.nama_ruang}
+                    data-nama_instrument={room.nama_instrument}
                     onClick={handleOpenModalUpdate}
                   >
                     Update
@@ -202,7 +197,7 @@ export default function Room() {
                     color="error"
                     size="small"
                     startIcon={<Iconify icon="eva:trash-fill" />}
-                    data-nama_ruang={room.nama_ruang}
+                    data-nama_instrument={room.nama_instrument}
                     data-id={room.id}
                     onClick={handleOpenModalDelete}
                   >
@@ -223,42 +218,24 @@ export default function Room() {
           <Box sx={{ ...modalStyle, maxWidth: 400 }}>
             <Box marginBottom={2}>
               <Typography id="modal-modal-title" variant="h6" component="h2">
-                {stateModal === "update" ? "Update Room" : "Create Room"}
+                {stateModal === "update" ? "Update Instrument" : "Create Instrument"}
               </Typography>
             </Box>
             <Box paddingBottom={2}>
               <InputBasic
                 required
-                label="Nama Ruang"
-                name="nama_ruang"
-                value={stateForm.values.nama_ruang}
-                error={Boolean(stateForm.errors.nama_ruang)}
-                errorMessage={stateForm.errors.nama_ruang}
+                label="Nama Instrument"
+                name="nama_instrument"
+                value={stateForm.values.nama_instrument}
+                error={Boolean(stateForm.errors.nama_instrument)}
+                errorMessage={stateForm.errors.nama_instrument}
                 onChange={(e) => {
                   onChangeInput(e);
                 }}
-              />
-            </Box>
-            <Box paddingBottom={2}>
-              <SelectBasic
-                required
-                fullWidth
-                id="cabangId"
-                name="cabangId"
-                defaultValue={branches[0].value}
-                value={stateForm.values.cabangId}
-                error={Boolean(stateForm.errors.cabangId)}
-                errorMessage={stateForm.errors.cabangId}
-                onChange={(e) => {
-                  onChangeInput(e);
-                }}
-                select
-                label="Cabang"
-                options={branches}
               />
             </Box>
             <LoadingButton
-              loading={submitAddRoom.isLoading || submitUpdateRoom.isLoading}
+              loading={submitAddInstrument.isLoading || submitUpdateInstrument.isLoading}
               variant="contained"
               type="submit"
               fullWidth
@@ -277,11 +254,11 @@ export default function Room() {
         >
           <Box sx={{ ...modalStyle, maxWidth: 400 }}>
             <Typography id="modal-modal-title" variant="h6" component="h2" marginBottom={5}>
-              Delete {nama_ruang} ?
+              Delete {nama_instrument} ?
             </Typography>
             <FormControl fullWidth>
               <LoadingButton
-                loading={submitDeleteRoom.isLoading}
+                loading={submitDeleteInstrument.isLoading}
                 variant="contained"
                 type="submit"
                 onClick={handleSubmitDelete}

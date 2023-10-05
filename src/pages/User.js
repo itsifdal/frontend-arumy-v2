@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 // import { Link as RouterLink } from 'react-router-dom';
 import { sentenceCase } from "change-case";
-import React, { useState, useReducer } from "react";
+import React, { useState, useReducer, useEffect } from "react";
 import { useQuery, useMutation } from "react-query";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
@@ -22,13 +22,17 @@ import BasicTable from "../components/BasicTable";
 import InputBasic from "../components/input/inputBasic";
 import SelectBasic from "../components/input/selectBasic";
 
+import { queryKey } from "../constants/queryKey";
 import { modalStyle } from "../constants/modalStyle";
+import AutoCompleteBasic from "../components/input/autoCompleteBasic";
 
 // ----------------------------------------------------------------------
 export default function User() {
   //
-  const [id, setUserId] = useState("");
+  const [userId, setUserId] = useState("");
   const [name, setName] = useState("");
+  const [stateModal, setStateModal] = useState("create");
+  const [openTeacher, setOpenTeacher] = useState(false);
 
   const [stateForm, dispatchStateForm] = useReducer(userFormReducer, initialUserFormState);
 
@@ -47,24 +51,66 @@ export default function User() {
     data: users,
     refetch: usersRefetch,
     isLoading: isLoadingUsers,
-  } = useQuery(["USERS"], () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/user`).then((res) => res.data), {
-    select: (userList) =>
-      userList.map((user) => ({
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      })),
-  });
+  } = useQuery(
+    [queryKey.users],
+    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/user`).then((res) => res.data),
+    {
+      select: (userList) =>
+        userList.map((user) => ({
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+        })),
+    }
+  );
+
+  const { data: teachers = [], isLoading: isLoadingTeachers } = useQuery(
+    [queryKey.teachers],
+    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/teacher?perPage=9999`).then((res) => res.data),
+    {
+      select: (teachers) => teachers.data.map((teacher) => ({ value: teacher.id, label: teacher.nama_pengajar })),
+    }
+  );
+
+  const { refetch: userRefetch } = useQuery(
+    [queryKey.users, "DETAIL"],
+    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/user/${userId}`).then((res) => res.data),
+    {
+      enabled: Boolean(userId),
+      onSuccess: (res) => {
+        if (res) {
+          const entries = Object.entries(res);
+          entries.forEach((user) => {
+            dispatchStateForm({
+              type: "change-field",
+              name: user[0],
+              value: user[0] === "teacherId" ? teachers.find((teacher) => teacher.value === user[1]) : user[1],
+              isEnableValidate: true,
+            });
+          });
+        }
+      },
+    }
+  );
+
+  useEffect(() => {
+    if (userId) {
+      userRefetch();
+    }
+  }, [userId, userRefetch]);
 
   const submitDeleteUser = useMutation(() => {
-    if (!id) {
+    if (!userId) {
       return false;
     }
-    return axios.delete(`${process.env.REACT_APP_BASE_URL}/api/user/${id}`);
+    return axios.delete(`${process.env.REACT_APP_BASE_URL}/api/user/${userId}`);
   });
 
   const submitAddUser = useMutation((data) => axios.post(`${process.env.REACT_APP_BASE_URL}/api/user`, data));
+  const submitUpdateUser = useMutation((data) =>
+    axios.put(`${process.env.REACT_APP_BASE_URL}/api/user/${userId}`, data)
+  );
 
   // Create
   const handleOpenModalCreate = () => setOpen(true);
@@ -74,29 +120,28 @@ export default function User() {
     const errors = validateUserForm(stateForm.values);
     const hasError = Object.values(errors).some((value) => Boolean(value));
     if (!hasError) {
-      submitAddUser.mutate(stateForm.values, {
-        onSuccess: (response) => {
-          usersRefetch();
-          setOpen(false);
-          toast.success(response.data.message, {
-            position: "top-center",
-            autoClose: 1000,
-            theme: "colored",
-          });
-          dispatchStateForm({
-            type: "reset-field",
-          });
-        },
-        onError: (error) => {
-          if (error.response) {
-            toast.error(error.response, {
-              position: "top-center",
-              autoClose: 1000,
-              theme: "colored",
-            });
-          }
-        },
-      });
+      const remapData = { ...stateForm.values, teacherId: stateForm.values.teacherId?.value };
+      if (stateModal === "update") {
+        delete remapData.password;
+        delete remapData.token;
+        submitUpdateUser.mutate(remapData, {
+          onSuccess: (response) => {
+            onSuccessMutateUser(response);
+          },
+          onError: (error) => {
+            onErrorMutateUser(error);
+          },
+        });
+      } else {
+        submitAddUser.mutate(remapData, {
+          onSuccess: (response) => {
+            onSuccessMutateUser(response);
+          },
+          onError: (error) => {
+            onErrorMutateUser(error);
+          },
+        });
+      }
     } else {
       dispatchStateForm({
         type: "change-error",
@@ -120,26 +165,38 @@ export default function User() {
       {},
       {
         onSuccess: (res) => {
-          usersRefetch();
-          setOpenDel(false);
-          toast.warning(res.data.message, {
-            position: "top-center",
-            autoClose: 1000,
-            theme: "colored",
-          });
+          onSuccessMutateUser(res);
         },
         onError: (error) => {
-          if (error.response) {
-            toast.error(error.response, {
-              position: "top-center",
-              autoClose: 1000,
-              theme: "colored",
-            });
-          }
+          onErrorMutateUser(error);
         },
       }
     );
   };
+
+  function onSuccessMutateUser(response) {
+    usersRefetch();
+    setOpen(false);
+    setOpenDel(false);
+    toast.success(response.data.message, {
+      position: "top-center",
+      autoClose: 1000,
+      theme: "colored",
+    });
+    dispatchStateForm({
+      type: "reset-field",
+    });
+  }
+
+  function onErrorMutateUser(error) {
+    if (error.response) {
+      toast.error(error.response?.data?.message || "Terjadi kesalahan pada sistem.", {
+        position: "top-center",
+        autoClose: 1000,
+        theme: "colored",
+      });
+    }
+  }
 
   function onChangeInput(e) {
     dispatchStateForm({
@@ -150,13 +207,19 @@ export default function User() {
     });
   }
 
+  const handleOpenModalUpdate = async (e) => {
+    await setUserId(e.target.getAttribute("data-id"));
+    setStateModal("update");
+    setOpen(true);
+  };
+
   return (
     <Page title="Users">
       <PageHeader
         title="Users"
         rightContent={
           <Button variant="outlined" startIcon={<Iconify icon="eva:plus-fill" />} onClick={handleOpenModalCreate}>
-            Add new User
+            Add New User
           </Button>
         }
       />
@@ -172,18 +235,28 @@ export default function User() {
                   {sentenceCase(user.role)}
                 </Label>,
                 user.email,
-                <Button
-                  key={index}
-                  variant="contained"
-                  color="error"
-                  size="small"
-                  margin={2}
-                  data-name={user.name}
-                  data-id={user.id}
-                  onClick={handleOpenModalDelete}
-                >
-                  Delete
-                </Button>,
+                <Stack key={user.id} direction="row" spacing={2}>
+                  <Button
+                    variant="contained"
+                    color="success"
+                    size="small"
+                    data-id={user.id}
+                    onClick={handleOpenModalUpdate}
+                  >
+                    Update
+                  </Button>
+                  <Button
+                    variant="contained"
+                    color="error"
+                    size="small"
+                    margin={2}
+                    data-name={user.name}
+                    data-id={user.id}
+                    onClick={handleOpenModalDelete}
+                  >
+                    Delete
+                  </Button>
+                </Stack>,
               ])}
             />
           </Scrollbar>
@@ -198,7 +271,7 @@ export default function User() {
           <Box sx={{ ...modalStyle, maxWidth: 900 }}>
             <Box width={"100%"} marginBottom={2}>
               <Typography id="modal-modal-title" variant="h3" component="h2" fontWeight={700} color={"#172560"}>
-                Invite new user
+                {stateModal === "update" ? "Update user" : "Invite new user"}
               </Typography>
               <Typography color={"#737DAA"} fontSize={18}>
                 Enter details below
@@ -236,22 +309,24 @@ export default function User() {
                   }}
                 />
               </Box>
-              <Box width={"50%"} paddingBottom={2} paddingRight={2}>
-                <InputBasic
-                  required
-                  id="password"
-                  label="Password"
-                  name="password"
-                  type="password"
-                  placeholder="Enter Password"
-                  value={stateForm.values.password}
-                  error={Boolean(stateForm.errors.password)}
-                  errorMessage={stateForm.errors.password}
-                  onChange={(e) => {
-                    onChangeInput(e);
-                  }}
-                />
-              </Box>
+              {stateModal !== "update" ? (
+                <Box width={"50%"} paddingBottom={2} paddingRight={2}>
+                  <InputBasic
+                    required
+                    id="password"
+                    label="Password"
+                    name="password"
+                    type="password"
+                    placeholder="Enter Password"
+                    value={stateForm.values.password}
+                    error={Boolean(stateForm.errors.password)}
+                    errorMessage={stateForm.errors.password}
+                    onChange={(e) => {
+                      onChangeInput(e);
+                    }}
+                  />
+                </Box>
+              ) : null}
               <Box width={"50%"} paddingBottom={2} paddingRight={2}>
                 <SelectBasic
                   fullWidth
@@ -269,6 +344,29 @@ export default function User() {
                   options={roleOptions}
                 />
               </Box>
+              {stateForm.values.role === "Guru" ? (
+                <Box width={"50%"} paddingBottom={2} paddingRight={2}>
+                  <AutoCompleteBasic
+                    label="Teacher Name"
+                    name="teacherId"
+                    value={stateForm.values.teacherId}
+                    error={Boolean(stateForm.errors.teacherId)}
+                    errorMessage={stateForm.errors.teacherId}
+                    options={teachers}
+                    loading={isLoadingTeachers}
+                    open={teachers.length && openTeacher}
+                    onOpen={() => {
+                      setOpenTeacher(true);
+                    }}
+                    onClose={() => {
+                      setOpenTeacher(false);
+                    }}
+                    onChange={(_, newValue) => {
+                      onChangeInput({ target: { name: "teacherId", value: newValue } });
+                    }}
+                  />
+                </Box>
+              ) : null}
             </Stack>
             <LoadingButton
               variant="contained"

@@ -4,12 +4,14 @@ export const initialStudentFormState = {
     nama_wali: "",
     nomor_va: "",
     telepon: "",
+    tgl_lahir: "",
   },
   errors: {
     nama_murid: "",
     nama_wali: "",
     nomor_va: "",
     telepon: "",
+    tgl_lahir: "",
   },
 };
 

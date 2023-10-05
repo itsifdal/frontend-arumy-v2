@@ -14,6 +14,7 @@ import AddBooking from "./pages/AddBooking";
 import UpdateBooking from "./pages/UpdateBooking";
 import UpdatePost from "./pages/UpdatePost";
 import Booking from "./pages/Booking";
+import BookingDetail from "./pages/BookingDetail";
 import UpdateBookingPage from "./pages/UpdateBookingPage";
 import Students from "./pages/Students";
 
@@ -22,9 +23,14 @@ import User from "./pages/User";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/Page404";
-import DashboardApp from "./pages/DashboardApp";
+import Dashboard from "./pages/Dashboard";
+import DashboardTimeline from "./pages/DashboardTimeline";
+import DashboardTeachers from "./pages/DashboardTeachers";
 import Teachers from "./pages/Teachers";
 import Branches from "./pages/Branches";
+import Instruments from "./pages/Instruments";
+import BookingUpcoming from "./pages/BookingUpcoming";
+import BookingPast from "./pages/BookingPast";
 
 // ----------------------------------------------------------------------
 
@@ -39,13 +45,18 @@ export default function Router() {
       element: <Register />,
     },
     {
-      path: "/dashboard",
+      path: "/app",
       element: <DashboardLayout />,
       children: [
-        { path: "app", element: <DashboardApp /> },
+        { path: "dashboard", element: <Dashboard /> },
+        { path: "dashboard/timeline", element: <DashboardTimeline /> },
+        { path: "dashboard/teachers", element: <DashboardTeachers /> },
         { path: "user", element: <User /> },
         { path: "room", element: <Room /> },
         { path: "booking", element: <Booking /> },
+        { path: "booking/upcoming", element: <BookingUpcoming /> },
+        { path: "booking/past", element: <BookingPast /> },
+        { path: "booking/:id", element: <BookingDetail /> },
         { path: "updateBookingPage/:id", element: <UpdateBookingPage /> },
         { path: "post", element: <Post /> },
         { path: "rooms", element: <Rooms /> },
@@ -57,6 +68,7 @@ export default function Router() {
         { path: "addbooking", element: <AddBooking /> },
         { path: "updatebooking/:id", element: <UpdateBooking /> },
         { path: "branches", element: <Branches /> },
+        { path: "instruments", element: <Instruments /> },
       ],
     },
     {
@@ -75,7 +87,7 @@ export default function Router() {
       path: "/",
       element: <LogoOnlyLayout />,
       children: [
-        { path: "/", element: <Navigate to="/dashboard/app" /> },
+        { path: "/", element: <Navigate to="/app/dashboard" /> },
         { path: "404", element: <NotFound /> },
         { path: "*", element: <Navigate to="/404" /> },
       ],

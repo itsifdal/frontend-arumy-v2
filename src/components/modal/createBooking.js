@@ -29,7 +29,7 @@ import AutoCompleteBasic from "../input/autoCompleteBasic";
 
 import { bookingFormReducer, initialBookingFormState, validateBookingForm } from "../../utils/reducer/bookingReducer";
 
-export default function CreateBooking({ open, onClose, state, id, callbackSuccess, callbackError }) {
+export default function CreateBooking({ open, onClose, state, id, callbackSuccess, callbackError, userId }) {
   const [openStudent, setOpenStudent] = useState(false);
   const [openTeacher, setOpenTeacher] = useState(false);
   const [openRoom, setOpenRoom] = useState(false);
@@ -53,18 +53,18 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
 
   const { data: students = [], isLoading: isLoadingStudents } = useQuery(
     [queryKey.students],
-    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/student`).then((res) => res.data),
+    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/student?perPage=9999`).then((res) => res.data),
     {
-      select: (students) => students.map((student) => ({ value: student.id, label: student.nama_murid })),
+      select: (students) => students.data?.map((student) => ({ value: student.id, label: student.nama_murid })),
       enabled: openStudent,
     }
   );
 
   const { data: teachers = [], isLoading: isLoadingTeachers } = useQuery(
     [queryKey.teachers],
-    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/teacher`).then((res) => res.data),
+    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/teacher?perPage=9999`).then((res) => res.data),
     {
-      select: (teachers) => teachers.map((teacher) => ({ value: teacher.id, label: teacher.nama_pengajar })),
+      select: (teachers) => teachers.data?.map((teacher) => ({ value: teacher.id, label: teacher.nama_pengajar })),
       enabled: openTeacher,
     }
   );
@@ -127,6 +127,7 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
         jenis_kelas: stateForm.values.jenis_kelas,
         durasi: stateForm.values.durasi,
         status: state === "create" ? "pending" : stateForm.values.status,
+        userId,
       };
 
       if (state === "update") {
@@ -340,7 +341,7 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
               value={stateForm.values.jam_booking}
               error={Boolean(stateForm.errors.jam_booking)}
               errorMessage={stateForm.errors.jam_booking}
-              minutesStep={15}
+              minutesStep={5}
               onChange={onChange}
             />
           </Grid>
@@ -353,7 +354,7 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
               error={Boolean(stateForm.errors.jam_selesai_booking)}
               errorMessage={stateForm.errors.jam_selesai_booking}
               minTime={stateForm.values.jam_booking}
-              minutesStep={15}
+              minutesStep={5}
               onChange={onChange}
             />
           </Grid>
@@ -401,9 +402,10 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
                   value={stateForm.values.status}
                   onChange={onChange}
                 >
-                  <FormControlLabel value="pending" control={<Radio />} label="Hold" />
-                  <FormControlLabel value="confirmed" control={<Radio />} label="Konfirmasi" />
-                  <FormControlLabel value="cancel" control={<Radio />} label="Cancel" />
+                  <FormControlLabel value="pending" control={<Radio />} label="Pending" />
+                  <FormControlLabel value="konfirmasi" control={<Radio />} label="Masuk" />
+                  <FormControlLabel value="batal" control={<Radio />} label="Hangus" />
+                  <FormControlLabel value="ijin" control={<Radio />} label="Ijin" />
                 </RadioGroup>
               </FormControl>
             </Grid>
@@ -443,4 +445,5 @@ CreateBooking.propTypes = {
   id: PropTypes.number,
   callbackSuccess: PropTypes.func,
   callbackError: PropTypes.func,
+  userId: PropTypes.number,
 };

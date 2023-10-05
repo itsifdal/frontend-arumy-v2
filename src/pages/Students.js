@@ -5,6 +5,7 @@ import { ToastContainer, toast } from "react-toastify";
 import { useQuery, useMutation } from "react-query";
 import axios from "axios";
 import { useSearchParams, Link as RouterLink } from "react-router-dom";
+import { format, parse } from "date-fns";
 
 import "react-toastify/dist/ReactToastify.css";
 
@@ -36,6 +37,7 @@ import { queryKey } from "../constants/queryKey";
 import { urlSearchParamsToQuery } from "../utils/urlSearchParamsToQuery";
 import { cleanQuery } from "../utils/cleanQuery";
 import { queryToString } from "../utils/queryToString";
+import DateInputBasic from "../components/input/dateInputBasic";
 
 // ----------------------------------------------------------------------
 export default function Students() {
@@ -60,7 +62,7 @@ export default function Students() {
     axios.get(`${process.env.REACT_APP_BASE_URL}/api/student${queryToString(queryParam)}`).then((res) => res.data)
   );
 
-  const { refetch: studentRefetch } = useQuery(
+  const { refetch: studentRefetch, isLoading: isLoadingStudentDetail } = useQuery(
     [queryKey.students, "DETAIL"],
     () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/student/${id}`).then((res) => res.data),
     {
@@ -176,7 +178,7 @@ export default function Students() {
 
   function onErrorMutateStudent(error) {
     if (error.response) {
-      toast.error(error.response, {
+      toast.error(error.response?.data?.message || "Terjadi kesalahan pada sistem.", {
         position: "top-center",
         autoClose: 1000,
         theme: "colored",
@@ -209,11 +211,14 @@ export default function Students() {
           <Box marginBottom={3}>
             <Scrollbar>
               <BasicTable
-                header={["STUDENT NAME", "NOMOR VA", "TELEPON", " "]}
+                header={["STUDENT NAME", "NOMOR VA", "TELEPON", "TANGGAL LAHIR", " "]}
                 body={students.data.map((student) => [
                   student.nama_murid,
                   student.nomor_va,
                   student.telepon,
+                  student.tgl_lahir && student.tgl_lahir !== "0000-00-00"
+                    ? format(parse(student.tgl_lahir, "yyyy-MM-dd", new Date()), "dd-MM-yyyy")
+                    : "-",
                   <Stack key={student.id} direction="row" spacing={2}>
                     <Button
                       variant="contained"
@@ -246,7 +251,10 @@ export default function Students() {
               renderItem={(item) => (
                 <PaginationItem
                   component={RouterLink}
-                  to={`/dashboard/students${item.page === 1 ? "" : `?page=${item.page}`}`}
+                  to={`/app/students${queryToString({
+                    ...queryParam,
+                    page: item.page === 1 ? null : item.page,
+                  })}`}
                   {...item}
                 />
               )}
@@ -255,7 +263,7 @@ export default function Students() {
         ) : null}
 
         <Modal
-          open={open}
+          open={open && !isLoadingStudentDetail}
           onClose={handleCloseModalCreate}
           aria-labelledby="modal-modal-title"
           aria-describedby="modal-modal-description"
@@ -314,6 +322,18 @@ export default function Students() {
                   value={stateForm.values.telepon}
                   error={Boolean(stateForm.errors.telepon)}
                   errorMessage={stateForm.errors.telepon}
+                  onChange={(e) => {
+                    onChangeInput(e);
+                  }}
+                />
+              </Grid>
+              <Grid item xs={6} paddingBottom={2}>
+                <DateInputBasic
+                  label="Tanggal Lahir"
+                  name="tgl_lahir"
+                  value={stateForm.values.tgl_lahir}
+                  error={Boolean(stateForm.errors.tgl_lahir)}
+                  errorMessage={stateForm.errors.tgl_lahir}
                   onChange={(e) => {
                     onChangeInput(e);
                   }}
