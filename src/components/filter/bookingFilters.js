@@ -84,9 +84,15 @@ export default function BookingFilters() {
             ".MuiToggleButtonGroup-grouped": {
               borderColor: "rgba(56, 53, 161, 0.5)",
               color: "#3835A1",
+              ":hover": {
+                backgroundColor: "rgba(56, 53, 161, 0.2)",
+              },
               "&.Mui-selected": {
                 color: "white",
                 backgroundColor: "#3835A1",
+                ":hover": {
+                  backgroundColor: "#3835A1",
+                },
               },
             },
           }}
