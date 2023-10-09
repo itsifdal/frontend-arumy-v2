@@ -26,7 +26,7 @@ const initFilter = {
   teacherLabel: "",
 };
 
-export default function BookingFilters({ toggleValue }) {
+export default function BookingFilters() {
   const [openDrawer, setOpenDrawer] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const [filters, setFilters] = useState(initFilter);
@@ -42,12 +42,14 @@ export default function BookingFilters({ toggleValue }) {
   );
   const navigate = useNavigate();
   const isDesktop = useResponsive("up", "lg");
+  const queryParam = urlSearchParamsToQuery(searchParams);
 
   const handleChange = (event, newValue) => {
     if (!newValue) {
       navigate(`/app/booking/`);
     } else {
-      navigate(`/app/booking/${newValue}`);
+      const query = { eventTime: newValue, ...(newValue === "upcoming" && { sort: "asc", sort_by: "tgl_kelas" }) };
+      setSearchParams(query);
     }
   };
 
@@ -73,11 +75,21 @@ export default function BookingFilters({ toggleValue }) {
     <>
       <Stack justifyContent={"flex-end"} direction={"row"} gap={isDesktop ? 2 : 1} flexWrap={"wrap"}>
         <ToggleButtonGroup
-          value={toggleValue}
+          value={queryParam.eventTime || ""}
           exclusive
           onChange={handleChange}
           aria-label="Platform"
           {...(!isDesktop && { fullWidth: true })}
+          sx={{
+            ".MuiToggleButtonGroup-grouped": {
+              borderColor: "rgba(56, 53, 161, 0.5)",
+              color: "#3835A1",
+              "&.Mui-selected": {
+                color: "white",
+                backgroundColor: "#3835A1",
+              },
+            },
+          }}
         >
           <ToggleButton value="upcoming">Upcoming</ToggleButton>
           <ToggleButton value="past">Past</ToggleButton>
