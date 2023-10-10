@@ -2,6 +2,7 @@ import { Navigate, useRoutes } from "react-router-dom";
 
 // layouts
 import Login from "./pages/Login";
+import Logout from "./pages/Logout";
 import Register from "./pages/Register";
 import DashboardLayout from "./layouts/dashboard";
 import LogoOnlyLayout from "./layouts/LogoOnlyLayout";
@@ -82,6 +83,10 @@ export default function Router() {
     {
       path: "/postdetail/:slug",
       element: <PostDetail />,
+    },
+    {
+      path: "/logout",
+      element: <Logout />,
     },
     {
       path: "/",
