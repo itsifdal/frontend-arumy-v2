@@ -270,8 +270,8 @@ export default function User() {
         >
           <Box sx={{ ...modalStyle, maxWidth: 900 }}>
             <Box width={"100%"} marginBottom={2}>
-              <Typography id="modal-modal-title" variant="h3" component="h2" fontWeight={700} color={"#172560"}>
-                {stateModal === "update" ? "Update user" : "Invite new user"}
+              <Typography id="modal-modal-title" variant="h4" component="h2" fontWeight={700} color={"#172560"}>
+                {stateModal === "update" ? `Update user #${userId}` : "Invite new user"}
               </Typography>
               <Typography color={"#737DAA"} fontSize={18}>
                 Enter details below

@@ -217,8 +217,8 @@ export default function Instruments() {
         >
           <Box sx={{ ...modalStyle, maxWidth: 400 }}>
             <Box marginBottom={2}>
-              <Typography id="modal-modal-title" variant="h6" component="h2">
-                {stateModal === "update" ? "Update Instrument" : "Create Instrument"}
+              <Typography id="modal-modal-title" variant="h4" component="h2" fontWeight={700} color={"#172560"}>
+                {stateModal === "update" ? `Update Instrument #${id}` : "Create Instrument"}
               </Typography>
             </Box>
             <Box paddingBottom={2}>

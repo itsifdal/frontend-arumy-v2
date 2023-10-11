@@ -21,6 +21,7 @@ import {
   TableHead,
   TableRow,
   TableBody,
+  Tooltip,
 } from "@mui/material";
 import TableCell, { tableCellClasses } from "@mui/material/TableCell";
 import { styled } from "@mui/material/styles";
@@ -108,6 +109,7 @@ export default function DashboardTeachers() {
       enabled: openTeacher,
     }
   );
+  console.log("teacherSummary ", teacherSummary);
 
   useEffect(() => {
     // use this for escape infinite loop
@@ -228,6 +230,7 @@ export default function DashboardTeachers() {
                   <StyledTableCell align="right">Durasi Private</StyledTableCell>
                   <StyledTableCell align="right">Sesi Group</StyledTableCell>
                   <StyledTableCell align="right">Sisa Private</StyledTableCell>
+                  <StyledTableCell align="right">Sisa Group</StyledTableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -241,8 +244,25 @@ export default function DashboardTeachers() {
                       <StyledTableCell align="right">{summary.groupCount}</StyledTableCell>
                       <StyledTableCell width={"100px"}>
                         <Stack direction={"row"} gap={1} width={"auto"} justifyContent={"flex-end"}>
-                          <Chip label={`${summary.privateExpiredDuration} menit kadaluarsa`} color="secondary" />
-                          <Chip label={`${summary.privatePendingDuration} menit pending`} color="warning" />
+                          <Tooltip title={`${summary.privateIjinCount} booking private ijin`}>
+                            <Chip label={`${summary.privateIjinCount}`} color="primary" />
+                          </Tooltip>
+                          <Tooltip title={`${summary.privateExpiredCount} booking private expired`}>
+                            <Chip label={`${summary.privateExpiredCount}`} color="secondary" />
+                          </Tooltip>
+                          <Tooltip title={`${summary.privatePendingCount} booking private pending`}>
+                            <Chip label={`${summary.privatePendingCount}`} color="warning" />
+                          </Tooltip>
+                        </Stack>
+                      </StyledTableCell>
+                      <StyledTableCell width={"100px"}>
+                        <Stack direction={"row"} gap={1} width={"auto"} justifyContent={"flex-end"}>
+                          <Tooltip title={`${summary.groupExpiredCount} booking group expired`}>
+                            <Chip label={`${summary.groupExpiredCount}`} color="secondary" />
+                          </Tooltip>
+                          <Tooltip title={`${summary.groupPendingCount} booking group pending`}>
+                            <Chip label={`${summary.groupPendingCount}`} color="warning" />
+                          </Tooltip>
                         </Stack>
                       </StyledTableCell>
                     </StyledTableRow>

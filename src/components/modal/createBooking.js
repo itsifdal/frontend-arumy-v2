@@ -208,8 +208,8 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
     >
       <Box sx={{ ...modalStyle, maxWidth: 800 }}>
         <Box marginBottom={2}>
-          <Typography id="modal-modal-title" variant="h6" component="h2">
-            {state === "update" ? "Update Student" : "Create Student"}
+          <Typography id="modal-modal-title" variant="h4" component="h2" fontWeight={700} color={"#172560"}>
+            {state === "update" ? `Update Booking #${id}` : "Create Booking"}
           </Typography>
         </Box>
         <Grid container spacing={2}>

@@ -266,8 +266,8 @@ export default function Teachers() {
         >
           <Box sx={{ ...modalStyle, maxWidth: 800 }}>
             <Box marginBottom={2}>
-              <Typography id="modal-modal-title" variant="h6" component="h2">
-                {stateModal === "update" ? "Update Teacher" : "Create Teacher"}
+              <Typography id="modal-modal-title" variant="h4" component="h2" fontWeight={700} color={"#172560"}>
+                {stateModal === "update" ? `Update Teacher #${id}` : "Create Teacher"}
               </Typography>
             </Box>
             <Grid container spacing={2}>

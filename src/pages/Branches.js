@@ -215,8 +215,8 @@ export default function Branches() {
         >
           <Box sx={{ ...modalStyle, maxWidth: 400 }}>
             <Box marginBottom={2}>
-              <Typography id="modal-modal-title" variant="h6" component="h2">
-                {stateModal === "update" ? "Update Branch" : "Create Branch"}
+              <Typography id="modal-modal-title" variant="h4" component="h2" fontWeight={700} color={"#172560"}>
+                {stateModal === "update" ? `Update Branch #${id}` : "Create Branch"}
               </Typography>
             </Box>
             <Box paddingBottom={2}>
