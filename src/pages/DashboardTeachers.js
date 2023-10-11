@@ -5,6 +5,7 @@ import { format, parse, sub, isValid } from "date-fns";
 import setDefaultOptions from "date-fns/setDefaultOptions";
 import axios from "axios";
 import id from "date-fns/locale/id";
+import { downloadExcel } from "react-export-table-to-excel";
 // material
 import {
   Chip,
@@ -109,7 +110,6 @@ export default function DashboardTeachers() {
       enabled: openTeacher,
     }
   );
-  console.log("teacherSummary ", teacherSummary);
 
   useEffect(() => {
     // use this for escape infinite loop
@@ -120,6 +120,28 @@ export default function DashboardTeachers() {
   const SubmitFilter = (filter) => {
     setFilters((prevState) => ({ ...prevState, ...filter }));
     setSearchParams({ ...filters, ...filter });
+  };
+
+  const handleDownloadExcel = () => {
+    const exportedTeacherSummary = teacherSummary.map((summary) => ({
+      "Nama Murid": summary.studentName,
+      "Durasi Private": summary.privateDuration,
+      "Sesi Group": summary.groupCount,
+      "Booking Private Ijin": summary.privateIjinCount,
+      "Booking Private Pending": summary.privatePendingCount,
+      "Booking Private Kadaluarsa": summary.privateExpiredCount,
+      "Booking Group Ijin": summary.groupIjinCount,
+      "Booking Group Pending": summary.groupPendingCount,
+      "Booking Group Kadaluarsa": summary.groupExpiredCount,
+    }));
+    downloadExcel({
+      fileName: `${filters.teacherLabel}-${filters.tglAwal}-${filters.tglAkhir}`,
+      sheet: `${filters.tglAwal}-${filters.tglAkhir}`,
+      tablePayload: {
+        header: Object.keys(exportedTeacherSummary[0]),
+        body: exportedTeacherSummary,
+      },
+    });
   };
 
   return (
@@ -209,7 +231,7 @@ export default function DashboardTeachers() {
         </Container>
       </Box>
       <Container maxWidth="xl" sx={{ padding: 4 }}>
-        <Stack direction={"row"} gap={4} alignItems={"center"} marginBottom={2}>
+        <Stack direction={"row"} gap={4} alignItems={"center"} marginBottom={2} justifyContent={"space-between"}>
           <Typography as="h1" fontWeight={"bold"} fontSize={"20px"}>
             {filters.teacherLabel || initFilter.teacherLabel}
           </Typography>
@@ -220,6 +242,10 @@ export default function DashboardTeachers() {
           >
             View All
           </Link>
+          <Box flexGrow={1} flexShrink={1} />
+          <Button onClick={handleDownloadExcel} variant="contained">
+            Export Excel
+          </Button>
         </Stack>
         {!isLoadingTeacherSummary ? (
           <TableContainer component={Paper}>
@@ -257,6 +283,9 @@ export default function DashboardTeachers() {
                       </StyledTableCell>
                       <StyledTableCell width={"100px"}>
                         <Stack direction={"row"} gap={1} width={"auto"} justifyContent={"flex-end"}>
+                          <Tooltip title={`${summary.groupIjinCount} booking group ijin`}>
+                            <Chip label={`${summary.groupIjinCount}`} color="primary" />
+                          </Tooltip>
                           <Tooltip title={`${summary.groupExpiredCount} booking group expired`}>
                             <Chip label={`${summary.groupExpiredCount}`} color="secondary" />
                           </Tooltip>
