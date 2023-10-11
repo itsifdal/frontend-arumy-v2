@@ -246,7 +246,7 @@ export default function Dashboard() {
       <Container maxWidth="xl" sx={{ paddingTop: 4 }}>
         <ToastContainer pauseOnFocusLoss={false} />
         {!isLoadingBookings && bookings.length && !isTeacher ? (
-          <Chart chartType="Timeline" data={data} width="100%" height="850px" />
+          <Chart chartType="Timeline" data={data} width="100%" height="900px" />
         ) : null}
         {renderContent({
           isErrorDashboard,
@@ -305,7 +305,8 @@ function renderContent({
 
   if (isLoadingDashboard) return <Typography>Loading Data</Typography>;
   if (isErrorDashboard) return <Typography>Error Data</Typography>;
-  if (!dashboard.length) return <Typography>No Data Found</Typography>;
+  if ((isTeacher && !bookings.length) || (!isTeacher && !dashboard.length))
+    return <Typography>No Data Found</Typography>;
 
   if (isTeacher) {
     return (
