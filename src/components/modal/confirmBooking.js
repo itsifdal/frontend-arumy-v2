@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import PropTypes from "prop-types";
-import { useQuery, useMutation } from "react-query";
+import { useQuery, useMutation, useQueryClient } from "react-query";
 import axios from "axios";
 import { differenceInMinutes, format, parse } from "date-fns";
 
@@ -25,6 +25,7 @@ import { bookingFormReducer, initialBookingFormState, validateBookingForm } from
 
 export default function ConfirmBooking({ open, onClose, id, callbackSuccess, callbackError }) {
   const [stateForm, dispatchStateForm] = useReducer(bookingFormReducer, initialBookingFormState);
+  const queryClient = useQueryClient();
 
   const { refetch: bookingRefetch } = useQuery(
     [queryKey.bookings, "DETAIL"],
@@ -86,6 +87,7 @@ export default function ConfirmBooking({ open, onClose, id, callbackSuccess, cal
 
   const handleCallbackMutate = {
     onSuccess: (response) => {
+      queryClient.invalidateQueries({ queryKey: [queryKey.bookings] });
       callbackSuccess(response);
     },
     onError: (error) => {

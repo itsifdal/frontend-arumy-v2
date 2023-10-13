@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import PropTypes from "prop-types";
-import { useQuery, useMutation } from "react-query";
+import { useQuery, useMutation, useQueryClient } from "react-query";
 import axios from "axios";
 import { differenceInMinutes, format, parse } from "date-fns";
 import { toast } from "react-toastify";
@@ -35,6 +35,7 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
   const [openRoom, setOpenRoom] = useState(false);
   const [openInstrument, setOpenInstrument] = useState(false);
   const [stateForm, dispatchStateForm] = useReducer(bookingFormReducer, initialBookingFormState);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     if (stateForm.values.jam_booking && stateForm.values.jam_selesai_booking) {
@@ -97,6 +98,7 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
 
   const handleCallbackMutate = ({ addAnother }) => ({
     onSuccess: (response) => {
+      queryClient.invalidateQueries({ queryKey: [queryKey.bookings] });
       if (!addAnother) {
         callbackSuccess(response);
       } else {
