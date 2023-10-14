@@ -57,6 +57,7 @@ export default function BookingFilters() {
         ...queryParam,
         eventTime: newValue,
         ...(newValue === "upcoming" && { sort: "asc", sort_by: "tgl_kelas" }),
+        ...(newValue === "past" && { sort: "desc", sort_by: "tgl_kelas" }),
       };
       setSearchParams(query);
     }
