@@ -150,6 +150,7 @@ function BookingFilterForm({ toggleDrawer }) {
   const [openTeacher, setOpenTeacher] = useState(false);
   const [filters, setFilters] = useState(initFilter);
   const [searchParams, setSearchParams] = useSearchParams();
+  const [isTeacher, setIsTeacher] = useState(false);
 
   const { data: students = [], isLoading: isLoadingStudents } = useQuery(
     [queryKey.students],
@@ -177,6 +178,15 @@ function BookingFilterForm({ toggleDrawer }) {
       enabled: openRoom,
     }
   );
+
+  // localStorage
+  useEffect(() => {
+    const loggedInUser = localStorage.getItem("user");
+    if (loggedInUser) {
+      const foundUser = JSON.parse(loggedInUser);
+      setIsTeacher(foundUser.role === "Guru");
+    }
+  }, []);
 
   useEffect(() => {
     // use this for escape infinite loop
@@ -219,29 +229,31 @@ function BookingFilterForm({ toggleDrawer }) {
             value={{ value: filters.studentId || "", label: filters.studentLabel || "" }}
           />
         </Grid>
-        <Grid item xs={12}>
-          <AutoCompleteBasic
-            label="Nama Pengajar"
-            name="teacherId"
-            open={openTeacher}
-            onOpen={() => {
-              setOpenTeacher(true);
-            }}
-            onClose={() => {
-              setOpenTeacher(false);
-            }}
-            onChange={(_, newValue) => {
-              setFilters((prevState) => ({
-                ...prevState,
-                teacherId: newValue?.value || "",
-                teacherLabel: newValue?.label || "",
-              }));
-            }}
-            options={teachers}
-            loading={isLoadingTeachers}
-            value={{ value: filters.teacherId || "", label: filters.teacherLabel || "" }}
-          />
-        </Grid>
+        {!isTeacher ? (
+          <Grid item xs={12}>
+            <AutoCompleteBasic
+              label="Nama Pengajar"
+              name="teacherId"
+              open={openTeacher}
+              onOpen={() => {
+                setOpenTeacher(true);
+              }}
+              onClose={() => {
+                setOpenTeacher(false);
+              }}
+              onChange={(_, newValue) => {
+                setFilters((prevState) => ({
+                  ...prevState,
+                  teacherId: newValue?.value || "",
+                  teacherLabel: newValue?.label || "",
+                }));
+              }}
+              options={teachers}
+              loading={isLoadingTeachers}
+              value={{ value: filters.teacherId || "", label: filters.teacherLabel || "" }}
+            />
+          </Grid>
+        ) : null}
         <Grid item xs={12}>
           <AutoCompleteBasic
             label="Ruang Kelas"
