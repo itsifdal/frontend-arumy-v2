@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import axios from "axios";
 import { useQuery } from "react-query";
 import { format, parse, isValid } from "date-fns";
@@ -40,15 +40,24 @@ export default function BookingFilters() {
     ],
     [filters]
   );
-  const navigate = useNavigate();
   const isDesktop = useResponsive("up", "lg");
   const queryParam = urlSearchParamsToQuery(searchParams);
 
   const handleChange = (event, newValue) => {
     if (!newValue) {
-      navigate(`/app/booking/`);
+      // remove filter when click again
+      const tempQueryParam = queryParam;
+      delete tempQueryParam.eventTime;
+      delete tempQueryParam.sort;
+      delete tempQueryParam.sort_by;
+
+      setSearchParams({ ...tempQueryParam });
     } else {
-      const query = { eventTime: newValue, ...(newValue === "upcoming" && { sort: "asc", sort_by: "tgl_kelas" }) };
+      const query = {
+        ...queryParam,
+        eventTime: newValue,
+        ...(newValue === "upcoming" && { sort: "asc", sort_by: "tgl_kelas" }),
+      };
       setSearchParams(query);
     }
   };
