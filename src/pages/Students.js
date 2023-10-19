@@ -226,7 +226,12 @@ export default function Students() {
         <Container maxWidth="xl">
           <Grid container>
             <Grid item xs={6} sm={3} paddingBottom={2}>
-              <InputBasic label="Nama Murid" name="q" onKeyDown={(e) => updateSearchQuery(e)} />
+              <InputBasic
+                label="Nama Murid"
+                name="q"
+                onKeyDown={(e) => updateSearchQuery(e)}
+                defaultValue={queryParam.q || ""}
+              />
             </Grid>
           </Grid>
         </Container>
