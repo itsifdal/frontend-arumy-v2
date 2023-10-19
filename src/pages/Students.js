@@ -24,6 +24,7 @@ import {
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 
+import useResponsive from "../hooks/useResponsive";
 // components
 import { studentFormReducer, initialStudentFormState, validateStudentForm } from "../utils/reducer/studentReducer";
 import Page from "../components/Page";
@@ -50,8 +51,9 @@ export default function Students() {
 
   const [stateForm, dispatchStateForm] = useReducer(studentFormReducer, initialStudentFormState);
 
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const queryParam = urlSearchParamsToQuery(searchParams);
+  const isDesktop = useResponsive("up", "lg");
 
   // query
   const {
@@ -195,6 +197,12 @@ export default function Students() {
     });
   }
 
+  function updateSearchQuery(e) {
+    if (e.key === "Enter") {
+      setSearchParams({ [e.target.name]: e.target.value });
+    }
+  }
+
   return (
     <Page title="Student">
       <PageHeader
@@ -205,6 +213,24 @@ export default function Students() {
           </Button>
         }
       />
+      <Box
+        sx={{
+          background: "#FFF",
+          boxShadow: "0px 4px 20px 0px rgba(0, 0, 0, 0.05)",
+          paddingY: isDesktop ? "20px" : "5px",
+          zIndex: 2,
+          position: "relative",
+          borderTop: "1px solid #c3c3e1",
+        }}
+      >
+        <Container maxWidth="xl">
+          <Grid container>
+            <Grid item xs={6} sm={3} paddingBottom={2}>
+              <InputBasic label="Nama Murid" name="q" onKeyDown={(e) => updateSearchQuery(e)} />
+            </Grid>
+          </Grid>
+        </Container>
+      </Box>
       <Container maxWidth="xl" sx={{ paddingTop: 4 }}>
         <ToastContainer pauseOnFocusLoss={false} />
         {!isLoadingStudents ? (
