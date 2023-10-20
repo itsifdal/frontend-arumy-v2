@@ -15,7 +15,7 @@ import { LoadingButton } from "@mui/lab";
 import PropTypes from "prop-types";
 import { useQuery, useMutation, useQueryClient } from "react-query";
 import axios from "axios";
-import { differenceInMinutes, format, parse } from "date-fns";
+import { differenceInMinutes, format, parse, addMinutes } from "date-fns";
 import { toast } from "react-toastify";
 
 import InputBasic from "../input/inputBasic";
@@ -344,7 +344,16 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
               error={Boolean(stateForm.errors.jam_booking)}
               errorMessage={stateForm.errors.jam_booking}
               minutesStep={5}
-              onChange={onChange}
+              onChange={(e) => {
+                onChange(e);
+                // auto change jam_selesai_booking
+                dispatchStateForm({
+                  type: "change-field",
+                  name: "jam_selesai_booking",
+                  value: addMinutes(e.target.value, 45),
+                  isEnableValidate: false,
+                });
+              }}
             />
           </Grid>
           <Grid item xs={6} paddingBottom={2}>

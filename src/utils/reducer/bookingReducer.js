@@ -9,9 +9,9 @@ export const initialBookingFormState = {
     tgl_kelas: new Date(),
     cabang: "",
     jam_booking: parse("09:00", "HH:mm", new Date()),
-    jam_selesai_booking: parse("10:00", "HH:mm", new Date()),
+    jam_selesai_booking: parse("09:45", "HH:mm", new Date()),
     jenis_kelas: "privat",
-    durasi: 60,
+    durasi: 45,
     status: "",
   },
   errors: {
