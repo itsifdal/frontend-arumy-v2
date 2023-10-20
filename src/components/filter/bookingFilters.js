@@ -286,6 +286,11 @@ function BookingFilterForm({ toggleDrawer }) {
             label="Date"
             value={parse(filters.tgl_kelas, "yyyy-MM-dd", new Date())}
             onChange={(e) => {
+              if (e.target.value === null)
+                return setFilters((prevState) => {
+                  delete prevState.tgl_kelas;
+                  return { ...prevState };
+                });
               if (!isValid(e.target.value)) return false;
               return setFilters((prevState) => ({ ...prevState, tgl_kelas: format(e.target.value, "yyyy-MM-dd") }));
             }}
