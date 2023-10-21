@@ -181,16 +181,16 @@ export default function BookingUpcoming() {
     setOpenUpdStatus(false);
     toast.success(response.data.message, {
       position: "top-center",
-      autoClose: 1000,
+      autoClose: 5000,
       theme: "colored",
     });
   };
 
   const onErrorMutateBooking = (error) => {
     if (error) {
-      toast.error("Booking Error", {
+      toast.error(error.response?.data?.message || "Booking Error", {
         position: "top-center",
-        autoClose: 1000,
+        autoClose: 5000,
         theme: "colored",
       });
     }

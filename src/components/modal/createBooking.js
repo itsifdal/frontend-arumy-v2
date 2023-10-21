@@ -104,7 +104,7 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
       } else {
         toast.success(response.data.message, {
           position: "top-center",
-          autoClose: 1000,
+          autoClose: 5000,
           theme: "colored",
         });
       }
