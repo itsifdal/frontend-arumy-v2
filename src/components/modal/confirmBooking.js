@@ -33,27 +33,28 @@ export default function ConfirmBooking({ open, onClose, id, callbackSuccess, cal
     {
       enabled: Boolean(id),
       onSuccess: (res) => {
+        const { data } = res;
         const modelData = {
           roomId: {
-            value: res.roomId ?? "",
-            label: res.room.nama_ruang ?? "",
+            value: data.roomId ?? "",
+            label: data.room?.nama_ruang ?? "",
           },
           teacherId: {
-            value: res.teacherId ?? "",
-            label: res.teacher.nama_pengajar ?? "",
+            value: data.teacherId ?? "",
+            label: data.teacher?.nama_pengajar ?? "",
           },
-          user_group: res.user_group?.map((student) => ({ value: student.id, label: student.nama_murid })),
+          user_group: JSON.parse(data.user_group)?.map((student) => ({ value: student.id, label: student.nama_murid })),
           instrumentId: {
-            value: res.instrumentId ?? "",
-            label: res.instrument.nama_instrument ?? "",
+            value: data.instrumentId ?? "",
+            label: data.instrument?.nama_instrument ?? "",
           },
-          tgl_kelas: parse(res.tgl_kelas, "yyyy-MM-dd", new Date()),
-          cabang: res.cabang,
-          jam_booking: parse(res.jam_booking, "HH:mm:ss", new Date()),
-          jam_selesai_booking: parse(res.selesai, "HH:mm:ss", new Date()),
-          jenis_kelas: res.jenis_kelas,
-          durasi: Number(res.durasi),
-          status: res.status,
+          tgl_kelas: parse(data.tgl_kelas, "yyyy-MM-dd", new Date()),
+          cabang: data.cabang,
+          jam_booking: parse(data.jam_booking, "HH:mm:ss", new Date()),
+          jam_selesai_booking: parse(data.selesai, "HH:mm:ss", new Date()),
+          jenis_kelas: data.jenis_kelas,
+          durasi: Number(data.durasi),
+          status: data.status,
         };
         const entries = Object.entries(modelData);
         entries.forEach((booking) => {

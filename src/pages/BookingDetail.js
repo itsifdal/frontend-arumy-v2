@@ -61,7 +61,7 @@ function BookingData() {
     refetch: refetchBooking,
   } = useQuery(
     [queryKey.bookings, "DETAIL", id],
-    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/booking/${id}`).then((res) => res.data),
+    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/booking/${id}`).then((res) => res.data?.data),
     {
       enabled: Boolean(id),
     }
@@ -122,7 +122,9 @@ function BookingData() {
           <Avatar {...stringAvatar("Privat")} sx={{ width: 48, height: 48 }} />
           <Stack gap={"2px"} width={"100%"}>
             <Typography fontWeight={"bold"} fontSize={"14px"} color={"#0D1B34"}>
-              {booking.user_group.map((student) => student.nama_murid).join(", ")}
+              {JSON.parse(booking.user_group)
+                ?.map((student) => student.nama_murid)
+                .join(", ")}
             </Typography>
             <Typography fontSize={"14px"} color={"#8696BB"}>
               {booking.room.nama_ruang}
