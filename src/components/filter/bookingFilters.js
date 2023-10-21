@@ -4,7 +4,7 @@ import axios from "axios";
 import { useQuery } from "react-query";
 import { format, parse, isValid } from "date-fns";
 import PropTypes from "prop-types";
-import { Button, Stack, Grid, Drawer, IconButton, Box, ToggleButtonGroup, ToggleButton } from "@mui/material";
+import { Button, Stack, Drawer, IconButton, Box, ToggleButtonGroup, ToggleButton } from "@mui/material";
 
 import useResponsive from "../../hooks/useResponsive";
 import AutoCompleteBasic from "../input/autoCompleteBasic";
@@ -19,7 +19,8 @@ const initFilter = {
   status: "",
   roomId: "",
   roomLabel: "",
-  tgl_kelas: "",
+  dateFrom: "",
+  dateTo: "",
   studentId: "",
   studentLabel: "",
   teacherId: "",
@@ -35,7 +36,8 @@ export default function BookingFilters() {
       filters.studentLabel,
       filters.teacherLabel,
       filters.roomLabel,
-      filters.tgl_kelas && format(parse(filters.tgl_kelas, "yyyy-MM-dd", new Date()), "d MMM yyyy"),
+      filters.dateFrom && format(parse(filters.dateFrom, "yyyy-MM-dd", new Date()), "d MMM yyyy"),
+      filters.dateTo && format(parse(filters.dateTo, "yyyy-MM-dd", new Date()), "d MMM yyyy"),
       filters.status && `Status ${bookingStatusObj[filters.status].label}`,
     ],
     [filters]
@@ -205,110 +207,116 @@ function BookingFilterForm({ toggleDrawer }) {
   };
 
   return (
-    <Stack width={"100%"} direction={"column"} spacing={2}>
-      <Grid container flexGrow={1} gap={2}>
-        <Grid item xs={12}>
-          <AutoCompleteBasic
-            label="Nama Murid"
-            name="studentId"
-            open={openStudent}
-            onOpen={() => {
-              setOpenStudent(true);
-            }}
-            onClose={() => {
-              setOpenStudent(false);
-            }}
-            onChange={(_, newValue) => {
-              setFilters((prevState) => ({
-                ...prevState,
-                studentId: newValue?.value || "",
-                studentLabel: newValue?.label || "",
-              }));
-            }}
-            options={students}
-            loading={isLoadingStudents}
-            value={{ value: filters.studentId || "", label: filters.studentLabel || "" }}
-          />
-        </Grid>
-        {!isTeacher ? (
-          <Grid item xs={12}>
-            <AutoCompleteBasic
-              label="Nama Pengajar"
-              name="teacherId"
-              open={openTeacher}
-              onOpen={() => {
-                setOpenTeacher(true);
-              }}
-              onClose={() => {
-                setOpenTeacher(false);
-              }}
-              onChange={(_, newValue) => {
-                setFilters((prevState) => ({
-                  ...prevState,
-                  teacherId: newValue?.value || "",
-                  teacherLabel: newValue?.label || "",
-                }));
-              }}
-              options={teachers}
-              loading={isLoadingTeachers}
-              value={{ value: filters.teacherId || "", label: filters.teacherLabel || "" }}
-            />
-          </Grid>
-        ) : null}
-        <Grid item xs={12}>
-          <AutoCompleteBasic
-            label="Ruang Kelas"
-            name="roomId"
-            open={openRoom}
-            onOpen={() => {
-              setOpenRoom(true);
-            }}
-            onClose={() => {
-              setOpenRoom(false);
-            }}
-            onChange={(_, newValue) => {
-              setFilters((prevState) => ({
-                ...prevState,
-                roomId: newValue?.value || "",
-                roomLabel: newValue?.label || "",
-              }));
-            }}
-            options={rooms}
-            loading={isLoadingRooms}
-            value={{ value: filters.roomId || "", label: filters.roomLabel || "" }}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <DateInputBasic
-            disableValidation
-            id="tgl_kelas"
-            name="tgl_kelas"
-            label="Date"
-            value={parse(filters.tgl_kelas, "yyyy-MM-dd", new Date())}
-            onChange={(e) => {
-              if (e.target.value === null)
-                return setFilters((prevState) => {
-                  delete prevState.tgl_kelas;
-                  return { ...prevState };
-                });
-              if (!isValid(e.target.value)) return false;
-              return setFilters((prevState) => ({ ...prevState, tgl_kelas: format(e.target.value, "yyyy-MM-dd") }));
-            }}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <NativeSelectBasic
-            id="status"
-            name="status"
-            label="Class Status"
-            value={filters.status}
-            onChange={(e) => {
-              setFilters((prevState) => ({ ...prevState, status: e.target.value }));
-            }}
-            options={bookingStatus}
-          />
-        </Grid>
-      </Grid>
+    <Stack width={"100%"} minWidth={["90vw", "50vw", "40vw"]} direction={"column"} gap={2}>
+      <AutoCompleteBasic
+        label="Nama Murid"
+        name="studentId"
+        open={openStudent}
+        onOpen={() => {
+          setOpenStudent(true);
+        }}
+        onClose={() => {
+          setOpenStudent(false);
+        }}
+        onChange={(_, newValue) => {
+          setFilters((prevState) => ({
+            ...prevState,
+            studentId: newValue?.value || "",
+            studentLabel: newValue?.label || "",
+          }));
+        }}
+        options={students}
+        loading={isLoadingStudents}
+        value={{ value: filters.studentId || "", label: filters.studentLabel || "" }}
+      />
+      {!isTeacher ? (
+        <AutoCompleteBasic
+          label="Nama Pengajar"
+          name="teacherId"
+          open={openTeacher}
+          onOpen={() => {
+            setOpenTeacher(true);
+          }}
+          onClose={() => {
+            setOpenTeacher(false);
+          }}
+          onChange={(_, newValue) => {
+            setFilters((prevState) => ({
+              ...prevState,
+              teacherId: newValue?.value || "",
+              teacherLabel: newValue?.label || "",
+            }));
+          }}
+          options={teachers}
+          loading={isLoadingTeachers}
+          value={{ value: filters.teacherId || "", label: filters.teacherLabel || "" }}
+        />
+      ) : null}
+      <AutoCompleteBasic
+        label="Ruang Kelas"
+        name="roomId"
+        open={openRoom}
+        onOpen={() => {
+          setOpenRoom(true);
+        }}
+        onClose={() => {
+          setOpenRoom(false);
+        }}
+        onChange={(_, newValue) => {
+          setFilters((prevState) => ({
+            ...prevState,
+            roomId: newValue?.value || "",
+            roomLabel: newValue?.label || "",
+          }));
+        }}
+        options={rooms}
+        loading={isLoadingRooms}
+        value={{ value: filters.roomId || "", label: filters.roomLabel || "" }}
+      />
+      <Stack direction={"row"} gap={2}>
+        <DateInputBasic
+          disableValidation
+          id="dateFrom"
+          name="dateFrom"
+          label="From Date"
+          value={parse(filters.dateFrom, "yyyy-MM-dd", new Date())}
+          onChange={(e) => {
+            if (e.target.value === null)
+              return setFilters((prevState) => {
+                delete prevState.dateFrom;
+                return { ...prevState };
+              });
+            if (!isValid(e.target.value)) return false;
+            return setFilters((prevState) => ({ ...prevState, dateFrom: format(e.target.value, "yyyy-MM-dd") }));
+          }}
+        />
+        <DateInputBasic
+          disableValidation
+          id="dateTo"
+          name="dateTo"
+          label="To Date"
+          value={parse(filters.dateTo, "yyyy-MM-dd", new Date())}
+          onChange={(e) => {
+            if (e.target.value === null)
+              return setFilters((prevState) => {
+                delete prevState.dateTo;
+                return { ...prevState };
+              });
+            if (!isValid(e.target.value)) return false;
+            return setFilters((prevState) => ({ ...prevState, dateTo: format(e.target.value, "yyyy-MM-dd") }));
+          }}
+        />
+      </Stack>
+      <NativeSelectBasic
+        id="status"
+        name="status"
+        label="Class Status"
+        value={filters.status}
+        onChange={(e) => {
+          setFilters((prevState) => ({ ...prevState, status: e.target.value }));
+        }}
+        options={bookingStatus}
+      />
       <Stack spacing={1} direction={"row"} flexShrink={0} alignItems="flex-end" width={"100%"}>
         <Button
           variant="contained"
