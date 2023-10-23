@@ -29,7 +29,7 @@ import { queryKey } from "../constants/queryKey";
 import Page from "../components/Page";
 // sections
 import PageHeader from "../components/PageHeader";
-import CardBooking from "../components/CardBooking";
+import CardsBooking from "../components/CardBooking";
 import DateInputBasic from "../components/input/dateInputBasic";
 import ConfirmBooking from "../components/modal/confirmBooking";
 import { urlSearchParamsToQuery } from "../utils/urlSearchParamsToQuery";
@@ -311,7 +311,7 @@ function renderContent({
   if (isTeacher) {
     return (
       <Grid container spacing="11px">
-        <CardBooking bookings={bookings} onClickConfirm={handleOpenModalUpdateStatus} />
+        <CardsBooking bookings={bookings} onClickConfirm={handleOpenModalUpdateStatus} />
       </Grid>
     );
   }
