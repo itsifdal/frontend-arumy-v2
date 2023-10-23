@@ -33,7 +33,6 @@ export function CardBooking({ booking, onClickConfirm }) {
   const { jam_booking: jamBooking, tgl_kelas: tglKelas } = booking;
   const completeDate = parse(`${tglKelas} ${jamBooking}`, "yyyy-MM-dd HH:mm:ss", new Date());
   const isPassed = new Date() > completeDate;
-  console.log("isPassed ", isPassed);
   return (
     <Stack
       borderRadius={"7px"}
