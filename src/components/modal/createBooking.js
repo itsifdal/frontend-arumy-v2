@@ -37,21 +37,6 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
   const [stateForm, dispatchStateForm] = useReducer(bookingFormReducer, initialBookingFormState);
   const queryClient = useQueryClient();
 
-  useEffect(() => {
-    if (stateForm.values.jam_booking && stateForm.values.jam_selesai_booking) {
-      const duration = differenceInMinutes(stateForm.values.jam_selesai_booking, stateForm.values.jam_booking);
-      onChange({ target: { name: "durasi", value: duration } });
-    }
-  }, [stateForm.values.jam_booking, stateForm.values.jam_selesai_booking]);
-
-  useEffect(() => {
-    if (open && state === "create") {
-      dispatchStateForm({
-        type: "reset-field",
-      });
-    }
-  }, [open, state]);
-
   const { data: students = [], isLoading: isLoadingStudents } = useQuery(
     [queryKey.students],
     () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/student?perPage=9999`).then((res) => res.data),
@@ -198,10 +183,25 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
   );
 
   useEffect(() => {
-    if (id) {
+    if (open && state === "update" && id) {
       bookingRefetch();
     }
-  }, [id, bookingRefetch]);
+  }, [open, id, bookingRefetch, state]);
+
+  useEffect(() => {
+    if (stateForm.values.jam_booking && stateForm.values.jam_selesai_booking) {
+      const duration = differenceInMinutes(stateForm.values.jam_selesai_booking, stateForm.values.jam_booking);
+      onChange({ target: { name: "durasi", value: duration } });
+    }
+  }, [stateForm.values.jam_booking, stateForm.values.jam_selesai_booking]);
+
+  useEffect(() => {
+    if (open && state === "create") {
+      dispatchStateForm({
+        type: "reset-field",
+      });
+    }
+  }, [open, state]);
 
   return (
     <Modal
