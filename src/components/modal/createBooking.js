@@ -45,12 +45,12 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
   }, [stateForm.values.jam_booking, stateForm.values.jam_selesai_booking]);
 
   useEffect(() => {
-    if (open) {
+    if (open && state === "create") {
       dispatchStateForm({
         type: "reset-field",
       });
     }
-  }, [open]);
+  }, [open, state]);
 
   const { data: students = [], isLoading: isLoadingStudents } = useQuery(
     [queryKey.students],
@@ -155,7 +155,7 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
   };
 
   const { refetch: bookingRefetch } = useQuery(
-    [queryKey.bookings, "DETAIL"],
+    [queryKey.bookings, "DETAIL", id],
     () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/booking/${id}`).then((res) => res.data),
     {
       enabled: Boolean(id),
