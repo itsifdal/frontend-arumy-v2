@@ -23,7 +23,7 @@ import InputBasic from "../input/inputBasic";
 
 import { bookingFormReducer, initialBookingFormState, validateBookingForm } from "../../utils/reducer/bookingReducer";
 
-export default function ConfirmBooking({ open, onClose, id, callbackSuccess, callbackError }) {
+export default function ConfirmBooking({ open, onClose, id, callbackSuccess, callbackError, userId }) {
   const [stateForm, dispatchStateForm] = useReducer(bookingFormReducer, initialBookingFormState);
   const queryClient = useQueryClient();
 
@@ -111,6 +111,7 @@ export default function ConfirmBooking({ open, onClose, id, callbackSuccess, cal
         jenis_kelas: stateForm.values.jenis_kelas,
         durasi: stateForm.values.durasi,
         status: stateForm.values.status,
+        userId,
       };
 
       submitUpdateBooking.mutate(data, handleCallbackMutate);
@@ -198,4 +199,5 @@ ConfirmBooking.propTypes = {
   id: PropTypes.number,
   callbackSuccess: PropTypes.func,
   callbackError: PropTypes.func,
+  userId: PropTypes.number,
 };

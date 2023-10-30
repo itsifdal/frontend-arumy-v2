@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Stack, Button, Typography, Box, Grid, Avatar, Chip, IconButton } from "@mui/material";
 import { format, parse } from "date-fns";
@@ -52,6 +52,7 @@ export default function BookingDetail() {
 
 function BookingData() {
   const { id } = useParams();
+  const [user, setUser] = useState("");
   const queryClient = useQueryClient();
   const [openUpdStatus, setOpenUpdStatus] = useState(false);
   const {
@@ -66,6 +67,14 @@ function BookingData() {
       enabled: Boolean(id),
     }
   );
+
+  useEffect(() => {
+    const loggedInUser = localStorage.getItem("user");
+    if (loggedInUser) {
+      const foundUser = JSON.parse(loggedInUser);
+      setUser(foundUser);
+    }
+  }, []);
 
   if (isLoading) return <Typography>Loading data...</Typography>;
   if (isError) return <Typography>Error data</Typography>;
@@ -174,6 +183,7 @@ function BookingData() {
         callbackError={(error) => {
           onErrorMutateBooking(error);
         }}
+        userId={user.id}
       />
     </Stack>
   );

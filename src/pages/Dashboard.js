@@ -267,6 +267,7 @@ export default function Dashboard() {
         callbackError={(error) => {
           onErrorMutateBooking(error);
         }}
+        userId={user.id}
       />
     </Page>
   );
