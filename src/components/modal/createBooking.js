@@ -26,6 +26,7 @@ import { classType } from "../../constants/classType";
 import { queryKey } from "../../constants/queryKey";
 import TimeInputBasic from "../input/timeInputBasic";
 import AutoCompleteBasic from "../input/autoCompleteBasic";
+import TextareaBasic from "../input/textareaBasic";
 
 import { bookingFormReducer, initialBookingFormState, validateBookingForm } from "../../utils/reducer/bookingReducer";
 
@@ -113,6 +114,7 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
         jam_booking: format(stateForm.values.jam_booking, "HH:mm"),
         jenis_kelas: stateForm.values.jenis_kelas,
         durasi: stateForm.values.durasi,
+        notes: stateForm.values.notes,
         status: state === "create" ? "pending" : stateForm.values.status,
         userId,
       };
@@ -209,6 +211,7 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
       onClose={onClose}
       aria-labelledby="modal-create-booking"
       aria-describedby="modal-for-create-booking"
+      disableEnforceFocus
     >
       <Box sx={{ ...modalStyle, maxWidth: 800 }}>
         <Box marginBottom={2}>
@@ -402,6 +405,17 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
               value={stateForm.values.durasi}
               error={Boolean(stateForm.errors.durasi)}
               errorMessage={stateForm.errors.durasi}
+            />
+          </Grid>
+          <Grid item xs={12} paddingBottom={2}>
+            <TextareaBasic
+              label="Catatan"
+              name="notes"
+              id="notes"
+              value={stateForm.values.notes}
+              onChange={(e) => {
+                onChange(e);
+              }}
             />
           </Grid>
           {state === "update" ? (

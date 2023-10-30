@@ -81,6 +81,7 @@ function BookingData() {
     { label: "DURATION", value: <strong>{booking.durasi} Minutes</strong> },
     { label: "CLASS TYPE", value: booking.jenis_kelas },
     { label: "STATUS", value: generateStatus(booking.status) },
+    { label: "NOTES", value: booking.notes },
   ];
 
   const onClickConfirm = () => {

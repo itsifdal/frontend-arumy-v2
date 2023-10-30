@@ -135,7 +135,7 @@ export default function ConfirmBooking({ open, onClose, id, callbackSuccess, cal
     <Modal open={open} onClose={onClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
       <Box sx={{ ...modalStyle, maxWidth: 800 }}>
         <Typography id="modal-modal-title" variant="h4" component="h2" marginBottom={2}>
-          Confirm Class
+          Confirm Class #{id}
         </Typography>
         <Grid container marginBottom={3}>
           <Grid item xs={12} paddingBottom={2}>
