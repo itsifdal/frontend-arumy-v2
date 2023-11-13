@@ -20,6 +20,7 @@ import { differenceInMinutes, format, parse } from "date-fns";
 import { modalStyle } from "../../constants/modalStyle";
 import { queryKey } from "../../constants/queryKey";
 import InputBasic from "../input/inputBasic";
+import TextareaBasic from "../input/textareaBasic";
 
 import { bookingFormReducer, initialBookingFormState, validateBookingForm } from "../../utils/reducer/bookingReducer";
 
@@ -111,6 +112,7 @@ export default function ConfirmBooking({ open, onClose, id, callbackSuccess, cal
         jenis_kelas: stateForm.values.jenis_kelas,
         durasi: stateForm.values.durasi,
         status: stateForm.values.status,
+        notes: stateForm.values.notes,
         userId,
       };
 
@@ -176,6 +178,17 @@ export default function ConfirmBooking({ open, onClose, id, callbackSuccess, cal
                 <FormControlLabel value="ijin" control={<Radio />} label="Ijin" />
               </RadioGroup>
             </FormControl>
+          </Grid>
+          <Grid item xs={12}>
+            <TextareaBasic
+              label="Catatan"
+              name="notes"
+              id="notes"
+              value={stateForm.values.notes}
+              onChange={(e) => {
+                onChange(e);
+              }}
+            />
           </Grid>
         </Grid>
         <Stack justifyContent={"flex-end"}>
