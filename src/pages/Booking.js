@@ -8,6 +8,7 @@ import { ToastContainer, toast } from "react-toastify";
 import axios from "axios";
 import { LoadingButton } from "@mui/lab";
 import PropTypes from "prop-types";
+import { downloadExcel } from "react-export-table-to-excel";
 
 // Toastify
 import "react-toastify/dist/ReactToastify.css";
@@ -361,6 +362,30 @@ function BookingData({
 }) {
   const isDesktop = useResponsive("up", "lg");
 
+  const handleDownloadExcel = () => {
+    const exportedTeacherSummary = bookings.data.map((booking) => ({
+      "Tanggal kelas": booking.tgl_kelas,
+      "Jam mulai": booking.jam_booking,
+      "Jam selesai": booking.selesai,
+      "Ruang kelas": booking.room?.nama_ruang,
+      "Nama murid": JSON.parse(booking.user_group)
+        .map((student) => student.nama_murid)
+        .join(", "),
+      "Nama pengajar": booking.teacher?.nama_pengajar,
+      "Durasi (menit)": booking.durasi,
+      Status: booking.status,
+      Notes: booking.notes,
+    }));
+    downloadExcel({
+      fileName: `Booking-${Date.now()}`,
+      sheet: queryParam ? JSON.stringify(queryParam).replace('"', "").replace(",", " ").replace(":", "-") : "All",
+      tablePayload: {
+        header: Object.keys(exportedTeacherSummary[0]),
+        body: exportedTeacherSummary,
+      },
+    });
+  };
+
   const tableHeader = [
     <Stack key={"tgl_kelas"} gap={1} direction={"row"} alignItems={"center"}>
       <Typography fontSize={["12px", "14px"]} {...(!isDesktop && { fontWeight: "bold" })}>
@@ -404,7 +429,9 @@ function BookingData({
     "MURID",
     "PENGAJAR",
     "STATUS",
-    "",
+    <Button key={"action"} onClick={handleDownloadExcel} variant="contained">
+      Export Excel
+    </Button>,
   ];
 
   const tableBody = bookings?.data
