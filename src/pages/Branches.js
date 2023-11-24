@@ -1,9 +1,8 @@
-/* eslint-disable camelcase */
-// import { Link as RouterLink } from 'react-router-dom';
-import React, { useState, useReducer } from "react";
+import React, { useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import { useQuery, useMutation } from "react-query";
 import axios from "axios";
+import { useForm } from "react-hook-form";
 
 import "react-toastify/dist/ReactToastify.css";
 
@@ -12,26 +11,23 @@ import { Stack, Button, Container, Typography, Modal, FormControl, Box } from "@
 import { LoadingButton } from "@mui/lab";
 
 // components
-import { branchFormReducer, initialBranchFormState, validateBranchForm } from "../utils/reducer/branchesReducer";
 import Page from "../components/Page";
 import Scrollbar from "../components/Scrollbar";
 import Iconify from "../components/Iconify";
 import PageHeader from "../components/PageHeader";
 import BasicTable from "../components/BasicTable";
-import InputBasic from "../components/input/inputBasic";
+import { CustomTextField } from "../components/input/inputBasic";
+import CustomInputLabel from "../components/input/inputLabel";
 import { modalStyle } from "../constants/modalStyle";
 import { queryKey } from "../constants/queryKey";
 
 // ----------------------------------------------------------------------
 export default function Branches() {
   const [id, setId] = useState("");
-  const [nama_cabang, setBranchName] = useState("");
+  const [branchName, setBranchName] = useState("");
   const [stateModal, setStateModal] = useState("create");
-
   const [open, setOpen] = useState(false);
   const [openDel, setOpenDel] = useState(false);
-
-  const [stateForm, dispatchStateForm] = useReducer(branchFormReducer, initialBranchFormState);
   // query
   const {
     data: branches,
@@ -47,60 +43,45 @@ export default function Branches() {
   );
   const submitDeleteBranch = useMutation(() => axios.delete(`${process.env.REACT_APP_BASE_URL}/api/cabang/${id}`));
 
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    reset: resetForm,
+    formState: { errors },
+  } = useForm();
+  const onSubmit = (data) => {
+    if (stateModal === "update") {
+      submitUpdateBranch.mutate(data, {
+        onSuccess: (response) => {
+          onSuccessMutateBranch(response);
+        },
+        onError: (error) => {
+          onErrorMutateBranch(error);
+        },
+      });
+    } else {
+      submitAddBranch.mutate(data, {
+        onSuccess: (response) => {
+          onSuccessMutateBranch(response);
+        },
+        onError: (error) => {
+          onErrorMutateBranch(error);
+        },
+      });
+    }
+  };
   //----
   const handleOpenModalCreate = () => setOpen(true);
   const handleCloseModalCreate = () => {
-    dispatchStateForm({
-      type: "reset-field",
-    });
+    resetForm();
     setStateModal("create");
     setOpen(false);
   };
 
-  const handleSubmitCreate = (e) => {
-    e.preventDefault();
-    const errors = validateBranchForm(stateForm.values);
-    const hasError = Object.values(errors).some((value) => Boolean(value));
-    if (!hasError) {
-      if (stateModal === "update") {
-        submitUpdateBranch.mutate(stateForm.values, {
-          onSuccess: (response) => {
-            onSuccessMutateBranch(response);
-          },
-          onError: (error) => {
-            onErrorMutateBranch(error);
-          },
-        });
-      } else {
-        submitAddBranch.mutate(stateForm.values, {
-          onSuccess: (response) => {
-            onSuccessMutateBranch(response);
-          },
-          onError: (error) => {
-            onErrorMutateBranch(error);
-          },
-        });
-      }
-    } else {
-      dispatchStateForm({
-        type: "change-error",
-        value: errors,
-      });
-    }
-  };
-
   const handleOpenModalUpdate = (e) => {
     setId(e.target.getAttribute("data-id"));
-    dispatchStateForm({
-      type: "change-field",
-      name: "lokasi_cabang",
-      value: e.target.getAttribute("data-lokasi_cabang"),
-    });
-    dispatchStateForm({
-      type: "change-field",
-      name: "nama_cabang",
-      value: e.target.getAttribute("data-nama_cabang"),
-    });
+    setValue("nama_cabang", e.target.getAttribute("data-nama_cabang"));
     setStateModal("update");
     setOpen(true);
   };
@@ -135,9 +116,7 @@ export default function Branches() {
       autoClose: 5000,
       theme: "colored",
     });
-    dispatchStateForm({
-      type: "reset-field",
-    });
+    resetForm();
   }
 
   function onErrorMutateBranch(error) {
@@ -148,15 +127,6 @@ export default function Branches() {
         theme: "colored",
       });
     }
-  }
-
-  function onChangeInput(e) {
-    dispatchStateForm({
-      type: "change-field",
-      name: e.target.name,
-      value: e.target.value,
-      isEnableValidate: true,
-    });
   }
 
   return (
@@ -184,7 +154,6 @@ export default function Branches() {
                     size="small"
                     startIcon={<Iconify icon="mdi:pencil" />}
                     data-id={room.id}
-                    data-lokasi_cabang={room.lokasi_cabang}
                     data-nama_cabang={room.nama_cabang}
                     onClick={handleOpenModalUpdate}
                   >
@@ -214,33 +183,31 @@ export default function Branches() {
           aria-describedby="modal-modal-description"
         >
           <Box sx={{ ...modalStyle, maxWidth: 400 }}>
-            <Box marginBottom={2}>
-              <Typography id="modal-modal-title" variant="h4" component="h2" fontWeight={700} color={"#172560"}>
-                {stateModal === "update" ? `Update Branch #${id}` : "Create Branch"}
-              </Typography>
-            </Box>
-            <Box paddingBottom={2}>
-              <InputBasic
-                required
-                label="Nama Cabang"
-                name="nama_cabang"
-                value={stateForm.values.nama_cabang}
-                error={Boolean(stateForm.errors.nama_cabang)}
-                errorMessage={stateForm.errors.nama_cabang}
-                onChange={(e) => {
-                  onChangeInput(e);
-                }}
-              />
-            </Box>
-            <LoadingButton
-              loading={submitAddBranch.isLoading || submitUpdateBranch.isLoading}
-              variant="contained"
-              type="submit"
-              fullWidth
-              onClick={handleSubmitCreate}
-            >
-              Save
-            </LoadingButton>
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <Box marginBottom={2}>
+                <Typography id="modal-modal-title" variant="h4" component="h2" fontWeight={700} color={"#172560"}>
+                  {stateModal === "update" ? `Update Branch #${id}` : "Create Branch"}
+                </Typography>
+              </Box>
+              <Box paddingBottom={2}>
+                <FormControl fullWidth error={!!errors.nama_cabang}>
+                  <CustomInputLabel htmlFor="nama_cabang">Nama Cabang*</CustomInputLabel>
+                  <CustomTextField
+                    {...register("nama_cabang", { required: "Nama Cabang Wajib diisi" })}
+                    helperText={errors.nama_cabang?.message}
+                    error={!!errors.nama_cabang}
+                  />
+                </FormControl>
+              </Box>
+              <LoadingButton
+                loading={submitAddBranch.isLoading || submitUpdateBranch.isLoading}
+                variant="contained"
+                type="submit"
+                fullWidth
+              >
+                Save
+              </LoadingButton>
+            </form>
           </Box>
         </Modal>
 
@@ -252,7 +219,7 @@ export default function Branches() {
         >
           <Box sx={{ ...modalStyle, maxWidth: 400 }}>
             <Typography id="modal-modal-title" variant="h6" component="h2" marginBottom={5}>
-              Delete {nama_cabang} ?
+              Delete {branchName} ?
             </Typography>
             <FormControl fullWidth>
               <LoadingButton
