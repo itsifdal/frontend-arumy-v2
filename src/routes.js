@@ -28,7 +28,7 @@ import Dashboard from "./pages/Dashboard";
 import DashboardTimeline from "./pages/DashboardTimeline";
 import DashboardTeachers from "./pages/DashboardTeachers";
 import Teachers from "./pages/Teachers";
-import Branches from "./pages/Branches";
+import Branches from "./pages/branches/page";
 import Instruments from "./pages/Instruments";
 import BookingUpcoming from "./pages/BookingUpcoming";
 import BookingPast from "./pages/BookingPast";
