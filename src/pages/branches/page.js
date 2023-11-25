@@ -3,15 +3,15 @@ import { ToastContainer, toast } from "react-toastify";
 import { useQuery } from "react-query";
 import axios from "axios";
 import "react-toastify/dist/ReactToastify.css";
-import { Button, Container } from "@mui/material";
+import { Container } from "@mui/material";
 
 import Page from "../../components/Page";
-import Iconify from "../../components/Iconify";
 import PageHeader from "../../components/PageHeader";
 import { queryKey } from "../../constants/queryKey";
 import BranchDeleteModal from "./deleteModal";
 import BranchFormModal from "./formModal";
 import BranchList from "./dataList";
+import BranchCreateButton from "./createButton";
 
 // ----------------------------------------------------------------------
 export default function Branches() {
@@ -68,14 +68,7 @@ export default function Branches() {
 
   return (
     <Page title="Branch">
-      <PageHeader
-        title="Branches"
-        rightContent={
-          <Button variant="outlined" startIcon={<Iconify icon="eva:plus-fill" />} onClick={handleOpenModalCreate}>
-            Add new Branch
-          </Button>
-        }
-      />
+      <PageHeader title="Branches" rightContent={<BranchCreateButton onClickCreate={handleOpenModalCreate} />} />
       <Container maxWidth="xl" sx={{ paddingTop: 4 }}>
         <ToastContainer pauseOnFocusLoss={false} />
         <BranchList onClickEdit={handleOpenModalUpdate} onClickDelete={handleOpenModalDelete} />
