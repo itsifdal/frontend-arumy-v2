@@ -2,21 +2,16 @@ import React, { useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import { useQuery } from "react-query";
 import axios from "axios";
-
 import "react-toastify/dist/ReactToastify.css";
+import { Button, Container } from "@mui/material";
 
-// material
-import { Stack, Button, Container } from "@mui/material";
-
-// components
 import Page from "../../components/Page";
-import Scrollbar from "../../components/Scrollbar";
 import Iconify from "../../components/Iconify";
 import PageHeader from "../../components/PageHeader";
-import BasicTable from "../../components/BasicTable";
 import { queryKey } from "../../constants/queryKey";
 import BranchDeleteModal from "./deleteModal";
 import BranchFormModal from "./formModal";
+import BranchList from "./dataList";
 
 // ----------------------------------------------------------------------
 export default function Branches() {
@@ -25,17 +20,17 @@ export default function Branches() {
   const [stateModal, setStateModal] = useState("create");
   const [isOpenCreateModal, setIsOpenCreateModal] = useState(false);
   const [isOpenDeleteModal, setIsOpenDeleteModal] = useState(false);
-  // query
-  const {
-    data: branches,
-    refetch: branchesRefetch,
-    isLoading: isLoadingBranches,
-  } = useQuery([queryKey.branches], () =>
+
+  const { refetch: branchesRefetch } = useQuery([queryKey.branches], () =>
     axios.get(`${process.env.REACT_APP_BASE_URL}/api/cabang`).then((res) => res.data)
   );
 
-  //----
   const handleOpenModalCreate = () => setIsOpenCreateModal(true);
+  const handleCloseModalUpdate = () => {
+    setStateModal("create");
+    setIsOpenCreateModal(false);
+  };
+  const handleCloseModalDelete = () => setIsOpenDeleteModal(false);
 
   const handleOpenModalUpdate = ({ updateId, updateName }) => {
     setId(updateId);
@@ -83,43 +78,11 @@ export default function Branches() {
       />
       <Container maxWidth="xl" sx={{ paddingTop: 4 }}>
         <ToastContainer pauseOnFocusLoss={false} />
-        {!isLoadingBranches ? (
-          <Scrollbar>
-            <BasicTable
-              header={["BRANCH NAME", " "]}
-              body={branches.data.map((room) => [
-                room.nama_cabang,
-                <Stack key={room.id} direction="row" spacing={2}>
-                  <Button
-                    variant="contained"
-                    color="success"
-                    size="small"
-                    startIcon={<Iconify icon="mdi:pencil" />}
-                    onClick={() => handleOpenModalUpdate({ updateId: room.id, updateName: room.nama_cabang })}
-                  >
-                    Update
-                  </Button>
-                  <Button
-                    variant="contained"
-                    color="error"
-                    size="small"
-                    startIcon={<Iconify icon="eva:trash-fill" />}
-                    onClick={() => handleOpenModalDelete({ deleteId: room.id, deleteName: room.nama_cabang })}
-                  >
-                    Delete {room.id}
-                  </Button>
-                </Stack>,
-              ])}
-            />
-          </Scrollbar>
-        ) : null}
+        <BranchList onClickEdit={handleOpenModalUpdate} onClickDelete={handleOpenModalDelete} />
 
         <BranchFormModal
           open={isOpenCreateModal}
-          onClose={() => {
-            setStateModal("create");
-            setIsOpenCreateModal(false);
-          }}
+          onClose={handleCloseModalUpdate}
           dataName={String(branchName)}
           id={String(id)}
           onError={(err) => onErrorMutateBranch(err)}
@@ -129,7 +92,7 @@ export default function Branches() {
 
         <BranchDeleteModal
           open={isOpenDeleteModal}
-          onClose={() => setIsOpenDeleteModal(false)}
+          onClose={handleCloseModalDelete}
           dataName={String(branchName)}
           id={String(id)}
           onError={(err) => onErrorMutateBranch(err)}
