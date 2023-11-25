@@ -79,18 +79,17 @@ export default function Branches() {
     setOpen(false);
   };
 
-  const handleOpenModalUpdate = (e) => {
-    setId(e.target.getAttribute("data-id"));
-    setValue("nama_cabang", e.target.getAttribute("data-nama_cabang"));
+  const handleOpenModalUpdate = ({ updateId, updateName }) => {
+    setId(updateId);
+    setValue("nama_cabang", updateName);
     setStateModal("update");
     setOpen(true);
   };
 
-  const handleOpenModalDelete = (e) => {
-    setId(e.target.getAttribute("data-id"));
-    setBranchName(e.target.getAttribute("data-nama_cabang"));
+  const handleOpenModalDelete = ({ deleteId, deleteName }) => {
+    setId(deleteId);
+    setBranchName(deleteName);
     setOpenDel(true);
-    console.log("id", id);
   };
 
   function onSuccessMutateBranch(response) {
@@ -139,9 +138,7 @@ export default function Branches() {
                     color="success"
                     size="small"
                     startIcon={<Iconify icon="mdi:pencil" />}
-                    data-id={room.id}
-                    data-nama_cabang={room.nama_cabang}
-                    onClick={handleOpenModalUpdate}
+                    onClick={() => handleOpenModalUpdate({ updateId: room.id, updateName: room.nama_cabang })}
                   >
                     Update
                   </Button>
@@ -150,9 +147,7 @@ export default function Branches() {
                     color="error"
                     size="small"
                     startIcon={<Iconify icon="eva:trash-fill" />}
-                    data-nama_cabang={room.nama_cabang}
-                    data-id={room.id}
-                    onClick={handleOpenModalDelete}
+                    onClick={() => handleOpenModalDelete({ deleteId: room.id, deleteName: room.nama_cabang })}
                   >
                     Delete {room.id}
                   </Button>
