@@ -1,17 +1,15 @@
 import React, { useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
-import { useQuery } from "react-query";
-import axios from "axios";
 import "react-toastify/dist/ReactToastify.css";
 import { Container } from "@mui/material";
 
 import Page from "../../components/Page";
 import PageHeader from "../../components/PageHeader";
-import { queryKey } from "../../constants/queryKey";
 import BranchDeleteModal from "./deleteModal";
 import BranchFormModal from "./formModal";
 import BranchList from "./dataList";
 import BranchCreateButton from "./createButton";
+import { useBranchQuery } from "./query";
 
 // ----------------------------------------------------------------------
 export default function Branches() {
@@ -21,9 +19,7 @@ export default function Branches() {
   const [isOpenCreateModal, setIsOpenCreateModal] = useState(false);
   const [isOpenDeleteModal, setIsOpenDeleteModal] = useState(false);
 
-  const { refetch: branchesRefetch } = useQuery([queryKey.branches], () =>
-    axios.get(`${process.env.REACT_APP_BASE_URL}/api/cabang`).then((res) => res.data)
-  );
+  const { refetch: branchesRefetch } = useBranchQuery();
 
   const handleOpenModalCreate = () => setIsOpenCreateModal(true);
   const handleCloseModalUpdate = () => {

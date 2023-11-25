@@ -1,6 +1,4 @@
 import React from "react";
-import { useQuery } from "react-query";
-import axios from "axios";
 import PropTypes from "prop-types";
 
 import { Stack, Button } from "@mui/material";
@@ -8,7 +6,7 @@ import { Stack, Button } from "@mui/material";
 import Scrollbar from "../../components/Scrollbar";
 import BasicTable from "../../components/BasicTable";
 import Iconify from "../../components/Iconify";
-import { queryKey } from "../../constants/queryKey";
+import { useBranchQuery } from "./query";
 
 BranchList.propTypes = {
   onClickEdit: PropTypes.func,
@@ -16,13 +14,7 @@ BranchList.propTypes = {
 };
 
 export default function BranchList({ onClickEdit, onClickDelete }) {
-  const {
-    data: branches,
-    isLoading,
-    isError,
-  } = useQuery([queryKey.branches], () =>
-    axios.get(`${process.env.REACT_APP_BASE_URL}/api/cabang`).then((res) => res.data)
-  );
+  const { data: branches, isLoading, isError } = useBranchQuery();
 
   if (isLoading) return <>Loading Data</>;
   if (isError) return <>Error Loading Data</>;
