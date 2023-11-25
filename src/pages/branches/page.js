@@ -1,14 +1,12 @@
 import React, { useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
-import { useQuery, useMutation } from "react-query";
+import { useQuery } from "react-query";
 import axios from "axios";
-import { useForm } from "react-hook-form";
 
 import "react-toastify/dist/ReactToastify.css";
 
 // material
-import { Stack, Button, Container, Typography, Modal, FormControl, Box } from "@mui/material";
-import { LoadingButton } from "@mui/lab";
+import { Stack, Button, Container } from "@mui/material";
 
 // components
 import Page from "../../components/Page";
@@ -16,19 +14,17 @@ import Scrollbar from "../../components/Scrollbar";
 import Iconify from "../../components/Iconify";
 import PageHeader from "../../components/PageHeader";
 import BasicTable from "../../components/BasicTable";
-import { CustomTextField } from "../../components/input/inputBasic";
-import CustomInputLabel from "../../components/input/inputLabel";
-import { modalStyle } from "../../constants/modalStyle";
 import { queryKey } from "../../constants/queryKey";
 import BranchDeleteModal from "./deleteModal";
+import BranchFormModal from "./formModal";
 
 // ----------------------------------------------------------------------
 export default function Branches() {
   const [id, setId] = useState("");
   const [branchName, setBranchName] = useState("");
   const [stateModal, setStateModal] = useState("create");
-  const [open, setOpen] = useState(false);
-  const [openDel, setOpenDel] = useState(false);
+  const [isOpenCreateModal, setIsOpenCreateModal] = useState(false);
+  const [isOpenDeleteModal, setIsOpenDeleteModal] = useState(false);
   // query
   const {
     data: branches,
@@ -38,70 +34,31 @@ export default function Branches() {
     axios.get(`${process.env.REACT_APP_BASE_URL}/api/cabang`).then((res) => res.data)
   );
 
-  const submitAddBranch = useMutation((data) => axios.post(`${process.env.REACT_APP_BASE_URL}/api/cabang`, data));
-  const submitUpdateBranch = useMutation((data) =>
-    axios.put(`${process.env.REACT_APP_BASE_URL}/api/cabang/${id}`, data)
-  );
-
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    reset: resetForm,
-    formState: { errors },
-  } = useForm();
-  const onSubmit = (data) => {
-    if (stateModal === "update") {
-      submitUpdateBranch.mutate(data, {
-        onSuccess: (response) => {
-          onSuccessMutateBranch(response);
-        },
-        onError: (error) => {
-          onErrorMutateBranch(error);
-        },
-      });
-    } else {
-      submitAddBranch.mutate(data, {
-        onSuccess: (response) => {
-          onSuccessMutateBranch(response);
-        },
-        onError: (error) => {
-          onErrorMutateBranch(error);
-        },
-      });
-    }
-  };
   //----
-  const handleOpenModalCreate = () => setOpen(true);
-  const handleCloseModalCreate = () => {
-    resetForm();
-    setStateModal("create");
-    setOpen(false);
-  };
+  const handleOpenModalCreate = () => setIsOpenCreateModal(true);
 
   const handleOpenModalUpdate = ({ updateId, updateName }) => {
     setId(updateId);
-    setValue("nama_cabang", updateName);
+    setBranchName(updateName);
     setStateModal("update");
-    setOpen(true);
+    setIsOpenCreateModal(true);
   };
 
   const handleOpenModalDelete = ({ deleteId, deleteName }) => {
     setId(deleteId);
     setBranchName(deleteName);
-    setOpenDel(true);
+    setIsOpenDeleteModal(true);
   };
 
   function onSuccessMutateBranch(response) {
     branchesRefetch();
-    setOpen(false);
-    setOpenDel(false);
+    setIsOpenCreateModal(false);
+    setIsOpenDeleteModal(false);
     toast.success(response.data.message, {
       position: "top-center",
       autoClose: 5000,
       theme: "colored",
     });
-    resetForm();
   }
 
   function onErrorMutateBranch(error) {
@@ -157,44 +114,22 @@ export default function Branches() {
           </Scrollbar>
         ) : null}
 
-        <Modal
-          open={open}
-          onClose={handleCloseModalCreate}
-          aria-labelledby="modal-modal-title"
-          aria-describedby="modal-modal-description"
-        >
-          <Box sx={{ ...modalStyle, maxWidth: 400 }}>
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <Box marginBottom={2}>
-                <Typography id="modal-modal-title" variant="h4" component="h2" fontWeight={700} color={"#172560"}>
-                  {stateModal === "update" ? `Update Branch #${id}` : "Create Branch"}
-                </Typography>
-              </Box>
-              <Box paddingBottom={2}>
-                <FormControl fullWidth error={!!errors.nama_cabang}>
-                  <CustomInputLabel htmlFor="nama_cabang">Nama Cabang*</CustomInputLabel>
-                  <CustomTextField
-                    {...register("nama_cabang", { required: "Nama Cabang Wajib diisi" })}
-                    helperText={errors.nama_cabang?.message}
-                    error={!!errors.nama_cabang}
-                  />
-                </FormControl>
-              </Box>
-              <LoadingButton
-                loading={submitAddBranch.isLoading || submitUpdateBranch.isLoading}
-                variant="contained"
-                type="submit"
-                fullWidth
-              >
-                Save
-              </LoadingButton>
-            </form>
-          </Box>
-        </Modal>
+        <BranchFormModal
+          open={isOpenCreateModal}
+          onClose={() => {
+            setStateModal("create");
+            setIsOpenCreateModal(false);
+          }}
+          dataName={String(branchName)}
+          id={String(id)}
+          onError={(err) => onErrorMutateBranch(err)}
+          onSuccess={(res) => onSuccessMutateBranch(res)}
+          stateModal={stateModal}
+        />
 
         <BranchDeleteModal
-          open={openDel}
-          onClose={() => setOpenDel(false)}
+          open={isOpenDeleteModal}
+          onClose={() => setIsOpenDeleteModal(false)}
           dataName={String(branchName)}
           id={String(id)}
           onError={(err) => onErrorMutateBranch(err)}
