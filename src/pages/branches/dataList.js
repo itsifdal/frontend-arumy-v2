@@ -20,33 +20,35 @@ export default function BranchList({ onClickEdit, onClickDelete }) {
   if (isError) return <>Error Loading Data</>;
 
   return (
-    <Scrollbar>
-      <BasicTable
-        header={["BRANCH NAME", " "]}
-        body={branches.data.map((room) => [
-          room.nama_cabang,
-          <Stack key={room.id} direction="row" spacing={2}>
-            <Button
-              variant="contained"
-              color="success"
-              size="small"
-              startIcon={<Iconify icon="mdi:pencil" />}
-              onClick={() => onClickEdit({ updateId: room.id, updateName: room.nama_cabang })}
-            >
-              Update
-            </Button>
-            <Button
-              variant="contained"
-              color="error"
-              size="small"
-              startIcon={<Iconify icon="eva:trash-fill" />}
-              onClick={() => onClickDelete({ deleteId: room.id, deleteName: room.nama_cabang })}
-            >
-              Delete
-            </Button>
-          </Stack>,
-        ])}
-      />
-    </Scrollbar>
+    <>
+      <Scrollbar>
+        <BasicTable
+          header={["BRANCH NAME", " "]}
+          body={branches.data.map((room) => [
+            room.nama_cabang,
+            <Stack key={room.id} direction="row" spacing={2}>
+              <Button
+                variant="contained"
+                color="success"
+                size="small"
+                startIcon={<Iconify icon="mdi:pencil" />}
+                onClick={() => onClickEdit({ updateId: room.id, updateName: room.nama_cabang })}
+              >
+                Update
+              </Button>
+              <Button
+                variant="contained"
+                color="error"
+                size="small"
+                startIcon={<Iconify icon="eva:trash-fill" />}
+                onClick={() => onClickDelete({ deleteId: room.id, deleteName: room.nama_cabang })}
+              >
+                Delete
+              </Button>
+            </Stack>,
+          ])}
+        />
+      </Scrollbar>
+    </>
   );
 }

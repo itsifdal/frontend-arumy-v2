@@ -21,7 +21,6 @@ export default function Branches() {
 
   const { refetch: branchesRefetch } = useBranchQuery();
 
-  const handleOpenModalCreate = () => setIsOpenCreateModal(true);
   const handleCloseModalUpdate = () => {
     setStateModal("create");
     setIsOpenCreateModal(false);
@@ -64,7 +63,7 @@ export default function Branches() {
 
   return (
     <Page title="Branch">
-      <PageHeader title="Branches" rightContent={<BranchCreateButton onClickCreate={handleOpenModalCreate} />} />
+      <PageHeader title="Branches" rightContent={<BranchCreateButton />} />
       <Container maxWidth="xl" sx={{ paddingTop: 4 }}>
         <ToastContainer pauseOnFocusLoss={false} />
         <BranchList onClickEdit={handleOpenModalUpdate} onClickDelete={handleOpenModalDelete} />
