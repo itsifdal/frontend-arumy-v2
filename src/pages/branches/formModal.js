@@ -55,8 +55,10 @@ export default function BranchFormModal({ open, onClose, stateModal, id, dataNam
   useEffect(() => {
     if (dataName) {
       setValue("nama_cabang", dataName);
+    } else {
+      resetForm();
     }
-  }, [dataName, setValue]);
+  }, [dataName, resetForm, setValue]);
 
   const submitAddBranch = useMutation((data) => axios.post(`${process.env.REACT_APP_BASE_URL}/api/cabang`, data));
   const submitUpdateBranch = useMutation((data) =>

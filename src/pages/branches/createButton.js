@@ -11,7 +11,7 @@ export default function BranchCreateButton() {
   const [isOpenCreateModal, setIsOpenCreateModal] = useState(false);
 
   const handleOpenModalCreate = () => setIsOpenCreateModal(true);
-  const handleCloseModalUpdate = () => {
+  const handleCloseModalCreate = () => {
     branchesRefetch();
     setIsOpenCreateModal(false);
   };
@@ -24,9 +24,9 @@ export default function BranchCreateButton() {
 
       <BranchFormModal
         open={isOpenCreateModal}
-        onClose={handleCloseModalUpdate}
+        onClose={handleCloseModalCreate}
         onError={(err) => onErrorToast(err)}
-        onSuccess={(res) => onSuccessToast(res, handleCloseModalUpdate)}
+        onSuccess={(res) => onSuccessToast(res, handleCloseModalCreate)}
         stateModal={"create"}
       />
     </>

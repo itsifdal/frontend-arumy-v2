@@ -1,20 +1,46 @@
-import React from "react";
-import PropTypes from "prop-types";
+import React, { useState } from "react";
 
 import { Stack, Button } from "@mui/material";
 
 import Scrollbar from "../../components/Scrollbar";
 import BasicTable from "../../components/BasicTable";
 import Iconify from "../../components/Iconify";
+import BranchDeleteModal from "./deleteModal";
+import BranchFormModal from "./formModal";
 import { useBranchQuery } from "./query";
+import { onSuccessToast, onErrorToast } from "./callback";
 
-BranchList.propTypes = {
-  onClickEdit: PropTypes.func,
-  onClickDelete: PropTypes.func,
-};
+export default function BranchList() {
+  const [id, setId] = useState("");
+  const [branchName, setBranchName] = useState("");
+  const [isOpenUpdateModal, setIsOpenUpdateModal] = useState(false);
+  const [isOpenDeleteModal, setIsOpenDeleteModal] = useState(false);
+  const { data: branches, isLoading, isError, refetch: branchesRefetch } = useBranchQuery();
 
-export default function BranchList({ onClickEdit, onClickDelete }) {
-  const { data: branches, isLoading, isError } = useBranchQuery();
+  const handleCloseModalUpdate = () => setIsOpenUpdateModal(false);
+  const handleCloseModalDelete = () => setIsOpenDeleteModal(false);
+
+  const onClickEdit = ({ updateId, updateName }) => {
+    setId(updateId);
+    setBranchName(updateName);
+    setIsOpenUpdateModal(true);
+  };
+
+  const onClickDelete = ({ deleteId, deleteName }) => {
+    setId(deleteId);
+    setBranchName(deleteName);
+    setIsOpenDeleteModal(true);
+  };
+
+  const onSuccessUpdate = () => {
+    branchesRefetch();
+    setIsOpenUpdateModal(false);
+  };
+
+  const onSuccessDelete = () => {
+    branchesRefetch();
+    setIsOpenDeleteModal(false);
+  };
 
   if (isLoading) return <>Loading Data</>;
   if (isError) return <>Error Loading Data</>;
@@ -49,6 +75,25 @@ export default function BranchList({ onClickEdit, onClickDelete }) {
           ])}
         />
       </Scrollbar>
+
+      <BranchFormModal
+        open={isOpenUpdateModal}
+        onClose={handleCloseModalUpdate}
+        dataName={String(branchName)}
+        id={String(id)}
+        onError={(err) => onErrorToast(err)}
+        onSuccess={(res) => onSuccessToast(res, onSuccessUpdate)}
+        stateModal={"update"}
+      />
+
+      <BranchDeleteModal
+        open={isOpenDeleteModal}
+        onClose={handleCloseModalDelete}
+        dataName={String(branchName)}
+        id={String(id)}
+        onError={(err) => onErrorToast(err)}
+        onSuccess={(res) => onSuccessToast(res, onSuccessDelete)}
+      />
     </>
   );
 }
