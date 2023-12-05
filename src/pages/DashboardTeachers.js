@@ -84,7 +84,7 @@ export default function DashboardTeachers() {
     }
   );
 
-  const defaultQueryBooking = {
+  const defaultQueryDashboard = {
     teacherId: initFilter.teacherId,
     tglAwal: initFilter.tglAwal,
     tglAkhir: initFilter.tglAkhir,
@@ -96,18 +96,73 @@ export default function DashboardTeachers() {
     isLoading: isLoadingTeacherSummary,
     refetch: refetchTeacherSummary,
   } = useQuery(
-    [queryKey.teachers, "DASHBOARD", cleanQuery(defaultQueryBooking)],
+    [queryKey.teachers, "DASHBOARD", cleanQuery(defaultQueryDashboard)],
     () =>
       axios
         .get(
-          `${process.env.REACT_APP_BASE_URL}/api/teacher/dashboard/${defaultQueryBooking.teacherId}${queryToString(
-            defaultQueryBooking
+          `${process.env.REACT_APP_BASE_URL}/api/teacher/dashboard/${defaultQueryDashboard.teacherId}${queryToString(
+            defaultQueryDashboard
           )}`
         )
         .then((res) => res.data),
     {
       select: (summaries) => summaries.data?.map((summary) => ({ ...summary })),
       enabled: openTeacher,
+    }
+  );
+
+  // GET DATA BOOKING ALL
+  const defaultQueryBookings = {
+    ...defaultQueryDashboard,
+    dateFrom: defaultQueryDashboard.tglAwal,
+    dateTo: defaultQueryDashboard.tglAkhir,
+    sort: "asc",
+    sort_by: "tgl_kelas",
+    perPage: 9999,
+    page: 1,
+  };
+  const { refetch: refetchBookings } = useQuery(
+    [
+      queryKey.bookings,
+      cleanQuery({
+        ...defaultQueryBookings,
+      }),
+    ],
+    () =>
+      axios
+        .get(
+          `${process.env.REACT_APP_BASE_URL}/api/booking${queryToString({
+            ...defaultQueryBookings,
+          })}`
+        )
+        .then((res) => res.data),
+    {
+      enabled: false,
+      onSuccess: (bookings) => {
+        if (bookings?.data?.length) {
+          const exportedTeacherBookings = bookings.data.map((booking) => ({
+            "Tanggal kelas": booking.tgl_kelas,
+            "Jam mulai": booking.jam_booking,
+            "Jam selesai": booking.selesai,
+            "Ruang kelas": booking.room?.nama_ruang,
+            "Nama murid": JSON.parse(booking.user_group)
+              .map((student) => student.nama_murid)
+              .join(", "),
+            "Nama pengajar": booking.teacher?.nama_pengajar,
+            "Durasi (menit)": booking.durasi,
+            Status: booking.status,
+            Notes: booking.notes || "-",
+          }));
+          downloadExcel({
+            fileName: `Booking-${Date.now()}`,
+            sheet: queryParam ? JSON.stringify(queryParam).replace('"', "").replace(",", " ").replace(":", "-") : "All",
+            tablePayload: {
+              header: Object.keys(exportedTeacherBookings[0]),
+              body: exportedTeacherBookings,
+            },
+          });
+        }
+      },
     }
   );
 
@@ -142,6 +197,10 @@ export default function DashboardTeachers() {
         body: exportedTeacherSummary,
       },
     });
+  };
+
+  const handleDownloadDetailExcel = () => {
+    refetchBookings();
   };
 
   return (
@@ -243,6 +302,9 @@ export default function DashboardTeachers() {
             View All
           </Link>
           <Box flexGrow={1} flexShrink={1} />
+          <Button onClick={handleDownloadDetailExcel} variant="contained">
+            Export Detail Excel
+          </Button>
           <Button onClick={handleDownloadExcel} variant="contained">
             Export Excel
           </Button>
