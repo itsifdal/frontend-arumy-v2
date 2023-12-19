@@ -28,6 +28,20 @@ export default function BranchFormModal({ open, onClose, stateModal, id, dataNam
     reset: resetForm,
     formState: { errors },
   } = useForm();
+
+  const submitAddBranch = useMutation((data) => axios.post(`${process.env.REACT_APP_BASE_URL}/api/cabang`, data));
+  const submitUpdateBranch = useMutation((data) =>
+    axios.put(`${process.env.REACT_APP_BASE_URL}/api/cabang/${id}`, data)
+  );
+
+  useEffect(() => {
+    if (dataName) {
+      setValue("nama_cabang", dataName);
+    } else {
+      resetForm();
+    }
+  }, [dataName, resetForm, setValue]);
+
   const onSubmit = (data) => {
     if (stateModal === "update") {
       submitUpdateBranch.mutate(data, {
@@ -51,19 +65,6 @@ export default function BranchFormModal({ open, onClose, stateModal, id, dataNam
       });
     }
   };
-
-  useEffect(() => {
-    if (dataName) {
-      setValue("nama_cabang", dataName);
-    } else {
-      resetForm();
-    }
-  }, [dataName, resetForm, setValue]);
-
-  const submitAddBranch = useMutation((data) => axios.post(`${process.env.REACT_APP_BASE_URL}/api/cabang`, data));
-  const submitUpdateBranch = useMutation((data) =>
-    axios.put(`${process.env.REACT_APP_BASE_URL}/api/cabang/${id}`, data)
-  );
 
   return (
     <Modal
