@@ -301,6 +301,7 @@ export default function Booking() {
           buttonAction={generateButtonAction}
           isUserAdmin={isUserAdmin}
           isUserGuru={isUserGuru}
+          user={user}
         />
         <CreateBooking
           open={openModalCreate}
@@ -359,31 +360,66 @@ function BookingData({
   isUserAdmin,
   isUserGuru,
   buttonAction,
+  user,
 }) {
   const isDesktop = useResponsive("up", "lg");
 
-  const handleDownloadExcel = () => {
-    const exportedTeacherSummary = bookings.data.map((booking) => ({
-      "Tanggal kelas": booking.tgl_kelas,
-      "Jam mulai": booking.jam_booking,
-      "Jam selesai": booking.selesai,
-      "Ruang kelas": booking.room?.nama_ruang,
-      "Nama murid": JSON.parse(booking.user_group)
-        .map((student) => student.nama_murid)
-        .join(", "),
-      "Nama pengajar": booking.teacher?.nama_pengajar,
-      "Durasi (menit)": booking.durasi,
-      Status: booking.status,
-      Notes: booking.notes,
-    }));
-    downloadExcel({
-      fileName: `Booking-${Date.now()}`,
-      sheet: queryParam ? JSON.stringify(queryParam).replace('"', "").replace(",", " ").replace(":", "-") : "All",
-      tablePayload: {
-        header: Object.keys(exportedTeacherSummary[0]),
-        body: exportedTeacherSummary,
+  // DOWNLOAD ALL BOOKING DATA
+  const downloadQueryBookings = {
+    ...queryParam,
+    ...(isUserGuru && { teacherId: user?.teacherId }),
+    sort: "desc",
+    sort_by: "tgl_kelas",
+    perPage: 9999,
+    page: 1,
+  };
+  const { refetch: refetchDownloadBookings } = useQuery(
+    [
+      queryKey.downloadBooking,
+      cleanQuery({
+        ...downloadQueryBookings,
+      }),
+    ],
+    () =>
+      axios
+        .get(
+          `${process.env.REACT_APP_BASE_URL}/api/booking${queryToString({
+            ...downloadQueryBookings,
+          })}`
+        )
+        .then((res) => res.data),
+    {
+      enabled: false,
+      onSuccess: (bookings) => {
+        if (bookings?.data?.length) {
+          const exportedTeacherSummary = bookings.data.map((booking) => ({
+            "Tanggal kelas": booking.tgl_kelas,
+            "Jam mulai": booking.jam_booking,
+            "Jam selesai": booking.selesai,
+            "Ruang kelas": booking.room?.nama_ruang,
+            "Nama murid": JSON.parse(booking.user_group)
+              .map((student) => student.nama_murid)
+              .join(", "),
+            "Nama pengajar": booking.teacher?.nama_pengajar,
+            "Durasi (menit)": booking.durasi,
+            Status: booking.status,
+            Notes: booking.notes || "-",
+          }));
+          downloadExcel({
+            fileName: `Booking-${Date.now()}`,
+            sheet: queryParam ? JSON.stringify(queryParam).replace('"', "").replace(",", " ").replace(":", "-") : "All",
+            tablePayload: {
+              header: Object.keys(exportedTeacherSummary[0]),
+              body: exportedTeacherSummary,
+            },
+          });
+        }
       },
-    });
+    }
+  );
+
+  const handleDownloadExcel = () => {
+    refetchDownloadBookings();
   };
 
   const tableHeader = [
@@ -486,4 +522,5 @@ BookingData.propTypes = {
   buttonAction: PropTypes.func.isRequired,
   isUserAdmin: PropTypes.bool.isRequired,
   isUserGuru: PropTypes.bool.isRequired,
+  user: PropTypes.object,
 };

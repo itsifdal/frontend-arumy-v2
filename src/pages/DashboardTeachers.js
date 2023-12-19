@@ -123,7 +123,7 @@ export default function DashboardTeachers() {
   };
   const { refetch: refetchBookings } = useQuery(
     [
-      queryKey.bookings,
+      queryKey.downloadBooking,
       cleanQuery({
         ...defaultQueryBookings,
       }),
