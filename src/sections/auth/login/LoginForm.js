@@ -47,17 +47,21 @@ export default function LoginForm() {
       email,
       password,
     };
-    axios.post("http://localhost:8080/api/login", data).then((res) => {
-      if (res.statusText === "OK") {
-        navigate("/app/room", { replace: true });
-        console.log(res.statusText);
-      } else {
-        setOpen(true);
-        console.log(open);
-        console.log(res);
-        console.log(res.data);
-      }
-    });
+    axios
+      .post("http://localhost:8080/api/login", data, {
+        headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+      })
+      .then((res) => {
+        if (res.statusText === "OK") {
+          navigate("/app/room", { replace: true });
+          console.log(res.statusText);
+        } else {
+          setOpen(true);
+          console.log(open);
+          console.log(res);
+          console.log(res.data);
+        }
+      });
   };
 
   return (

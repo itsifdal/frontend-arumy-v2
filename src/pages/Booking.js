@@ -142,7 +142,10 @@ export default function Booking() {
           `${process.env.REACT_APP_BASE_URL}/api/booking${queryToString({
             ...queryParam,
             ...(user.role === "Guru" && { teacherId: user?.teacherId }),
-          })}`
+          })}`,
+          {
+            headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+          }
         )
         .then((res) => res.data)
   );
@@ -156,7 +159,9 @@ export default function Booking() {
   const handleCloseModalDelete = () => setOpenDel(false);
 
   const submitDeleteBooking = useMutation(() =>
-    axios.delete(`${process.env.REACT_APP_BASE_URL}/api/booking/${bookingId}`)
+    axios.delete(`${process.env.REACT_APP_BASE_URL}/api/booking/${bookingId}`, {
+      headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+    })
   );
 
   const handleSubmitDelete = (e) => {
@@ -385,7 +390,10 @@ function BookingData({
         .get(
           `${process.env.REACT_APP_BASE_URL}/api/booking${queryToString({
             ...downloadQueryBookings,
-          })}`
+          })}`,
+          {
+            headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+          }
         )
         .then((res) => res.data),
     {

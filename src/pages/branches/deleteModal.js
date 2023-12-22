@@ -17,7 +17,11 @@ BranchDeleteModal.propTypes = {
 };
 
 export default function BranchDeleteModal({ open, onClose, dataName, id, onSuccess, onError }) {
-  const submitDeleteBranch = useMutation(() => axios.delete(`${process.env.REACT_APP_BASE_URL}/api/cabang/${id}`));
+  const submitDeleteBranch = useMutation(() =>
+    axios.delete(`${process.env.REACT_APP_BASE_URL}/api/cabang/${id}`, {
+      headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+    })
+  );
 
   const handleSubmitDelete = (e) => {
     e.preventDefault();

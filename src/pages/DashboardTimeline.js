@@ -41,7 +41,12 @@ export default function DashboardTimeline() {
 
   const { data: rooms = [], isLoading: isLoadingRooms } = useQuery(
     [queryKey.rooms],
-    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/room`).then((res) => res.data),
+    () =>
+      axios
+        .get(`${process.env.REACT_APP_BASE_URL}/api/room`, {
+          headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+        })
+        .then((res) => res.data),
     {
       select: (roomList) => roomList.map((room) => ({ value: room.id, label: room.nama_ruang })),
       enabled: openRoom,
@@ -62,7 +67,9 @@ export default function DashboardTimeline() {
     [queryKey.bookings, cleanQuery(defaultQueryBooking)],
     () =>
       axios
-        .get(`${process.env.REACT_APP_BASE_URL}/api/booking${queryToString(defaultQueryBooking)}`)
+        .get(`${process.env.REACT_APP_BASE_URL}/api/booking${queryToString(defaultQueryBooking)}`, {
+          headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+        })
         .then((res) => res.data),
     {
       select: (bookingList) =>

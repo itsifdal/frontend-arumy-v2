@@ -42,17 +42,27 @@ export default function Instruments() {
     refetch: instrumentsRefetch,
     isLoading: isLoadingInstruments,
   } = useQuery([queryKey.instruments], () =>
-    axios.get(`${process.env.REACT_APP_BASE_URL}/api/instrument`).then((res) => res.data)
+    axios
+      .get(`${process.env.REACT_APP_BASE_URL}/api/instrument`, {
+        headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+      })
+      .then((res) => res.data)
   );
 
   const submitAddInstrument = useMutation((data) =>
-    axios.post(`${process.env.REACT_APP_BASE_URL}/api/instrument`, data)
+    axios.post(`${process.env.REACT_APP_BASE_URL}/api/instrument`, data, {
+      headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+    })
   );
   const submitUpdateInstrument = useMutation((data) =>
-    axios.put(`${process.env.REACT_APP_BASE_URL}/api/instrument/${id}`, data)
+    axios.put(`${process.env.REACT_APP_BASE_URL}/api/instrument/${id}`, data, {
+      headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+    })
   );
   const submitDeleteInstrument = useMutation(() =>
-    axios.delete(`${process.env.REACT_APP_BASE_URL}/api/instrument/${id}`)
+    axios.delete(`${process.env.REACT_APP_BASE_URL}/api/instrument/${id}`, {
+      headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+    })
   );
 
   //----

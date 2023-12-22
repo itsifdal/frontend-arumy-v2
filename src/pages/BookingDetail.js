@@ -62,7 +62,12 @@ function BookingData() {
     refetch: refetchBooking,
   } = useQuery(
     [queryKey.bookings, "DETAIL", id],
-    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/booking/${id}`).then((res) => res.data?.data),
+    () =>
+      axios
+        .get(`${process.env.REACT_APP_BASE_URL}/api/booking/${id}`, {
+          headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+        })
+        .then((res) => res.data?.data),
     {
       enabled: Boolean(id),
     }

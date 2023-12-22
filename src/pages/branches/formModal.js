@@ -29,9 +29,15 @@ export default function BranchFormModal({ open, onClose, stateModal, id, dataNam
     formState: { errors },
   } = useForm();
 
-  const submitAddBranch = useMutation((data) => axios.post(`${process.env.REACT_APP_BASE_URL}/api/cabang`, data));
+  const submitAddBranch = useMutation((data) =>
+    axios.post(`${process.env.REACT_APP_BASE_URL}/api/cabang`, data, {
+      headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+    })
+  );
   const submitUpdateBranch = useMutation((data) =>
-    axios.put(`${process.env.REACT_APP_BASE_URL}/api/cabang/${id}`, data)
+    axios.put(`${process.env.REACT_APP_BASE_URL}/api/cabang/${id}`, data, {
+      headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+    })
   );
 
   useEffect(() => {

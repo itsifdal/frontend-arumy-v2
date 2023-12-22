@@ -36,10 +36,14 @@ export default function AccountPopover() {
   const navigate = useNavigate();
 
   const onLogout = () => {
-    axios.get(`${process.env.REACT_APP_BASE_URL}/api/login/logout`).then(() => {
-      localStorage.clear();
-      navigate("/login", { replace: true });
-    });
+    axios
+      .get(`${process.env.REACT_APP_BASE_URL}/api/login/logout`, {
+        headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+      })
+      .then(() => {
+        localStorage.clear();
+        navigate("/login", { replace: true });
+      });
   };
 
   return (

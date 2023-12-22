@@ -17,7 +17,11 @@ PacketDeleteModal.propTypes = {
 };
 
 export default function PacketDeleteModal({ open, onClose, dataName, id, onSuccess, onError }) {
-  const submitDeleteBranch = useMutation(() => axios.delete(`${process.env.REACT_APP_BASE_URL}/api/paket/${id}`));
+  const submitDeleteBranch = useMutation(() =>
+    axios.delete(`${process.env.REACT_APP_BASE_URL}/api/paket/${id}`, {
+      headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+    })
+  );
 
   const handleSubmitDelete = (e) => {
     e.preventDefault();

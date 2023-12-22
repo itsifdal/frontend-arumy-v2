@@ -157,7 +157,12 @@ function BookingFilterForm({ toggleDrawer }) {
 
   const { data: students = [], isLoading: isLoadingStudents } = useQuery(
     [queryKey.students],
-    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/student?perPage=9999`).then((res) => res.data),
+    () =>
+      axios
+        .get(`${process.env.REACT_APP_BASE_URL}/api/student?perPage=9999`, {
+          headers: { "x-api-key": process.env.REACT_API_KEY },
+        })
+        .then((res) => res.data),
     {
       select: (students) => students.data?.map((student) => ({ value: student.id, label: student.nama_murid })),
       enabled: openStudent,
@@ -166,7 +171,12 @@ function BookingFilterForm({ toggleDrawer }) {
 
   const { data: teachers = [], isLoading: isLoadingTeachers } = useQuery(
     [queryKey.teachers],
-    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/teacher?perPage=9999`).then((res) => res.data),
+    () =>
+      axios
+        .get(`${process.env.REACT_APP_BASE_URL}/api/teacher?perPage=9999`, {
+          headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+        })
+        .then((res) => res.data),
     {
       select: (teachers) => teachers.data?.map((teacher) => ({ value: teacher.id, label: teacher.nama_pengajar })),
       enabled: openTeacher,
@@ -175,7 +185,12 @@ function BookingFilterForm({ toggleDrawer }) {
 
   const { data: rooms = [], isLoading: isLoadingRooms } = useQuery(
     [queryKey.rooms],
-    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/room`).then((res) => res.data),
+    () =>
+      axios
+        .get(`${process.env.REACT_APP_BASE_URL}/api/room`, {
+          headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+        })
+        .then((res) => res.data),
     {
       select: (roomList) => roomList.map((room) => ({ value: room.id, label: room.nama_ruang })),
       enabled: openRoom,
