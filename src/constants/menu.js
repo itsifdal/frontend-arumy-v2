@@ -58,4 +58,9 @@ export const MENU = {
     path: "/more",
     icon: getIcon("ri:more-2-fill"),
   },
+  packet: {
+    title: "Paket",
+    path: "/app/packet",
+    icon: getIcon("mdi:package"),
+  },
 };

@@ -29,6 +29,7 @@ import DashboardTimeline from "./pages/DashboardTimeline";
 import DashboardTeachers from "./pages/DashboardTeachers";
 import Teachers from "./pages/Teachers";
 import Branches from "./pages/branches/page";
+import Packets from "./pages/packets/page";
 import Instruments from "./pages/Instruments";
 import BookingUpcoming from "./pages/BookingUpcoming";
 import BookingPast from "./pages/BookingPast";
@@ -70,6 +71,7 @@ export default function Router() {
         { path: "updatebooking/:id", element: <UpdateBooking /> },
         { path: "branches", element: <Branches /> },
         { path: "instruments", element: <Instruments /> },
+        { path: "packet", element: <Packets /> },
       ],
     },
     {

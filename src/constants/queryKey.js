@@ -8,4 +8,5 @@ export const queryKey = {
   branches: "BRANCHES",
   users: "USERS",
   downloadBooking: "DOWNLOAD_BOOKING",
+  packets: "PACKETS",
 };

@@ -41,10 +41,19 @@ const navConfigAdmin = [
   MENU.students,
   MENU.teachers,
   MENU.instruments,
+  MENU.packet,
 ];
 
 const navConfigAdminMobile = [MENU.dashboard, MENU.bookings, MENU.users, MENU.students, MENU.more];
-const navConfigAdminMore = [MENU.rooms, MENU.branches, MENU.bookings, MENU.teachers, MENU.instruments, MENU.logout];
+const navConfigAdminMore = [
+  MENU.rooms,
+  MENU.branches,
+  MENU.bookings,
+  MENU.teachers,
+  MENU.instruments,
+  MENU.packet,
+  MENU.logout,
+];
 
 const navConfigNonAdmin = [MENU.dashboard, MENU.bookings];
 const navConfigNonAdminMobile = [...navConfigNonAdmin, MENU.logout];
