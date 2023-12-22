@@ -30,6 +30,7 @@ import DashboardTeachers from "./pages/DashboardTeachers";
 import Teachers from "./pages/Teachers";
 import Branches from "./pages/branches/page";
 import Packets from "./pages/packets/page";
+import Payments from "./pages/payments/page";
 import Instruments from "./pages/Instruments";
 import BookingUpcoming from "./pages/BookingUpcoming";
 import BookingPast from "./pages/BookingPast";
@@ -72,6 +73,7 @@ export default function Router() {
         { path: "branches", element: <Branches /> },
         { path: "instruments", element: <Instruments /> },
         { path: "packet", element: <Packets /> },
+        { path: "payment", element: <Payments /> },
       ],
     },
     {

@@ -8,7 +8,7 @@ import PropTypes from "prop-types";
 import { modalStyle } from "../../constants/modalStyle";
 import { fetchHeader } from "../../constants/fetchHeader";
 
-PacketDeleteModal.propTypes = {
+PaymentDeleteModal.propTypes = {
   open: PropTypes.bool,
   onClose: PropTypes.func,
   dataName: PropTypes.string,
@@ -17,16 +17,16 @@ PacketDeleteModal.propTypes = {
   onError: PropTypes.func,
 };
 
-export default function PacketDeleteModal({ open, onClose, dataName, id, onSuccess, onError }) {
-  const submitDeletePacket = useMutation(() =>
-    axios.delete(`${process.env.REACT_APP_BASE_URL}/api/paket/${id}`, {
+export default function PaymentDeleteModal({ open, onClose, dataName, id, onSuccess, onError }) {
+  const submitDeletePayment = useMutation(() =>
+    axios.delete(`${process.env.REACT_APP_BASE_URL}/api/payment/${id}`, {
       headers: fetchHeader,
     })
   );
 
   const handleSubmitDelete = (e) => {
     e.preventDefault();
-    submitDeletePacket.mutate(
+    submitDeletePayment.mutate(
       {},
       {
         onSuccess: (response) => {
@@ -47,7 +47,7 @@ export default function PacketDeleteModal({ open, onClose, dataName, id, onSucce
         </Typography>
         <FormControl fullWidth>
           <LoadingButton
-            loading={submitDeletePacket.isLoading}
+            loading={submitDeletePayment.isLoading}
             variant="contained"
             type="submit"
             onClick={handleSubmitDelete}

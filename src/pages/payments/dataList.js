@@ -5,17 +5,17 @@ import { Stack, Button } from "@mui/material";
 import Scrollbar from "../../components/Scrollbar";
 import BasicTable from "../../components/BasicTable";
 import Iconify from "../../components/Iconify";
-import PacketDeleteModal from "./deleteModal";
-import PacketFormModal from "./formModal";
-import { usePacketsQuery } from "./query";
+import PaymentDeleteModal from "./deleteModal";
+import PaymentFormModal from "./formModal";
+import { usePaymentsQuery } from "./query";
 import { onSuccessToast, onErrorToast } from "./callback";
 
-export default function PacketList() {
+export default function PaymentList() {
   const [id, setId] = useState("");
   const [packetName, setPacketName] = useState("");
   const [isOpenUpdateModal, setIsOpenUpdateModal] = useState(false);
   const [isOpenDeleteModal, setIsOpenDeleteModal] = useState(false);
-  const { data: packets, isLoading, isError, refetch: packetsRefetch } = usePacketsQuery();
+  const { data: packets, isLoading, isError, refetch: packetsRefetch } = usePaymentsQuery();
 
   const handleCloseModalUpdate = () => setIsOpenUpdateModal(false);
   const handleCloseModalDelete = () => setIsOpenDeleteModal(false);
@@ -50,12 +50,12 @@ export default function PacketList() {
     <>
       <Scrollbar>
         <BasicTable
-          header={["NAMA PAKET", "HARGA", "QUOTA PRIVATE", "QUOTA GROUP", " "]}
+          header={["NAMA MURID", "NAMA PAKET", "TANGGAL TAGIHAN", "JUMLAH BAYAR", " "]}
           body={packets.data.map((packet) => [
-            packet.nama_paket,
-            packet.harga,
-            packet.quota_privat,
-            packet.quota_group,
+            packet.studentId,
+            packet.paketId,
+            packet.tgl_tagihan,
+            packet.jumlah_bayar,
             <Stack key={packet.id} direction="row" spacing={2}>
               <Button
                 variant="contained"
@@ -80,7 +80,7 @@ export default function PacketList() {
         />
       </Scrollbar>
 
-      <PacketFormModal
+      <PaymentFormModal
         open={isOpenUpdateModal}
         onClose={handleCloseModalUpdate}
         id={String(id)}
@@ -89,7 +89,7 @@ export default function PacketList() {
         stateModal={"update"}
       />
 
-      <PacketDeleteModal
+      <PaymentDeleteModal
         open={isOpenDeleteModal}
         onClose={handleCloseModalDelete}
         dataName={String(packetName)}

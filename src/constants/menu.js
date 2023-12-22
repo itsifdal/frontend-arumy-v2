@@ -63,4 +63,9 @@ export const MENU = {
     path: "/app/packet",
     icon: getIcon("mdi:package"),
   },
+  payment: {
+    title: "Payment",
+    path: "/app/payment",
+    icon: getIcon("tdesign:money"),
+  },
 };
