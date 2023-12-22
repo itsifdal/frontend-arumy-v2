@@ -38,15 +38,38 @@ export default function Room() {
     data: rooms,
     refetch: roomsRefetch,
     isLoading: isLoadingRooms,
-  } = useQuery([queryKey.rooms], () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/room`).then((res) => res.data));
+  } = useQuery([queryKey.rooms], () =>
+    axios
+      .get(`${process.env.REACT_APP_BASE_URL}/api/room`, {
+        headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+      })
+      .then((res) => res.data)
+  );
 
-  const submitAddRoom = useMutation((data) => axios.post(`${process.env.REACT_APP_BASE_URL}/api/room`, data));
-  const submitUpdateRoom = useMutation((data) => axios.put(`${process.env.REACT_APP_BASE_URL}/api/room/${id}`, data));
-  const submitDeleteRoom = useMutation(() => axios.delete(`${process.env.REACT_APP_BASE_URL}/api/room/${id}`));
+  const submitAddRoom = useMutation((data) =>
+    axios.post(`${process.env.REACT_APP_BASE_URL}/api/room`, data, {
+      headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+    })
+  );
+  const submitUpdateRoom = useMutation((data) =>
+    axios.put(`${process.env.REACT_APP_BASE_URL}/api/room/${id}`, data, {
+      headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+    })
+  );
+  const submitDeleteRoom = useMutation(() =>
+    axios.delete(`${process.env.REACT_APP_BASE_URL}/api/room/${id}`, {
+      headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+    })
+  );
 
   const { data: branches = [{ value: "", label: "" }] } = useQuery(
     [queryKey.branches],
-    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/cabang`).then((res) => res.data),
+    () =>
+      axios
+        .get(`${process.env.REACT_APP_BASE_URL}/api/cabang`, {
+          headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+        })
+        .then((res) => res.data),
     {
       select: (branches) => branches.data.map((branch) => ({ value: branch.id, label: branch.nama_cabang })),
     }

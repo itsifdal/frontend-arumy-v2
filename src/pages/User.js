@@ -53,7 +53,12 @@ export default function User() {
     isLoading: isLoadingUsers,
   } = useQuery(
     [queryKey.users],
-    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/user`).then((res) => res.data),
+    () =>
+      axios
+        .get(`${process.env.REACT_APP_BASE_URL}/api/user`, {
+          headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+        })
+        .then((res) => res.data),
     {
       select: (userList) =>
         userList.map((user) => ({
@@ -67,7 +72,12 @@ export default function User() {
 
   const { data: teachers = [], isLoading: isLoadingTeachers } = useQuery(
     [queryKey.teachers],
-    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/teacher?perPage=9999`).then((res) => res.data),
+    () =>
+      axios
+        .get(`${process.env.REACT_APP_BASE_URL}/api/teacher?perPage=9999`, {
+          headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+        })
+        .then((res) => res.data),
     {
       select: (teachers) => teachers.data.map((teacher) => ({ value: teacher.id, label: teacher.nama_pengajar })),
     }
@@ -75,7 +85,12 @@ export default function User() {
 
   const { refetch: userRefetch } = useQuery(
     [queryKey.users, "DETAIL"],
-    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/user/${userId}`).then((res) => res.data),
+    () =>
+      axios
+        .get(`${process.env.REACT_APP_BASE_URL}/api/user/${userId}`, {
+          headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+        })
+        .then((res) => res.data),
     {
       enabled: Boolean(userId),
       onSuccess: (res) => {
@@ -104,12 +119,20 @@ export default function User() {
     if (!userId) {
       return false;
     }
-    return axios.delete(`${process.env.REACT_APP_BASE_URL}/api/user/${userId}`);
+    return axios.delete(`${process.env.REACT_APP_BASE_URL}/api/user/${userId}`, {
+      headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+    });
   });
 
-  const submitAddUser = useMutation((data) => axios.post(`${process.env.REACT_APP_BASE_URL}/api/user`, data));
+  const submitAddUser = useMutation((data) =>
+    axios.post(`${process.env.REACT_APP_BASE_URL}/api/user`, data, {
+      headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+    })
+  );
   const submitUpdateUser = useMutation((data) =>
-    axios.put(`${process.env.REACT_APP_BASE_URL}/api/user/${userId}`, data)
+    axios.put(`${process.env.REACT_APP_BASE_URL}/api/user/${userId}`, data, {
+      headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+    })
   );
 
   // Create

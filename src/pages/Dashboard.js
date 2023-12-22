@@ -71,7 +71,9 @@ export default function Dashboard() {
     [queryKey.dashboard],
     () =>
       axios
-        .get(`${process.env.REACT_APP_BASE_URL}/api/dashboard/booking${queryToString(queryParam)}`)
+        .get(`${process.env.REACT_APP_BASE_URL}/api/dashboard/booking${queryToString(queryParam)}`, {
+          headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+        })
         .then((res) => res.data),
     {
       select: (dashboards) =>
@@ -97,7 +99,12 @@ export default function Dashboard() {
 
   const { data: rooms = [] } = useQuery(
     [queryKey.rooms],
-    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/room`).then((res) => res.data),
+    () =>
+      axios
+        .get(`${process.env.REACT_APP_BASE_URL}/api/room`, {
+          headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+        })
+        .then((res) => res.data),
     {
       select: (roomList) => roomList.map((room) => ({ label: room.nama_ruang })),
     }
@@ -118,7 +125,9 @@ export default function Dashboard() {
     [queryKey.bookings, cleanQuery(defaultQueryBooking)],
     () =>
       axios
-        .get(`${process.env.REACT_APP_BASE_URL}/api/booking${queryToString(defaultQueryBooking)}`)
+        .get(`${process.env.REACT_APP_BASE_URL}/api/booking${queryToString(defaultQueryBooking)}`, {
+          headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+        })
         .then((res) => res.data),
     {
       select: (bookingList) => bookingList.data,

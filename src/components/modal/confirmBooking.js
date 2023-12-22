@@ -30,7 +30,12 @@ export default function ConfirmBooking({ open, onClose, id, callbackSuccess, cal
 
   const { refetch: bookingRefetch } = useQuery(
     [queryKey.bookings, "DETAIL"],
-    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/booking/${id}`).then((res) => res.data),
+    () =>
+      axios
+        .get(`${process.env.REACT_APP_BASE_URL}/api/booking/${id}`, {
+          headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+        })
+        .then((res) => res.data),
     {
       enabled: Boolean(id),
       onSuccess: (res) => {
@@ -84,7 +89,9 @@ export default function ConfirmBooking({ open, onClose, id, callbackSuccess, cal
   }, [stateForm.values.jam_booking, stateForm.values.jam_selesai_booking]);
 
   const submitUpdateBooking = useMutation((data) =>
-    axios.put(`${process.env.REACT_APP_BASE_URL}/api/booking/${id}`, data)
+    axios.put(`${process.env.REACT_APP_BASE_URL}/api/booking/${id}`, data, {
+      headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+    })
   );
 
   const handleCallbackMutate = {

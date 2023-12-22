@@ -40,7 +40,12 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
 
   const { data: students = [], isLoading: isLoadingStudents } = useQuery(
     [queryKey.students],
-    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/student?perPage=9999`).then((res) => res.data),
+    () =>
+      axios
+        .get(`${process.env.REACT_APP_BASE_URL}/api/student?perPage=9999`, {
+          headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+        })
+        .then((res) => res.data),
     {
       select: (students) => students.data?.map((student) => ({ value: student.id, label: student.nama_murid })),
       enabled: openStudent,
@@ -49,7 +54,12 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
 
   const { data: teachers = [], isLoading: isLoadingTeachers } = useQuery(
     [queryKey.teachers],
-    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/teacher?perPage=9999`).then((res) => res.data),
+    () =>
+      axios
+        .get(`${process.env.REACT_APP_BASE_URL}/api/teacher?perPage=9999`, {
+          headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+        })
+        .then((res) => res.data),
     {
       select: (teachers) => teachers.data?.map((teacher) => ({ value: teacher.id, label: teacher.nama_pengajar })),
       enabled: openTeacher,
@@ -58,7 +68,12 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
 
   const { data: rooms = [], isLoading: isLoadingRooms } = useQuery(
     [queryKey.rooms],
-    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/room`).then((res) => res.data),
+    () =>
+      axios
+        .get(`${process.env.REACT_APP_BASE_URL}/api/room`, {
+          headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+        })
+        .then((res) => res.data),
     {
       select: (roomList) =>
         roomList.map((room) => ({ value: room.id, label: room.nama_ruang, branch: room.cabang?.nama_cabang })),
@@ -68,7 +83,12 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
 
   const { data: instruments = [], isLoading: isLoadingInstruments } = useQuery(
     [queryKey.instruments],
-    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/instrument`).then((res) => res.data),
+    () =>
+      axios
+        .get(`${process.env.REACT_APP_BASE_URL}/api/instrument`, {
+          headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+        })
+        .then((res) => res.data),
     {
       select: (instruments) =>
         instruments.map((instrument) => ({ value: instrument.id, label: instrument.nama_instrument })),
@@ -77,10 +97,16 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
   );
 
   const submitUpdateBooking = useMutation((data) =>
-    axios.put(`${process.env.REACT_APP_BASE_URL}/api/booking/${id}`, data)
+    axios.put(`${process.env.REACT_APP_BASE_URL}/api/booking/${id}`, data, {
+      headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+    })
   );
 
-  const submitAddBooking = useMutation((data) => axios.post(`${process.env.REACT_APP_BASE_URL}/api/booking`, data));
+  const submitAddBooking = useMutation((data) =>
+    axios.post(`${process.env.REACT_APP_BASE_URL}/api/booking`, data, {
+      headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+    })
+  );
 
   const handleCallbackMutate = ({ addAnother }) => ({
     onSuccess: (response) => {
@@ -143,7 +169,12 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
 
   const { refetch: bookingRefetch } = useQuery(
     [queryKey.bookings, "DETAIL", id],
-    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/booking/${id}`).then((res) => res.data),
+    () =>
+      axios
+        .get(`${process.env.REACT_APP_BASE_URL}/api/booking/${id}`, {
+          headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+        })
+        .then((res) => res.data),
     {
       enabled: Boolean(id),
       onSuccess: (res) => {

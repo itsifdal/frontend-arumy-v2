@@ -57,12 +57,21 @@ export default function Teachers() {
     refetch: teachersRefetch,
     isLoading: isLoadingTeachers,
   } = useQuery([queryKey.teachers, cleanQuery(queryParam)], () =>
-    axios.get(`${process.env.REACT_APP_BASE_URL}/api/teacher${queryToString(queryParam)}`).then((res) => res.data)
+    axios
+      .get(`${process.env.REACT_APP_BASE_URL}/api/teacher${queryToString(queryParam)}`, {
+        headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+      })
+      .then((res) => res.data)
   );
 
   const { refetch: teacherRefetch } = useQuery(
     [queryKey.teachers, "DETAIL"],
-    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/teacher/${id}`).then((res) => res.data),
+    () =>
+      axios
+        .get(`${process.env.REACT_APP_BASE_URL}/api/teacher/${id}`, {
+          headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+        })
+        .then((res) => res.data),
     {
       enabled: Boolean(id),
       onSuccess: (res) => {
@@ -87,11 +96,21 @@ export default function Teachers() {
     }
   }, [id, teacherRefetch]);
 
-  const submitAddTeacher = useMutation((data) => axios.post(`${process.env.REACT_APP_BASE_URL}/api/teacher`, data));
-  const submitUpdateTeacher = useMutation((data) =>
-    axios.put(`${process.env.REACT_APP_BASE_URL}/api/teacher/${id}`, data)
+  const submitAddTeacher = useMutation((data) =>
+    axios.post(`${process.env.REACT_APP_BASE_URL}/api/teacher`, data, {
+      headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+    })
   );
-  const submitDeleteTeacher = useMutation(() => axios.delete(`${process.env.REACT_APP_BASE_URL}/api/teacher/${id}`));
+  const submitUpdateTeacher = useMutation((data) =>
+    axios.put(`${process.env.REACT_APP_BASE_URL}/api/teacher/${id}`, data, {
+      headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+    })
+  );
+  const submitDeleteTeacher = useMutation(() =>
+    axios.delete(`${process.env.REACT_APP_BASE_URL}/api/teacher/${id}`, {
+      headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+    })
+  );
 
   //----
   const handleOpenModalCreate = () => setOpen(true);

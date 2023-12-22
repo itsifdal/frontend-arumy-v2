@@ -30,9 +30,15 @@ export default function PacketFormModal({ open, onClose, stateModal, id, onSucce
     formState: { errors },
   } = useForm();
 
-  const submitAddPacket = useMutation((data) => axios.post(`${process.env.REACT_APP_BASE_URL}/api/paket`, data));
+  const submitAddPacket = useMutation((data) =>
+    axios.post(`${process.env.REACT_APP_BASE_URL}/api/paket`, data, {
+      headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+    })
+  );
   const submitUpdatePacket = useMutation((data) =>
-    axios.put(`${process.env.REACT_APP_BASE_URL}/api/paket/${id}`, data)
+    axios.put(`${process.env.REACT_APP_BASE_URL}/api/paket/${id}`, data, {
+      headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+    })
   );
 
   const { refetch: packetsRefetch, isLoading: isLoadingPacket } = usePacketQuery({

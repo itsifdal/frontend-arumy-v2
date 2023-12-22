@@ -77,7 +77,12 @@ export default function DashboardTeachers() {
 
   const { data: teachers = [], isLoading: isLoadingTeachers } = useQuery(
     [queryKey.teachers],
-    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/teacher?perPage=9999`).then((res) => res.data),
+    () =>
+      axios
+        .get(`${process.env.REACT_APP_BASE_URL}/api/teacher?perPage=9999`, {
+          headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+        })
+        .then((res) => res.data),
     {
       select: (teachers) => teachers.data?.map((teacher) => ({ value: teacher.id, label: teacher.nama_pengajar })),
       enabled: openTeacher,
@@ -102,7 +107,10 @@ export default function DashboardTeachers() {
         .get(
           `${process.env.REACT_APP_BASE_URL}/api/teacher/dashboard/${defaultQueryDashboard.teacherId}${queryToString(
             defaultQueryDashboard
-          )}`
+          )}`,
+          {
+            headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+          }
         )
         .then((res) => res.data),
     {
@@ -133,7 +141,10 @@ export default function DashboardTeachers() {
         .get(
           `${process.env.REACT_APP_BASE_URL}/api/booking${queryToString({
             ...defaultQueryBookings,
-          })}`
+          })}`,
+          {
+            headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+          }
         )
         .then((res) => res.data),
     {

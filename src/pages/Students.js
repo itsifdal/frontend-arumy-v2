@@ -61,12 +61,21 @@ export default function Students() {
     refetch: studentsRefetch,
     isLoading: isLoadingStudents,
   } = useQuery([queryKey.students, cleanQuery(queryParam)], () =>
-    axios.get(`${process.env.REACT_APP_BASE_URL}/api/student${queryToString(queryParam)}`).then((res) => res.data)
+    axios
+      .get(`${process.env.REACT_APP_BASE_URL}/api/student${queryToString(queryParam)}`, {
+        headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+      })
+      .then((res) => res.data)
   );
 
   const { refetch: studentRefetch, isLoading: isLoadingStudentDetail } = useQuery(
     [queryKey.students, "DETAIL"],
-    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/student/${id}`).then((res) => res.data),
+    () =>
+      axios
+        .get(`${process.env.REACT_APP_BASE_URL}/api/student/${id}`, {
+          headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+        })
+        .then((res) => res.data),
     {
       enabled: Boolean(id),
       onSuccess: (res) => {
@@ -89,11 +98,21 @@ export default function Students() {
     }
   }, [id, studentRefetch]);
 
-  const submitAddStudent = useMutation((data) => axios.post(`${process.env.REACT_APP_BASE_URL}/api/student`, data));
-  const submitUpdateStudent = useMutation((data) =>
-    axios.put(`${process.env.REACT_APP_BASE_URL}/api/student/${id}`, data)
+  const submitAddStudent = useMutation((data) =>
+    axios.post(`${process.env.REACT_APP_BASE_URL}/api/student`, data, {
+      headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+    })
   );
-  const submitDeleteStudent = useMutation(() => axios.delete(`${process.env.REACT_APP_BASE_URL}/api/student/${id}`));
+  const submitUpdateStudent = useMutation((data) =>
+    axios.put(`${process.env.REACT_APP_BASE_URL}/api/student/${id}`, data, {
+      headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+    })
+  );
+  const submitDeleteStudent = useMutation(() =>
+    axios.delete(`${process.env.REACT_APP_BASE_URL}/api/student/${id}`, {
+      headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+    })
+  );
 
   //----
   const handleOpenModalCreate = () => setOpen(true);

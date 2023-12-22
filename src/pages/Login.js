@@ -27,7 +27,9 @@ export default function Login() {
   const submitLogin = useMutation(({ email, password }) => {
     const data = { email, password };
     // send the email and password to the server
-    return axios.post(`${process.env.REACT_APP_BASE_URL}/api/login`, data);
+    return axios.post(`${process.env.REACT_APP_BASE_URL}/api/login`, data, {
+      headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+    });
   });
 
   useEffect(() => {
