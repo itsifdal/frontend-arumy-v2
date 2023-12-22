@@ -27,6 +27,7 @@ import { queryKey } from "../../constants/queryKey";
 import TimeInputBasic from "../input/timeInputBasic";
 import AutoCompleteBasic from "../input/autoCompleteBasic";
 import TextareaBasic from "../input/textareaBasic";
+import { fetchHeader } from "../../constants/fetchHeader";
 
 import { bookingFormReducer, initialBookingFormState, validateBookingForm } from "../../utils/reducer/bookingReducer";
 
@@ -43,7 +44,7 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
     () =>
       axios
         .get(`${process.env.REACT_APP_BASE_URL}/api/student?perPage=9999`, {
-          headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+          headers: fetchHeader,
         })
         .then((res) => res.data),
     {
@@ -57,7 +58,7 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
     () =>
       axios
         .get(`${process.env.REACT_APP_BASE_URL}/api/teacher?perPage=9999`, {
-          headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+          headers: fetchHeader,
         })
         .then((res) => res.data),
     {
@@ -71,7 +72,7 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
     () =>
       axios
         .get(`${process.env.REACT_APP_BASE_URL}/api/room`, {
-          headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+          headers: fetchHeader,
         })
         .then((res) => res.data),
     {
@@ -86,7 +87,7 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
     () =>
       axios
         .get(`${process.env.REACT_APP_BASE_URL}/api/instrument`, {
-          headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+          headers: fetchHeader,
         })
         .then((res) => res.data),
     {
@@ -98,13 +99,13 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
 
   const submitUpdateBooking = useMutation((data) =>
     axios.put(`${process.env.REACT_APP_BASE_URL}/api/booking/${id}`, data, {
-      headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+      headers: fetchHeader,
     })
   );
 
   const submitAddBooking = useMutation((data) =>
     axios.post(`${process.env.REACT_APP_BASE_URL}/api/booking`, data, {
-      headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+      headers: fetchHeader,
     })
   );
 
@@ -172,7 +173,7 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
     () =>
       axios
         .get(`${process.env.REACT_APP_BASE_URL}/api/booking/${id}`, {
-          headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+          headers: fetchHeader,
         })
         .then((res) => res.data),
     {

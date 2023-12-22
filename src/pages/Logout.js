@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import axios from "axios";
+import { fetchHeader } from "../constants/fetchHeader";
 
 export default function Logout() {
   const navigate = useNavigate();
@@ -8,7 +9,7 @@ export default function Logout() {
   useEffect(() => {
     axios
       .get(`${process.env.REACT_APP_BASE_URL}/api/login/logout`, {
-        headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+        headers: fetchHeader,
       })
       .then(() => {
         localStorage.clear();

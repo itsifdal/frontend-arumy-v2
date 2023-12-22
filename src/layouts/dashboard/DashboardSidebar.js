@@ -13,6 +13,7 @@ import NavSection from "../../components/NavSection";
 import AccountPopover from "./AccountPopover";
 import IMAGES from "../../constants/images";
 import { MENU } from "../../constants/menu";
+import { fetchHeader } from "../../constants/fetchHeader";
 
 // ----------------------------------------------------------------------
 
@@ -85,7 +86,7 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
   const onLogout = () => {
     axios
       .get(`${process.env.REACT_APP_BASE_URL}/api/login/logout`, {
-        headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+        headers: fetchHeader,
       })
       .then(() => {
         localStorage.clear();

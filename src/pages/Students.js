@@ -39,6 +39,7 @@ import { urlSearchParamsToQuery } from "../utils/urlSearchParamsToQuery";
 import { cleanQuery } from "../utils/cleanQuery";
 import { queryToString } from "../utils/queryToString";
 import DateInputBasic from "../components/input/dateInputBasic";
+import { fetchHeader } from "../constants/fetchHeader";
 
 // ----------------------------------------------------------------------
 export default function Students() {
@@ -63,7 +64,7 @@ export default function Students() {
   } = useQuery([queryKey.students, cleanQuery(queryParam)], () =>
     axios
       .get(`${process.env.REACT_APP_BASE_URL}/api/student${queryToString(queryParam)}`, {
-        headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+        headers: fetchHeader,
       })
       .then((res) => res.data)
   );
@@ -73,7 +74,7 @@ export default function Students() {
     () =>
       axios
         .get(`${process.env.REACT_APP_BASE_URL}/api/student/${id}`, {
-          headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+          headers: fetchHeader,
         })
         .then((res) => res.data),
     {
@@ -100,17 +101,17 @@ export default function Students() {
 
   const submitAddStudent = useMutation((data) =>
     axios.post(`${process.env.REACT_APP_BASE_URL}/api/student`, data, {
-      headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+      headers: fetchHeader,
     })
   );
   const submitUpdateStudent = useMutation((data) =>
     axios.put(`${process.env.REACT_APP_BASE_URL}/api/student/${id}`, data, {
-      headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+      headers: fetchHeader,
     })
   );
   const submitDeleteStudent = useMutation(() =>
     axios.delete(`${process.env.REACT_APP_BASE_URL}/api/student/${id}`, {
-      headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+      headers: fetchHeader,
     })
   );
 

@@ -21,6 +21,7 @@ import { modalStyle } from "../../constants/modalStyle";
 import { queryKey } from "../../constants/queryKey";
 import InputBasic from "../input/inputBasic";
 import TextareaBasic from "../input/textareaBasic";
+import { fetchHeader } from "../../constants/fetchHeader";
 
 import { bookingFormReducer, initialBookingFormState, validateBookingForm } from "../../utils/reducer/bookingReducer";
 
@@ -33,7 +34,7 @@ export default function ConfirmBooking({ open, onClose, id, callbackSuccess, cal
     () =>
       axios
         .get(`${process.env.REACT_APP_BASE_URL}/api/booking/${id}`, {
-          headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+          headers: fetchHeader,
         })
         .then((res) => res.data),
     {
@@ -90,7 +91,7 @@ export default function ConfirmBooking({ open, onClose, id, callbackSuccess, cal
 
   const submitUpdateBooking = useMutation((data) =>
     axios.put(`${process.env.REACT_APP_BASE_URL}/api/booking/${id}`, data, {
-      headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+      headers: fetchHeader,
     })
   );
 

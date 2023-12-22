@@ -11,6 +11,7 @@ import Collapse from "@mui/material/Collapse";
 import Alert from "@mui/material/Alert";
 import Iconify from "../components/Iconify";
 import Page from "../components/Page";
+import { fetchHeader } from "../constants/fetchHeader";
 
 import LoginLayout from "../layouts/LoginLayout";
 
@@ -28,7 +29,7 @@ export default function Login() {
     const data = { email, password };
     // send the email and password to the server
     return axios.post(`${process.env.REACT_APP_BASE_URL}/api/login`, data, {
-      headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+      headers: fetchHeader,
     });
   });
 

@@ -9,6 +9,7 @@ import axios from "axios";
 import Collapse from "@mui/material/Collapse";
 import Alert from "@mui/material/Alert";
 import Page from "../components/Page";
+import { fetchHeader } from "../constants/fetchHeader";
 
 import LoginLayout from "../layouts/LoginLayout";
 
@@ -24,7 +25,7 @@ export default function ForgotPassword() {
   const submitForgotPassword = useMutation(({ email }) => {
     const data = { email };
     return axios.post(`${process.env.REACT_APP_BASE_URL}/api/forgotpassword`, data, {
-      headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+      headers: fetchHeader,
     });
   });
 

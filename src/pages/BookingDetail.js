@@ -14,6 +14,7 @@ import Iconify from "../components/Iconify";
 import { bookingStatusObj } from "../constants/bookingStatus";
 import { queryKey } from "../constants/queryKey";
 import ConfirmBooking from "../components/modal/confirmBooking";
+import { fetchHeader } from "../constants/fetchHeader";
 
 // ----------------------------------------------------------------------
 const generateStatus = (status) => {
@@ -65,7 +66,7 @@ function BookingData() {
     () =>
       axios
         .get(`${process.env.REACT_APP_BASE_URL}/api/booking/${id}`, {
-          headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+          headers: fetchHeader,
         })
         .then((res) => res.data?.data),
     {

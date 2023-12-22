@@ -20,6 +20,7 @@ import AutoCompleteBasic from "../components/input/autoCompleteBasic";
 import { urlSearchParamsToQuery } from "../utils/urlSearchParamsToQuery";
 import { queryToString } from "../utils/queryToString";
 import { cleanQuery } from "../utils/cleanQuery";
+import { fetchHeader } from "../constants/fetchHeader";
 
 const initFilter = {
   tgl_kelas: format(new Date(), "yyyy-MM-dd"),
@@ -44,7 +45,7 @@ export default function DashboardTimeline() {
     () =>
       axios
         .get(`${process.env.REACT_APP_BASE_URL}/api/room`, {
-          headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+          headers: fetchHeader,
         })
         .then((res) => res.data),
     {
@@ -68,7 +69,7 @@ export default function DashboardTimeline() {
     () =>
       axios
         .get(`${process.env.REACT_APP_BASE_URL}/api/booking${queryToString(defaultQueryBooking)}`, {
-          headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+          headers: fetchHeader,
         })
         .then((res) => res.data),
     {

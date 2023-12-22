@@ -36,6 +36,7 @@ import { queryKey } from "../constants/queryKey";
 import { urlSearchParamsToQuery } from "../utils/urlSearchParamsToQuery";
 import { cleanQuery } from "../utils/cleanQuery";
 import { queryToString } from "../utils/queryToString";
+import { fetchHeader } from "../constants/fetchHeader";
 
 // ----------------------------------------------------------------------
 export default function Teachers() {
@@ -59,7 +60,7 @@ export default function Teachers() {
   } = useQuery([queryKey.teachers, cleanQuery(queryParam)], () =>
     axios
       .get(`${process.env.REACT_APP_BASE_URL}/api/teacher${queryToString(queryParam)}`, {
-        headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+        headers: fetchHeader,
       })
       .then((res) => res.data)
   );
@@ -69,7 +70,7 @@ export default function Teachers() {
     () =>
       axios
         .get(`${process.env.REACT_APP_BASE_URL}/api/teacher/${id}`, {
-          headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+          headers: fetchHeader,
         })
         .then((res) => res.data),
     {
@@ -98,17 +99,17 @@ export default function Teachers() {
 
   const submitAddTeacher = useMutation((data) =>
     axios.post(`${process.env.REACT_APP_BASE_URL}/api/teacher`, data, {
-      headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+      headers: fetchHeader,
     })
   );
   const submitUpdateTeacher = useMutation((data) =>
     axios.put(`${process.env.REACT_APP_BASE_URL}/api/teacher/${id}`, data, {
-      headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+      headers: fetchHeader,
     })
   );
   const submitDeleteTeacher = useMutation(() =>
     axios.delete(`${process.env.REACT_APP_BASE_URL}/api/teacher/${id}`, {
-      headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+      headers: fetchHeader,
     })
   );
 

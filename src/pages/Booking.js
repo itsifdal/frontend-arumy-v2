@@ -45,6 +45,7 @@ import { queryKey } from "../constants/queryKey";
 import BookingFilters from "../components/filter/bookingFilters";
 import CollapsibleTable from "../components/CollapsibleTable";
 import { bookingStatusObj } from "../constants/bookingStatus";
+import { fetchHeader } from "../constants/fetchHeader";
 
 // Style box
 const style = {
@@ -144,7 +145,7 @@ export default function Booking() {
             ...(user.role === "Guru" && { teacherId: user?.teacherId }),
           })}`,
           {
-            headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+            headers: fetchHeader,
           }
         )
         .then((res) => res.data)
@@ -160,7 +161,7 @@ export default function Booking() {
 
   const submitDeleteBooking = useMutation(() =>
     axios.delete(`${process.env.REACT_APP_BASE_URL}/api/booking/${bookingId}`, {
-      headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+      headers: fetchHeader,
     })
   );
 
@@ -392,7 +393,7 @@ function BookingData({
             ...downloadQueryBookings,
           })}`,
           {
-            headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+            headers: fetchHeader,
           }
         )
         .then((res) => res.data),

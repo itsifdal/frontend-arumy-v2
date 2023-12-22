@@ -5,6 +5,7 @@ import { Typography, MenuItem, Avatar, Button, Stack } from "@mui/material";
 // components
 import axios from "axios";
 import MenuPopover from "../../components/MenuPopover";
+import { fetchHeader } from "../../constants/fetchHeader";
 // mocks_
 import account from "../../_mock/account";
 
@@ -38,7 +39,7 @@ export default function AccountPopover() {
   const onLogout = () => {
     axios
       .get(`${process.env.REACT_APP_BASE_URL}/api/login/logout`, {
-        headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+        headers: fetchHeader,
       })
       .then(() => {
         localStorage.clear();

@@ -22,6 +22,7 @@ import InputBasic from "../components/input/inputBasic";
 import { modalStyle } from "../constants/modalStyle";
 import { queryKey } from "../constants/queryKey";
 import SelectBasic from "../components/input/selectBasic";
+import { fetchHeader } from "../constants/fetchHeader";
 
 // ----------------------------------------------------------------------
 export default function Room() {
@@ -41,24 +42,24 @@ export default function Room() {
   } = useQuery([queryKey.rooms], () =>
     axios
       .get(`${process.env.REACT_APP_BASE_URL}/api/room`, {
-        headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+        headers: fetchHeader,
       })
       .then((res) => res.data)
   );
 
   const submitAddRoom = useMutation((data) =>
     axios.post(`${process.env.REACT_APP_BASE_URL}/api/room`, data, {
-      headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+      headers: fetchHeader,
     })
   );
   const submitUpdateRoom = useMutation((data) =>
     axios.put(`${process.env.REACT_APP_BASE_URL}/api/room/${id}`, data, {
-      headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+      headers: fetchHeader,
     })
   );
   const submitDeleteRoom = useMutation(() =>
     axios.delete(`${process.env.REACT_APP_BASE_URL}/api/room/${id}`, {
-      headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+      headers: fetchHeader,
     })
   );
 
@@ -67,7 +68,7 @@ export default function Room() {
     () =>
       axios
         .get(`${process.env.REACT_APP_BASE_URL}/api/cabang`, {
-          headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+          headers: fetchHeader,
         })
         .then((res) => res.data),
     {

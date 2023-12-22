@@ -13,6 +13,7 @@ import Page from "../components/Page";
 import Collapse from "@mui/material/Collapse";
 import Alert from "@mui/material/Alert";
 import LoginLayout from "../layouts/LoginLayout";
+import { fetchHeader } from "../constants/fetchHeader";
 
 export default function ResetPassword() {
   const [openAlert, setOpenAlert] = useState(false);
@@ -25,7 +26,7 @@ export default function ResetPassword() {
     if (params.token) {
       const data = { password };
       return axios.post(`${process.env.REACT_APP_BASE_URL}/api/resetpassword/${params.token}`, data, {
-        headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+        headers: fetchHeader,
       });
     }
   });

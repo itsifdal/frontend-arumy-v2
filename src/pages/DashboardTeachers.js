@@ -36,6 +36,7 @@ import DateInputBasic from "../components/input/dateInputBasic";
 import { urlSearchParamsToQuery } from "../utils/urlSearchParamsToQuery";
 import { cleanQuery } from "../utils/cleanQuery";
 import { queryToString } from "../utils/queryToString";
+import { fetchHeader } from "../constants/fetchHeader";
 
 const initFilter = {
   teacherId: 1,
@@ -80,7 +81,7 @@ export default function DashboardTeachers() {
     () =>
       axios
         .get(`${process.env.REACT_APP_BASE_URL}/api/teacher?perPage=9999`, {
-          headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+          headers: fetchHeader,
         })
         .then((res) => res.data),
     {
@@ -109,7 +110,7 @@ export default function DashboardTeachers() {
             defaultQueryDashboard
           )}`,
           {
-            headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+            headers: fetchHeader,
           }
         )
         .then((res) => res.data),
@@ -143,7 +144,7 @@ export default function DashboardTeachers() {
             ...defaultQueryBookings,
           })}`,
           {
-            headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+            headers: fetchHeader,
           }
         )
         .then((res) => res.data),

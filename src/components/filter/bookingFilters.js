@@ -14,6 +14,7 @@ import { queryKey } from "../../constants/queryKey";
 import { bookingStatus, bookingStatusObj } from "../../constants/bookingStatus";
 import { urlSearchParamsToQuery } from "../../utils/urlSearchParamsToQuery";
 import Iconify from "../Iconify";
+import { fetchHeader } from "../../constants/fetchHeader";
 
 const initFilter = {
   status: "",
@@ -174,7 +175,7 @@ function BookingFilterForm({ toggleDrawer }) {
     () =>
       axios
         .get(`${process.env.REACT_APP_BASE_URL}/api/teacher?perPage=9999`, {
-          headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+          headers: fetchHeader,
         })
         .then((res) => res.data),
     {
@@ -188,7 +189,7 @@ function BookingFilterForm({ toggleDrawer }) {
     () =>
       axios
         .get(`${process.env.REACT_APP_BASE_URL}/api/room`, {
-          headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+          headers: fetchHeader,
         })
         .then((res) => res.data),
     {

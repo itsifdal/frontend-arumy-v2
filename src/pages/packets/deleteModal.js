@@ -6,6 +6,7 @@ import { useMutation } from "react-query";
 import PropTypes from "prop-types";
 
 import { modalStyle } from "../../constants/modalStyle";
+import { fetchHeader } from "../../constants/fetchHeader";
 
 PacketDeleteModal.propTypes = {
   open: PropTypes.bool,
@@ -19,7 +20,7 @@ PacketDeleteModal.propTypes = {
 export default function PacketDeleteModal({ open, onClose, dataName, id, onSuccess, onError }) {
   const submitDeleteBranch = useMutation(() =>
     axios.delete(`${process.env.REACT_APP_BASE_URL}/api/paket/${id}`, {
-      headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+      headers: fetchHeader,
     })
   );
 

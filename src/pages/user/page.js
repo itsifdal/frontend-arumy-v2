@@ -25,6 +25,7 @@ import SelectBasic from "../../components/input/selectBasic";
 import { queryKey } from "../../constants/queryKey";
 import { modalStyle } from "../../constants/modalStyle";
 import AutoCompleteBasic from "../../components/input/autoCompleteBasic";
+import { fetchHeader } from "../../constants/fetchHeader";
 
 // ----------------------------------------------------------------------
 export default function User() {
@@ -56,7 +57,7 @@ export default function User() {
     () =>
       axios
         .get(`${process.env.REACT_APP_BASE_URL}/api/user`, {
-          headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+          headers: fetchHeader,
         })
         .then((res) => res.data),
     {
@@ -75,7 +76,7 @@ export default function User() {
     () =>
       axios
         .get(`${process.env.REACT_APP_BASE_URL}/api/teacher?perPage=9999`, {
-          headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+          headers: fetchHeader,
         })
         .then((res) => res.data),
     {
@@ -88,7 +89,7 @@ export default function User() {
     () =>
       axios
         .get(`${process.env.REACT_APP_BASE_URL}/api/user/${userId}`, {
-          headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+          headers: fetchHeader,
         })
         .then((res) => res.data),
     {
@@ -120,18 +121,18 @@ export default function User() {
       return false;
     }
     return axios.delete(`${process.env.REACT_APP_BASE_URL}/api/user/${userId}`, {
-      headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+      headers: fetchHeader,
     });
   });
 
   const submitAddUser = useMutation((data) =>
     axios.post(`${process.env.REACT_APP_BASE_URL}/api/user`, data, {
-      headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+      headers: fetchHeader,
     })
   );
   const submitUpdateUser = useMutation((data) =>
     axios.put(`${process.env.REACT_APP_BASE_URL}/api/user/${userId}`, data, {
-      headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+      headers: fetchHeader,
     })
   );
 

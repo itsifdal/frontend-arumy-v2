@@ -25,6 +25,7 @@ import BasicTable from "../components/BasicTable";
 import InputBasic from "../components/input/inputBasic";
 import { modalStyle } from "../constants/modalStyle";
 import { queryKey } from "../constants/queryKey";
+import { fetchHeader } from "../constants/fetchHeader";
 
 // ----------------------------------------------------------------------
 export default function Instruments() {
@@ -44,24 +45,24 @@ export default function Instruments() {
   } = useQuery([queryKey.instruments], () =>
     axios
       .get(`${process.env.REACT_APP_BASE_URL}/api/instrument`, {
-        headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+        headers: fetchHeader,
       })
       .then((res) => res.data)
   );
 
   const submitAddInstrument = useMutation((data) =>
     axios.post(`${process.env.REACT_APP_BASE_URL}/api/instrument`, data, {
-      headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+      headers: fetchHeader,
     })
   );
   const submitUpdateInstrument = useMutation((data) =>
     axios.put(`${process.env.REACT_APP_BASE_URL}/api/instrument/${id}`, data, {
-      headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+      headers: fetchHeader,
     })
   );
   const submitDeleteInstrument = useMutation(() =>
     axios.delete(`${process.env.REACT_APP_BASE_URL}/api/instrument/${id}`, {
-      headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+      headers: fetchHeader,
     })
   );
 

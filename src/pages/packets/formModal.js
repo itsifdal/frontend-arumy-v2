@@ -10,6 +10,7 @@ import { modalStyle } from "../../constants/modalStyle";
 import { CustomTextField } from "../../components/input/inputBasic";
 import CustomInputLabel from "../../components/input/inputLabel";
 import { usePacketQuery } from "./query";
+import { fetchHeader } from "../../constants/fetchHeader";
 
 PacketFormModal.propTypes = {
   open: PropTypes.bool,
@@ -32,12 +33,12 @@ export default function PacketFormModal({ open, onClose, stateModal, id, onSucce
 
   const submitAddPacket = useMutation((data) =>
     axios.post(`${process.env.REACT_APP_BASE_URL}/api/paket`, data, {
-      headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+      headers: fetchHeader,
     })
   );
   const submitUpdatePacket = useMutation((data) =>
     axios.put(`${process.env.REACT_APP_BASE_URL}/api/paket/${id}`, data, {
-      headers: { "x-api-key": process.env.REACT_APP_API_KEY },
+      headers: fetchHeader,
     })
   );
 
