@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useQuery } from "react-query";
+import { useQuery, useMutation } from "react-query";
 
 import { queryKey } from "../../constants/queryKey";
 import { fetchHeader } from "../../constants/fetchHeader";
@@ -13,4 +13,20 @@ export function useBranchQuery() {
       .then((res) => res.data)
   );
   return { refetch, data, isLoading, isError };
+}
+
+export function useAddBranch() {
+  return useMutation((data) =>
+    axios.post(`${process.env.REACT_APP_BASE_URL}/api/cabang`, data, {
+      headers: fetchHeader,
+    })
+  );
+}
+
+export function useUpdateBranch({ id }) {
+  return useMutation((data) =>
+    axios.put(`${process.env.REACT_APP_BASE_URL}/api/cabang/${id}`, data, {
+      headers: fetchHeader,
+    })
+  );
 }
