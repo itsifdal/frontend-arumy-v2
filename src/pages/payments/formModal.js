@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Typography, Modal, FormControl, Box, Grid, Autocomplete } from "@mui/material";
+import { Typography, Modal, FormControl, Box, Grid } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import axios from "axios";
 import { useMutation } from "react-query";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import PropTypes from "prop-types";
 
 import { modalStyle } from "../../constants/modalStyle";
 import { CustomTextField } from "../../components/input/inputBasic";
 import CustomInputLabel from "../../components/input/inputLabel";
+import AutoCompleteReactHook from "../../components/input/autoCompleteReactHook";
 import { usePaymentQuery } from "./query";
 import { fetchHeader } from "../../constants/fetchHeader";
 import { usePacketsQuery } from "../packets/query";
@@ -33,14 +34,19 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
     control,
   } = useForm();
 
-  const [openPacket, setOpenPacket] = useState(false);
-  const { data: packets = [], isLoading } = usePacketsQuery({
+  const { data: packets = [], isLoading: isLoadingPackets } = usePacketsQuery({
     options: {
       enabled: open,
-      select: (res) => res.data.map((packet) => ({ value: packet.id, label: packet.nama_paket })),
+      select: (res) =>
+        res.data.map((packet) => ({
+          value: packet.id,
+          label: packet.nama_paket,
+          quota_privat: packet.quota_privat,
+          quota_group: packet.quota_group,
+        })),
     },
   });
-  const [selectedPacket, setSelectedPacket] = useState([]);
+  const [selectedPacket, setSelectedPacket] = useState([packets[0]]);
 
   const submitAddPayment = useMutation((data) =>
     axios.post(`${process.env.REACT_APP_BASE_URL}/api/payment`, data, {
@@ -152,34 +158,21 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
             <Grid item xs={6}>
               <FormControl fullWidth error={!!errors.paketId}>
                 <CustomInputLabel htmlFor="paketId">paketId*</CustomInputLabel>
-                <Controller
+                <AutoCompleteReactHook
                   name="paketId"
-                  control={control}
                   rules={{
                     required: "paketId Wajib diisi",
                   }}
-                  render={({ field: { onChange } }) => (
-                    <Autocomplete
-                      open={openPacket}
-                      value={selectedPacket[0]}
-                      onOpen={() => {
-                        setOpenPacket(true);
-                      }}
-                      onClose={() => {
-                        setOpenPacket(false);
-                      }}
-                      isOptionEqualToValue={(option, value) => option.label === value.label}
-                      getOptionLabel={(option) => option.label}
-                      options={packets}
-                      loading={isLoading}
-                      onChange={(_, newValue) => {
-                        onChange(newValue.value);
-                      }}
-                      renderInput={(params) => (
-                        <CustomTextField {...params} helperText={errors.paketId?.message} error={!!errors.paketId} />
-                      )}
-                    />
-                  )}
+                  control={control}
+                  value={selectedPacket[0]}
+                  options={packets}
+                  loading={isLoadingPackets}
+                  errors={errors}
+                  onChangeCallback={(val) => {
+                    setSelectedPacket([val]);
+                    setValue("quota_privat", val.quota_privat);
+                    setValue("quota_group", val.quota_group);
+                  }}
                 />
               </FormControl>
             </Grid>
