@@ -1,9 +1,9 @@
-import React, { useEffect } from "react";
-import { Typography, Modal, FormControl, Box, Grid } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { Typography, Modal, FormControl, Box, Grid, Autocomplete } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import axios from "axios";
 import { useMutation } from "react-query";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import PropTypes from "prop-types";
 
 import { modalStyle } from "../../constants/modalStyle";
@@ -11,6 +11,7 @@ import { CustomTextField } from "../../components/input/inputBasic";
 import CustomInputLabel from "../../components/input/inputLabel";
 import { usePaymentQuery } from "./query";
 import { fetchHeader } from "../../constants/fetchHeader";
+import { usePacketsQuery } from "../packets/query";
 
 PaymentFormModal.propTypes = {
   open: PropTypes.bool,
@@ -29,7 +30,17 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
     setValue,
     reset: resetForm,
     formState: { errors },
+    control,
   } = useForm();
+
+  const [openPacket, setOpenPacket] = useState(false);
+  const { data: packets = [], isLoading } = usePacketsQuery({
+    options: {
+      enabled: open,
+      select: (res) => res.data.map((packet) => ({ value: packet.id, label: packet.nama_paket })),
+    },
+  });
+  const [selectedPacket, setSelectedPacket] = useState([]);
 
   const submitAddPayment = useMutation((data) =>
     axios.post(`${process.env.REACT_APP_BASE_URL}/api/payment`, data, {
@@ -62,6 +73,7 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
         entries.forEach((packet) => {
           setValue(packet[0], packet[1]);
         });
+        setSelectedPacket(packets.filter((v) => v.value === data.paketId));
       },
     },
   });
@@ -79,7 +91,9 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
   }, [open, id, paymentRefetch, stateModal]);
 
   const onSubmit = (data) => {
-    if (stateModal === "update") {
+    console.log("onSubmit ", data);
+    console.log("errors ", errors);
+    /* if (stateModal === "update") {
       submitUpdatePayment.mutate(data, {
         onSuccess: (response) => {
           resetForm();
@@ -99,7 +113,7 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
           onError(error);
         },
       });
-    }
+    } */
   };
 
   if (isLoadingPayment)
@@ -138,10 +152,34 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
             <Grid item xs={6}>
               <FormControl fullWidth error={!!errors.paketId}>
                 <CustomInputLabel htmlFor="paketId">paketId*</CustomInputLabel>
-                <CustomTextField
-                  {...register("paketId", { required: "paketId Wajib diisi" })}
-                  helperText={errors.paketId?.message}
-                  error={!!errors.paketId}
+                <Controller
+                  name="paketId"
+                  control={control}
+                  rules={{
+                    required: "paketId Wajib diisi",
+                  }}
+                  render={({ field: { onChange } }) => (
+                    <Autocomplete
+                      open={openPacket}
+                      value={selectedPacket[0]}
+                      onOpen={() => {
+                        setOpenPacket(true);
+                      }}
+                      onClose={() => {
+                        setOpenPacket(false);
+                      }}
+                      isOptionEqualToValue={(option, value) => option.label === value.label}
+                      getOptionLabel={(option) => option.label}
+                      options={packets}
+                      loading={isLoading}
+                      onChange={(_, newValue) => {
+                        onChange(newValue.value);
+                      }}
+                      renderInput={(params) => (
+                        <CustomTextField {...params} helperText={errors.paketId?.message} error={!!errors.paketId} />
+                      )}
+                    />
+                  )}
                 />
               </FormControl>
             </Grid>
