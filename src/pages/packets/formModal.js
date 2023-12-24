@@ -1,16 +1,13 @@
 import React, { useEffect } from "react";
 import { Typography, Modal, FormControl, Box, Grid } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
-import axios from "axios";
-import { useMutation } from "react-query";
 import { useForm } from "react-hook-form";
 import PropTypes from "prop-types";
 
 import { modalStyle } from "../../constants/modalStyle";
 import { CustomTextField } from "../../components/input/inputBasic";
 import CustomInputLabel from "../../components/input/inputLabel";
-import { usePacketQuery } from "./query";
-import { fetchHeader } from "../../constants/fetchHeader";
+import { usePacketQuery, useAddPacket, useUpdatePacket } from "./query";
 
 PacketFormModal.propTypes = {
   open: PropTypes.bool,
@@ -31,16 +28,8 @@ export default function PacketFormModal({ open, onClose, stateModal, id, onSucce
     formState: { errors },
   } = useForm();
 
-  const submitAddPacket = useMutation((data) =>
-    axios.post(`${process.env.REACT_APP_BASE_URL}/api/paket`, data, {
-      headers: fetchHeader,
-    })
-  );
-  const submitUpdatePacket = useMutation((data) =>
-    axios.put(`${process.env.REACT_APP_BASE_URL}/api/paket/${id}`, data, {
-      headers: fetchHeader,
-    })
-  );
+  const submitAddPacket = useAddPacket();
+  const submitUpdatePacket = useUpdatePacket({ id });
 
   const { refetch: packetsRefetch, isLoading: isLoadingPacket } = usePacketQuery({
     id,
