@@ -1,12 +1,10 @@
 import React from "react";
 import { Typography, Modal, FormControl, Box } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
-import axios from "axios";
-import { useMutation } from "react-query";
 import PropTypes from "prop-types";
 
 import { modalStyle } from "../../constants/modalStyle";
-import { fetchHeader } from "../../constants/fetchHeader";
+import { useDeletePayment } from "./query";
 
 PaymentDeleteModal.propTypes = {
   open: PropTypes.bool,
@@ -18,11 +16,7 @@ PaymentDeleteModal.propTypes = {
 };
 
 export default function PaymentDeleteModal({ open, onClose, dataName, id, onSuccess, onError }) {
-  const submitDeletePayment = useMutation(() =>
-    axios.delete(`${process.env.REACT_APP_BASE_URL}/api/payment/${id}`, {
-      headers: fetchHeader,
-    })
-  );
+  const submitDeletePayment = useDeletePayment({ id });
 
   const handleSubmitDelete = (e) => {
     e.preventDefault();

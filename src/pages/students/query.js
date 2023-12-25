@@ -3,14 +3,16 @@ import { useQuery, useMutation } from "react-query";
 
 import { queryKey } from "../../constants/queryKey";
 import { fetchHeader } from "../../constants/fetchHeader";
+import { queryToString } from "../../utils/queryToString";
 
-export function usePacketsQuery(props) {
+export function useStudentsQuery(props) {
   const options = props?.options || {};
+  const queryParam = props?.queryParam || {};
   const { data, isLoading, isError, refetch } = useQuery(
-    [queryKey.packets],
+    [queryKey.students],
     () =>
       axios
-        .get(`${process.env.REACT_APP_BASE_URL}/api/paket`, {
+        .get(`${process.env.REACT_APP_BASE_URL}/api/student${queryToString(queryParam)}`, {
           headers: fetchHeader,
         })
         .then((res) => res.data),
@@ -19,12 +21,12 @@ export function usePacketsQuery(props) {
   return { refetch, data, isLoading, isError };
 }
 
-export function usePacketQuery({ id, options }) {
+export function useStudentQuery({ id, options }) {
   const { data, isLoading, isError, refetch } = useQuery(
-    [queryKey.packets, "DETAIL", id],
+    [queryKey.students, "DETAIL", id],
     () =>
       axios
-        .get(`${process.env.REACT_APP_BASE_URL}/api/paket/${id}`, {
+        .get(`${process.env.REACT_APP_BASE_URL}/api/student/${id}`, {
           headers: fetchHeader,
         })
         .then((res) => res.data),
@@ -33,25 +35,25 @@ export function usePacketQuery({ id, options }) {
   return { refetch, data, isLoading, isError };
 }
 
-export function useAddPacket() {
+export function useAddStudent() {
   return useMutation((data) =>
-    axios.post(`${process.env.REACT_APP_BASE_URL}/api/paket`, data, {
+    axios.post(`${process.env.REACT_APP_BASE_URL}/api/student`, data, {
       headers: fetchHeader,
     })
   );
 }
 
-export function useUpdatePacket({ id }) {
+export function useUpdateStudent({ id }) {
   return useMutation((data) =>
-    axios.put(`${process.env.REACT_APP_BASE_URL}/api/paket/${id}`, data, {
+    axios.put(`${process.env.REACT_APP_BASE_URL}/api/student/${id}`, data, {
       headers: fetchHeader,
     })
   );
 }
 
-export function useDeletePacket({ id }) {
+export function useDeleteStudent({ id }) {
   return useMutation(() =>
-    axios.delete(`${process.env.REACT_APP_BASE_URL}/api/paket/${id}`, {
+    axios.delete(`${process.env.REACT_APP_BASE_URL}/api/student/${id}`, {
       headers: fetchHeader,
     })
   );

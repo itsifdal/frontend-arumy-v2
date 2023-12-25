@@ -144,11 +144,11 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
           <Grid container spacing={2} marginBottom={2}>
             <Grid item xs={6}>
               <FormControl fullWidth error={!!errors.paketId}>
-                <CustomInputLabel htmlFor="paketId">paketId*</CustomInputLabel>
+                <CustomInputLabel htmlFor="paketId">Nama Paket*</CustomInputLabel>
                 <AutoCompleteReactHook
                   name="paketId"
                   rules={{
-                    required: "paketId Wajib diisi",
+                    required: "Nama paket wajib diisi",
                   }}
                   control={control}
                   value={selectedPacket[0]}

@@ -1,12 +1,10 @@
 import React from "react";
 import { Typography, Modal, FormControl, Box } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
-import axios from "axios";
-import { useMutation } from "react-query";
 import PropTypes from "prop-types";
 
 import { modalStyle } from "../../constants/modalStyle";
-import { fetchHeader } from "../../constants/fetchHeader";
+import { useDeleteBranch } from "./query";
 
 BranchDeleteModal.propTypes = {
   open: PropTypes.bool,
@@ -18,11 +16,7 @@ BranchDeleteModal.propTypes = {
 };
 
 export default function BranchDeleteModal({ open, onClose, dataName, id, onSuccess, onError }) {
-  const submitDeleteBranch = useMutation(() =>
-    axios.delete(`${process.env.REACT_APP_BASE_URL}/api/cabang/${id}`, {
-      headers: fetchHeader,
-    })
-  );
+  const submitDeleteBranch = useDeleteBranch({ id });
 
   const handleSubmitDelete = (e) => {
     e.preventDefault();

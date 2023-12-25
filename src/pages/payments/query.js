@@ -44,3 +44,11 @@ export function useUpdatePayment({ id }) {
     })
   );
 }
+
+export function useDeletePayment({ id }) {
+  return useMutation(() =>
+    axios.delete(`${process.env.REACT_APP_BASE_URL}/api/payment/${id}`, {
+      headers: fetchHeader,
+    })
+  );
+}

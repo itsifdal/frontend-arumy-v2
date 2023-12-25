@@ -30,3 +30,11 @@ export function useUpdateBranch({ id }) {
     })
   );
 }
+
+export function useDeleteBranch({ id }) {
+  return useMutation(() =>
+    axios.delete(`${process.env.REACT_APP_BASE_URL}/api/cabang/${id}`, {
+      headers: fetchHeader,
+    })
+  );
+}
