@@ -7,7 +7,7 @@ import { CustomTextField } from "./inputBasic";
 
 export default function AutoCompleteReactHook(props) {
   const [open, setOpen] = useState(false);
-  const { name, rules, control, value, options, loading, errors, onChangeCallback } = props;
+  const { name, rules, control, value, options, loading, isError, onChangeCallback, helperText } = props;
   return (
     <Controller
       name={name}
@@ -33,9 +33,7 @@ export default function AutoCompleteReactHook(props) {
               onChangeCallback(newValue);
             }
           }}
-          renderInput={(params) => (
-            <CustomTextField {...params} helperText={errors.paketId?.message} error={!!errors.paketId} />
-          )}
+          renderInput={(params) => <CustomTextField {...params} helperText={helperText} error={isError} />}
         />
       )}
     />
@@ -49,6 +47,7 @@ AutoCompleteReactHook.propTypes = {
   value: PropTypes.object,
   options: PropTypes.array,
   loading: PropTypes.bool,
-  errors: PropTypes.object,
   onChangeCallback: PropTypes.func,
+  isError: PropTypes.bool,
+  helperText: PropTypes.string,
 };

@@ -10,6 +10,7 @@ import CustomInputLabel from "../../components/input/inputLabel";
 import AutoCompleteReactHook from "../../components/input/autoCompleteReactHook";
 import { usePaymentQuery, useAddPayment, useUpdatePayment } from "./query";
 import { usePacketsQuery } from "../packets/query";
+import { useStudentsQuery } from "../students/query";
 
 PaymentFormModal.propTypes = {
   open: PropTypes.bool,
@@ -45,6 +46,19 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
   });
   const [selectedPacket, setSelectedPacket] = useState([packets[0]]);
 
+  const { data: students = [], isLoading: isLoadingStudents } = useStudentsQuery({
+    queryParam: { perPage: 9999 },
+    options: {
+      enabled: open,
+      select: (res) =>
+        res.data.map((packet) => ({
+          value: packet.id,
+          label: packet.nama_murid,
+        })),
+    },
+  });
+  const [selectedStudent, setSelectedStudent] = useState([students[0]]);
+
   const submitAddPayment = useAddPayment();
   const submitUpdatePayment = useUpdatePayment({ id });
 
@@ -69,6 +83,7 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
           setValue(packet[0], packet[1]);
         });
         setSelectedPacket(packets.filter((v) => v.value === data.paketId));
+        setSelectedStudent(students.filter((v) => v.value === data.studentId));
       },
     },
   });
@@ -154,7 +169,8 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
                   value={selectedPacket[0]}
                   options={packets}
                   loading={isLoadingPackets}
-                  errors={errors}
+                  isError={!!errors.paketId}
+                  helperText={errors.paketId?.message}
                   onChangeCallback={(val) => {
                     setSelectedPacket([val]);
                     setValue("quota_privat", val.quota_privat);
@@ -166,10 +182,20 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
             <Grid item xs={6}>
               <FormControl fullWidth error={!!errors.studentId}>
                 <CustomInputLabel htmlFor="studentId">studentId*</CustomInputLabel>
-                <CustomTextField
-                  {...register("studentId", { required: "studentId Wajib diisi" })}
+                <AutoCompleteReactHook
+                  name="studentId"
+                  rules={{
+                    required: "Nama murid wajib diisi",
+                  }}
+                  control={control}
+                  value={selectedStudent[0]}
+                  options={students}
+                  loading={isLoadingStudents}
+                  onChangeCallback={(val) => {
+                    setSelectedStudent([val]);
+                  }}
+                  isError={!!errors.studentId}
                   helperText={errors.studentId?.message}
-                  error={!!errors.studentId}
                 />
               </FormControl>
             </Grid>

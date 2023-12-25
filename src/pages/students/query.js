@@ -9,7 +9,7 @@ export function useStudentsQuery(props) {
   const options = props?.options || {};
   const queryParam = props?.queryParam || {};
   const { data, isLoading, isError, refetch } = useQuery(
-    [queryKey.students],
+    [queryKey.students, queryParam],
     () =>
       axios
         .get(`${process.env.REACT_APP_BASE_URL}/api/student${queryToString(queryParam)}`, {
