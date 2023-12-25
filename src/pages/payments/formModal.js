@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Typography, Modal, FormControl, Box, Grid } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
-import axios from "axios";
-import { useMutation } from "react-query";
 import { useForm } from "react-hook-form";
 import PropTypes from "prop-types";
 
@@ -10,8 +8,7 @@ import { modalStyle } from "../../constants/modalStyle";
 import { CustomTextField } from "../../components/input/inputBasic";
 import CustomInputLabel from "../../components/input/inputLabel";
 import AutoCompleteReactHook from "../../components/input/autoCompleteReactHook";
-import { usePaymentQuery } from "./query";
-import { fetchHeader } from "../../constants/fetchHeader";
+import { usePaymentQuery, useAddPayment, useUpdatePayment } from "./query";
 import { usePacketsQuery } from "../packets/query";
 
 PaymentFormModal.propTypes = {
@@ -48,16 +45,8 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
   });
   const [selectedPacket, setSelectedPacket] = useState([packets[0]]);
 
-  const submitAddPayment = useMutation((data) =>
-    axios.post(`${process.env.REACT_APP_BASE_URL}/api/payment`, data, {
-      headers: fetchHeader,
-    })
-  );
-  const submitUpdatePayment = useMutation((data) =>
-    axios.put(`${process.env.REACT_APP_BASE_URL}/api/payment/${id}`, data, {
-      headers: fetchHeader,
-    })
-  );
+  const submitAddPayment = useAddPayment();
+  const submitUpdatePayment = useUpdatePayment({ id });
 
   const { refetch: paymentRefetch, isLoading: isLoadingPayment } = usePaymentQuery({
     id,
@@ -97,9 +86,7 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
   }, [open, id, paymentRefetch, stateModal]);
 
   const onSubmit = (data) => {
-    console.log("onSubmit ", data);
-    console.log("errors ", errors);
-    /* if (stateModal === "update") {
+    if (stateModal === "update") {
       submitUpdatePayment.mutate(data, {
         onSuccess: (response) => {
           resetForm();
@@ -119,7 +106,7 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
           onError(error);
         },
       });
-    } */
+    }
   };
 
   if (isLoadingPayment)

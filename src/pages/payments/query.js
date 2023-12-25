@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useQuery } from "react-query";
+import { useQuery, useMutation } from "react-query";
 
 import { queryKey } from "../../constants/queryKey";
 import { fetchHeader } from "../../constants/fetchHeader";
@@ -27,4 +27,20 @@ export function usePaymentQuery({ id, options }) {
     options
   );
   return { refetch, data, isLoading, isError };
+}
+
+export function useAddPayment() {
+  return useMutation((data) =>
+    axios.post(`${process.env.REACT_APP_BASE_URL}/api/payment`, data, {
+      headers: fetchHeader,
+    })
+  );
+}
+
+export function useUpdatePayment({ id }) {
+  return useMutation((data) =>
+    axios.put(`${process.env.REACT_APP_BASE_URL}/api/payment/${id}`, data, {
+      headers: fetchHeader,
+    })
+  );
 }
