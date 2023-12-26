@@ -8,6 +8,7 @@ import { modalStyle } from "../../constants/modalStyle";
 import { CustomTextField } from "../../components/input/inputBasic";
 import CustomInputLabel from "../../components/input/inputLabel";
 import AutoCompleteReactHook from "../../components/input/autoCompleteReactHook";
+import DateInputReactHook from "../../components/input/dateInputReactHook";
 import { usePaymentQuery, useAddPayment, useUpdatePayment } from "./query";
 import { usePacketsQuery } from "../packets/query";
 import { useStudentsQuery } from "../students/query";
@@ -23,14 +24,8 @@ PaymentFormModal.propTypes = {
 };
 
 export default function PaymentFormModal({ open, onClose, stateModal, id, onSuccess, onError }) {
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    reset: resetForm,
-    formState: { errors },
-    control,
-  } = useForm();
+  const [selectedPacket, setSelectedPacket] = useState([]);
+  const [selectedStudent, setSelectedStudent] = useState([]);
 
   const { data: packets = [], isLoading: isLoadingPackets } = usePacketsQuery({
     options: {
@@ -42,9 +37,11 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
           quota_privat: packet.quota_privat,
           quota_group: packet.quota_group,
         })),
+      onSuccess: (res) => {
+        setSelectedPacket([res[0]]);
+      },
     },
   });
-  const [selectedPacket, setSelectedPacket] = useState([packets[0]]);
 
   const { data: students = [], isLoading: isLoadingStudents } = useStudentsQuery({
     queryParam: { perPage: 9999 },
@@ -55,9 +52,27 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
           value: packet.id,
           label: packet.nama_murid,
         })),
+      onSuccess: (res) => {
+        setSelectedStudent([res[0]]);
+      },
     },
   });
-  const [selectedStudent, setSelectedStudent] = useState([students[0]]);
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    reset: resetForm,
+    formState: { errors },
+    control,
+  } = useForm({
+    defaultValues: {
+      paketId: packets[0]?.value,
+      studentId: students[0]?.value,
+      tgl_tagihan: new Date(),
+      tgl_bayar: new Date(),
+    },
+  });
 
   const submitAddPayment = useAddPayment();
   const submitUpdatePayment = useUpdatePayment({ id });
@@ -101,6 +116,7 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
   }, [open, id, paymentRefetch, stateModal]);
 
   const onSubmit = (data) => {
+    // console.log("onSubmit", data);
     if (stateModal === "update") {
       submitUpdatePayment.mutate(data, {
         onSuccess: (response) => {
@@ -181,7 +197,7 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
             </Grid>
             <Grid item xs={6}>
               <FormControl fullWidth error={!!errors.studentId}>
-                <CustomInputLabel htmlFor="studentId">studentId*</CustomInputLabel>
+                <CustomInputLabel htmlFor="studentId">Nama Murid*</CustomInputLabel>
                 <AutoCompleteReactHook
                   name="studentId"
                   rules={{
@@ -201,21 +217,29 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
             </Grid>
             <Grid item xs={6}>
               <FormControl fullWidth error={!!errors.tgl_tagihan}>
-                <CustomInputLabel htmlFor="tgl_tagihan">tgl_tagihan*</CustomInputLabel>
-                <CustomTextField
-                  {...register("tgl_tagihan", { required: "tgl_tagihan Wajib diisi" })}
+                <CustomInputLabel htmlFor="tgl_tagihan">Tanggal Tagihan*</CustomInputLabel>
+                <DateInputReactHook
+                  name="tgl_tagihan"
+                  rules={{
+                    required: "Tanggal tagihan wajib diisi",
+                  }}
+                  control={control}
+                  isError={!!errors.tgl_tagihan}
                   helperText={errors.tgl_tagihan?.message}
-                  error={!!errors.tgl_tagihan}
                 />
               </FormControl>
             </Grid>
             <Grid item xs={6}>
               <FormControl fullWidth error={!!errors.tgl_bayar}>
-                <CustomInputLabel htmlFor="tgl_bayar">tgl_bayar*</CustomInputLabel>
-                <CustomTextField
-                  {...register("tgl_bayar", { required: "tgl_bayar Wajib diisi" })}
+                <CustomInputLabel htmlFor="tgl_bayar">Tanggal Bayar*</CustomInputLabel>
+                <DateInputReactHook
+                  name="tgl_bayar"
+                  rules={{
+                    required: "Tanggal bayar wajib diisi",
+                  }}
+                  control={control}
+                  isError={!!errors.tgl_bayar}
                   helperText={errors.tgl_bayar?.message}
-                  error={!!errors.tgl_bayar}
                 />
               </FormControl>
             </Grid>
