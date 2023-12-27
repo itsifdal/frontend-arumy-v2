@@ -8,6 +8,7 @@ import { CustomTextField } from "./inputBasic";
 export default function AutoCompleteReactHook(props) {
   const [open, setOpen] = useState(false);
   const { name, rules, control, value, options, loading, isError, onChangeCallback, helperText } = props;
+  if (loading) return null;
   return (
     <Controller
       name={name}

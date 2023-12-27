@@ -3,6 +3,7 @@ import { Typography, Modal, FormControl, Box, Grid } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { useForm } from "react-hook-form";
 import PropTypes from "prop-types";
+import { format } from "date-fns";
 
 import { modalStyle } from "../../constants/modalStyle";
 import { CustomTextField } from "../../components/input/inputBasic";
@@ -38,6 +39,7 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
           quota_group: packet.quota_group,
         })),
       onSuccess: (res) => {
+        setValue("paketId", res[0].value);
         setSelectedPacket([res[0]]);
       },
     },
@@ -53,6 +55,7 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
           label: packet.nama_murid,
         })),
       onSuccess: (res) => {
+        setValue("studentId", res[0].value);
         setSelectedStudent([res[0]]);
       },
     },
@@ -67,10 +70,8 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
     control,
   } = useForm({
     defaultValues: {
-      paketId: packets[0]?.value,
-      studentId: students[0]?.value,
-      tgl_tagihan: new Date(),
-      tgl_bayar: new Date(),
+      tgl_tagihan: format(new Date(), "yyyy-MM-dd"),
+      tgl_bayar: format(new Date(), "yyyy-MM-dd"),
     },
   });
 
@@ -103,11 +104,19 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
     },
   });
 
+  const resetAllForm = () => {
+    resetForm();
+    setSelectedPacket([packets[0]]);
+    setSelectedStudent([students[0]]);
+    setValue("paketId", packets[0]?.value);
+    setValue("studentId", students[0]?.value);
+  };
+
   useEffect(() => {
     if (!id) {
-      resetForm();
+      resetAllForm();
     }
-  }, [id, resetForm]);
+  }, [id, open]);
 
   useEffect(() => {
     if (open && stateModal === "update" && id) {
