@@ -10,6 +10,7 @@ import { CustomTextField } from "../../components/input/inputBasic";
 import CustomInputLabel from "../../components/input/inputLabel";
 import AutoCompleteReactHook from "../../components/input/autoCompleteReactHook";
 import DateInputReactHook from "../../components/input/dateInputReactHook";
+import CurrencyInputReactHook from "../../components/input/currencyInputReactHook";
 import { usePaymentQuery, useAddPayment, useUpdatePayment } from "./query";
 import { usePacketsQuery } from "../packets/query";
 import { useStudentsQuery } from "../students/query";
@@ -116,6 +117,7 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
     if (!id) {
       resetAllForm();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, open]);
 
   useEffect(() => {
@@ -254,11 +256,15 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
             </Grid>
             <Grid item xs={6}>
               <FormControl fullWidth error={!!errors.jumlah_bayar}>
-                <CustomInputLabel htmlFor="jumlah_bayar">jumlah_bayar*</CustomInputLabel>
-                <CustomTextField
-                  {...register("jumlah_bayar", { required: "jumlah_bayar Wajib diisi" })}
+                <CustomInputLabel htmlFor="jumlah_bayar">Jumlah Pembayaran*</CustomInputLabel>
+                <CurrencyInputReactHook
+                  name="jumlah_bayar"
+                  rules={{
+                    required: "Jumlah pembayaran wajib diisi",
+                  }}
+                  control={control}
                   helperText={errors.jumlah_bayar?.message}
-                  error={!!errors.jumlah_bayar}
+                  isError={!!errors.jumlah_bayar}
                 />
               </FormControl>
             </Grid>
