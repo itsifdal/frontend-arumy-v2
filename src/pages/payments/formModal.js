@@ -11,9 +11,16 @@ import CustomInputLabel from "../../components/input/inputLabel";
 import AutoCompleteReactHook from "../../components/input/autoCompleteReactHook";
 import DateInputReactHook from "../../components/input/dateInputReactHook";
 import CurrencyInputReactHook from "../../components/input/currencyInputReactHook";
+import SelectReactHook from "../../components/input/selectReactHook";
 import { usePaymentQuery, useAddPayment, useUpdatePayment } from "./query";
 import { usePacketsQuery } from "../packets/query";
 import { useStudentsQuery } from "../students/query";
+
+const paymentVia = [
+  { value: "VA", label: "Virtual Account" },
+  { value: "TRANSFER", label: "Transfer Bank" },
+  { value: "CASH", label: "Tunai" },
+];
 
 PaymentFormModal.propTypes = {
   open: PropTypes.bool,
@@ -71,6 +78,7 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
     control,
   } = useForm({
     defaultValues: {
+      bayar_via: paymentVia[0].value,
       tgl_tagihan: format(new Date(), "yyyy-MM-dd"),
       tgl_bayar: format(new Date(), "yyyy-MM-dd"),
     },
@@ -127,8 +135,8 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
   }, [open, id, paymentRefetch, stateModal]);
 
   const onSubmit = (data) => {
-    // console.log("onSubmit", data);
-    if (stateModal === "update") {
+    console.log("onSubmit", data);
+    /* if (stateModal === "update") {
       submitUpdatePayment.mutate(data, {
         onSuccess: (response) => {
           resetForm();
@@ -148,7 +156,7 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
           onError(error);
         },
       });
-    }
+    } */
   };
 
   if (isLoadingPayment)
@@ -270,19 +278,24 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
             </Grid>
             <Grid item xs={6}>
               <FormControl fullWidth error={!!errors.bayar_via}>
-                <CustomInputLabel htmlFor="bayar_via">bayar_via*</CustomInputLabel>
-                <CustomTextField
-                  {...register("bayar_via", { required: "bayar_via Wajib diisi" })}
+                <CustomInputLabel htmlFor="bayar_via">Pembayaran Via*</CustomInputLabel>
+                <SelectReactHook
+                  name="bayar_via"
+                  rules={{
+                    required: "Bayar via wajib diisi",
+                  }}
+                  control={control}
                   helperText={errors.bayar_via?.message}
-                  error={!!errors.bayar_via}
+                  isError={!!errors.bayar_via}
+                  options={paymentVia}
                 />
               </FormControl>
             </Grid>
             <Grid item xs={6}>
               <FormControl fullWidth error={!!errors.quota_privat}>
-                <CustomInputLabel htmlFor="quota_privat">quota_privat*</CustomInputLabel>
+                <CustomInputLabel htmlFor="quota_privat">Quota Private*</CustomInputLabel>
                 <CustomTextField
-                  {...register("quota_privat", { required: "quota_privat Wajib diisi" })}
+                  {...register("quota_privat", { required: "Quota private Wajib diisi" })}
                   helperText={errors.quota_privat?.message}
                   error={!!errors.quota_privat}
                 />
@@ -290,9 +303,9 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
             </Grid>
             <Grid item xs={6}>
               <FormControl fullWidth error={!!errors.quota_group}>
-                <CustomInputLabel htmlFor="quota_group">quota_group*</CustomInputLabel>
+                <CustomInputLabel htmlFor="quota_group">Quota Group*</CustomInputLabel>
                 <CustomTextField
-                  {...register("quota_group", { required: "quota_group Wajib diisi" })}
+                  {...register("quota_group", { required: "Quota group Wajib diisi" })}
                   helperText={errors.quota_group?.message}
                   error={!!errors.quota_group}
                 />
