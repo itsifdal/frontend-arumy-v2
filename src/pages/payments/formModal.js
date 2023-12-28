@@ -135,8 +135,8 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
   }, [open, id, paymentRefetch, stateModal]);
 
   const onSubmit = (data) => {
-    console.log("onSubmit", data);
-    /* if (stateModal === "update") {
+    // console.log("onSubmit", data);
+    if (stateModal === "update") {
       submitUpdatePayment.mutate(data, {
         onSuccess: (response) => {
           resetForm();
@@ -156,7 +156,7 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
           onError(error);
         },
       });
-    } */
+    }
   };
 
   if (isLoadingPayment)

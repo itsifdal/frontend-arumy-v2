@@ -15,7 +15,7 @@ export default function PaymentList() {
   const [packetName, setPacketName] = useState("");
   const [isOpenUpdateModal, setIsOpenUpdateModal] = useState(false);
   const [isOpenDeleteModal, setIsOpenDeleteModal] = useState(false);
-  const { data: packets, isLoading, isError, refetch: packetsRefetch } = usePaymentsQuery();
+  const { data: payments, isLoading, isError, refetch: packetsRefetch } = usePaymentsQuery();
 
   const handleCloseModalUpdate = () => setIsOpenUpdateModal(false);
   const handleCloseModalDelete = () => setIsOpenDeleteModal(false);
@@ -51,18 +51,18 @@ export default function PaymentList() {
       <Scrollbar>
         <BasicTable
           header={["NAMA MURID", "NAMA PAKET", "TANGGAL TAGIHAN", "JUMLAH BAYAR", " "]}
-          body={packets.data.map((packet) => [
-            packet.studentId,
-            packet.paketId,
-            packet.tgl_tagihan,
-            packet.jumlah_bayar,
-            <Stack key={packet.id} direction="row" spacing={2}>
+          body={payments.data.map((payment) => [
+            payment.studentId,
+            payment.paketId,
+            payment.tgl_tagihan,
+            payment.jumlah_bayar,
+            <Stack key={payment.id} direction="row" spacing={2}>
               <Button
                 variant="contained"
                 color="success"
                 size="small"
                 startIcon={<Iconify icon="mdi:pencil" />}
-                onClick={() => onClickEdit({ updateId: packet.id, updateName: packet.nama_paket })}
+                onClick={() => onClickEdit({ updateId: payment.id, updateName: payment.nama_paket })}
               >
                 Update
               </Button>
@@ -71,7 +71,7 @@ export default function PaymentList() {
                 color="error"
                 size="small"
                 startIcon={<Iconify icon="eva:trash-fill" />}
-                onClick={() => onClickDelete({ deleteId: packet.id, deleteName: packet.nama_paket })}
+                onClick={() => onClickDelete({ deleteId: payment.id, deleteName: payment.nama_paket })}
               >
                 Delete
               </Button>
