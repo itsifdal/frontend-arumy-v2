@@ -1,21 +1,29 @@
 import React, { useState } from "react";
-import { Stack, Button } from "@mui/material";
+import { Stack, Button, Pagination, PaginationItem } from "@mui/material";
 import { format } from "date-fns";
 import { NumericFormat } from "react-number-format";
+import { useSearchParams, Link } from "react-router-dom";
 
 import Scrollbar from "../../components/Scrollbar";
 import BasicTable from "../../components/BasicTable";
 import Iconify from "../../components/Iconify";
+import { queryToString } from "../../utils/queryToString";
+import { urlSearchParamsToQuery } from "../../utils/urlSearchParamsToQuery";
 import PaymentDeleteModal from "./deleteModal";
 import PaymentFormModal from "./formModal";
 import { usePaymentsQuery } from "./query";
 import { onSuccessToast, onErrorToast } from "./callback";
+
+const defaultQuery = { sort: "DESC", sort_by: "tgl_tagihan" };
 
 export default function PaymentList() {
   const [id, setId] = useState("");
   const [packetName, setPacketName] = useState("");
   const [isOpenUpdateModal, setIsOpenUpdateModal] = useState(false);
   const [isOpenDeleteModal, setIsOpenDeleteModal] = useState(false);
+
+  const [searchParams] = useSearchParams();
+  const queryParam = urlSearchParamsToQuery(searchParams);
   const {
     data: payments,
     isLoading,
@@ -23,15 +31,18 @@ export default function PaymentList() {
     refetch: packetsRefetch,
   } = usePaymentsQuery({
     options: {
-      select: (res) =>
-        res.data.map((packet) => ({
+      select: (res) => ({
+        data: res.data.map((packet) => ({
           id: packet.id,
           studentName: packet.student?.nama_murid,
           paketName: packet.paket?.nama_paket,
           paymentDate: format(new Date(packet.tgl_tagihan), "dd-MM-yyyy"),
           totalPaid: packet.jumlah_bayar,
         })),
+        pagination: res.pagination,
+      }),
     },
+    queryParam: { ...defaultQuery, ...queryParam },
   });
 
   const handleCloseModalUpdate = () => setIsOpenUpdateModal(false);
@@ -68,7 +79,7 @@ export default function PaymentList() {
       <Scrollbar>
         <BasicTable
           header={["NAMA MURID", "NAMA PAKET", "TANGGAL TAGIHAN", "JUMLAH BAYAR", " "]}
-          body={payments.map((payment) => [
+          body={payments.data.map((payment) => [
             payment.studentName,
             payment.paketName,
             payment.paymentDate,
@@ -108,6 +119,20 @@ export default function PaymentList() {
           ])}
         />
       </Scrollbar>
+
+      <Pagination
+        page={payments.pagination.currentPage}
+        count={payments.pagination.totalPages}
+        shape="rounded"
+        sx={[{ ul: { justifyContent: "center" } }]}
+        renderItem={(item) => (
+          <PaginationItem
+            component={Link}
+            to={`/app/payment${queryToString({ ...queryParam, page: item.page === 1 ? null : item.page })}`}
+            {...item}
+          />
+        )}
+      />
 
       <PaymentFormModal
         open={isOpenUpdateModal}
