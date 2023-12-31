@@ -10,4 +10,5 @@ export const queryKey = {
   downloadBooking: "DOWNLOAD_BOOKING",
   packets: "PACKETS",
   payments: "PAYMENTS",
+  studentPackets: "STUDENT_PACKETS",
 };

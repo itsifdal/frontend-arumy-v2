@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useReducer } from "react";
+import React, { useEffect, useState, useReducer, useMemo } from "react";
 import {
   Typography,
   Modal,
@@ -28,6 +28,7 @@ import TimeInputBasic from "../input/timeInputBasic";
 import AutoCompleteBasic from "../input/autoCompleteBasic";
 import TextareaBasic from "../input/textareaBasic";
 import { fetchHeader } from "../../constants/fetchHeader";
+import { queryToString } from "../../utils/queryToString";
 
 import { bookingFormReducer, initialBookingFormState, validateBookingForm } from "../../utils/reducer/bookingReducer";
 
@@ -35,9 +36,14 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
   const [openStudent, setOpenStudent] = useState(false);
   const [openTeacher, setOpenTeacher] = useState(false);
   const [openRoom, setOpenRoom] = useState(false);
+  const [openPackets, setOpenPackets] = useState(false);
   const [openInstrument, setOpenInstrument] = useState(false);
   const [stateForm, dispatchStateForm] = useReducer(bookingFormReducer, initialBookingFormState);
   const queryClient = useQueryClient();
+  const studentsId = useMemo(
+    () => stateForm.values.user_group.map((student) => student.value),
+    [stateForm.values.user_group]
+  );
 
   const { data: students = [], isLoading: isLoadingStudents } = useQuery(
     [queryKey.students],
@@ -79,6 +85,29 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
       select: (roomList) =>
         roomList.map((room) => ({ value: room.id, label: room.nama_ruang, branch: room.cabang?.nama_cabang })),
       enabled: openRoom,
+    }
+  );
+
+  const { data: studentPacket = [], isLoading: isLoadingStudentPacket } = useQuery(
+    [queryKey.studentPackets, { studentIds: studentsId.join(",") }],
+    () =>
+      axios
+        .get(
+          `${process.env.REACT_APP_BASE_URL}/api/payment/studentPacket${queryToString({
+            studentIds: studentsId.join(","),
+          })}`,
+          {
+            headers: fetchHeader,
+          }
+        )
+        .then((res) => res.data),
+    {
+      select: (studentPaymentList) =>
+        studentPaymentList.data.map((packet) => ({
+          value: packet.paketId,
+          label: packet.paket.nama_paket,
+        })),
+      enabled: openPackets && !!studentsId.length,
     }
   );
 
@@ -144,6 +173,7 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
         notes: stateForm.values.notes,
         status: state === "create" ? "pending" : stateForm.values.status,
         userId,
+        paketId: stateForm.values.paketId.value,
       };
 
       if (state === "update") {
@@ -333,6 +363,30 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
               }}
             />
           </Grid>
+
+          <Grid item xs={6} paddingBottom={2}>
+            <AutoCompleteBasic
+              disabled={!studentsId.length}
+              label="Paket"
+              name="paketId"
+              value={stateForm.values.paketId}
+              error={Boolean(stateForm.errors.paketId)}
+              errorMessage={stateForm.errors.paketId}
+              options={studentPacket}
+              loading={isLoadingStudentPacket}
+              open={openPackets}
+              onOpen={() => {
+                setOpenPackets(true);
+              }}
+              onClose={() => {
+                setOpenPackets(false);
+              }}
+              onChange={(_, newValue) => {
+                onChange({ target: { name: "paketId", value: newValue } });
+              }}
+            />
+          </Grid>
+
           <Grid item xs={6} paddingBottom={2}>
             <AutoCompleteBasic
               required

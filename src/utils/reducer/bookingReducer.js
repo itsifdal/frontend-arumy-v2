@@ -14,6 +14,7 @@ export const initialBookingFormState = {
     durasi: 45,
     status: "",
     notes: "",
+    paketId: { value: "", label: "" },
   },
   errors: {
     roomId: "",
@@ -28,6 +29,7 @@ export const initialBookingFormState = {
     durasi: "",
     status: "",
     notes: "",
+    paketId: "",
   },
 };
 
