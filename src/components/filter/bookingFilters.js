@@ -214,7 +214,7 @@ function BookingFilterForm({ toggleDrawer }) {
 
   const SubmitFilter = () => {
     if (toggleDrawer) toggleDrawer(false);
-    setSearchParams(filters);
+    setSearchParams({ ...filters, page: 1 });
   };
 
   const ResetFilter = () => {
