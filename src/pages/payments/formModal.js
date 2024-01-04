@@ -12,6 +12,7 @@ import AutoCompleteReactHook from "../../components/input/autoCompleteReactHook"
 import DateInputReactHook from "../../components/input/dateInputReactHook";
 import CurrencyInputReactHook from "../../components/input/currencyInputReactHook";
 import SelectReactHook from "../../components/input/selectReactHook";
+import CheckBoxReactHook from "../../components/input/checkBoxReactHook";
 import { usePaymentQuery, useAddPayment, useUpdatePayment } from "./query";
 import { usePacketsQuery } from "../packets/query";
 import { useStudentsQuery } from "../students/query";
@@ -104,8 +105,10 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
           tgl_bayar: data.tgl_bayar,
           jumlah_bayar: data.jumlah_bayar,
           bayar_via: data.bayar_via,
-          quota_privat: data.quota_privat,
-          quota_group: data.quota_group,
+          quota_privat: data.quota_privat || 0,
+          quota_group: data.quota_group || 0,
+          receipt_number: data.receipt_number,
+          confirmed_status: data.confirmed_status,
         };
         const entries = Object.entries(modelData);
         entries.forEach((packet) => {
@@ -166,7 +169,7 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
     }
   };
 
-  if (isLoadingPayment)
+  if (isLoadingPayment) {
     return (
       <Modal
         open={open}
@@ -180,6 +183,7 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
         </Box>
       </Modal>
     );
+  }
 
   return (
     <Modal
@@ -318,6 +322,21 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
                   helperText={errors.quota_group?.message}
                   error={!!errors.quota_group}
                 />
+              </FormControl>
+            </Grid>
+            <Grid item xs={6}>
+              <FormControl fullWidth error={!!errors.receipt_number}>
+                <CustomInputLabel htmlFor="receipt_number">Receipt Number</CustomInputLabel>
+                <CustomTextField
+                  {...register("receipt_number")}
+                  helperText={errors.receipt_number?.message}
+                  error={!!errors.receipt_number}
+                />
+              </FormControl>
+            </Grid>
+            <Grid item xs={6}>
+              <FormControl fullWidth error={!!errors.confirmed_status}>
+                <CheckBoxReactHook name="confirmed_status" control={control} label={"Confirmed"} />
               </FormControl>
             </Grid>
           </Grid>
