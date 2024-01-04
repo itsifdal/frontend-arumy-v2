@@ -53,6 +53,7 @@ export default function BookingFilters() {
       delete tempQueryParam.eventTime;
       delete tempQueryParam.sort;
       delete tempQueryParam.sort_by;
+      delete tempQueryParam.page;
 
       setSearchParams({ ...tempQueryParam });
     } else {
@@ -61,6 +62,7 @@ export default function BookingFilters() {
         eventTime: newValue,
         ...(newValue === "upcoming" && { sort: "asc", sort_by: "tgl_kelas" }),
         ...(newValue === "past" && { sort: "desc", sort_by: "tgl_kelas" }),
+        page: 1,
       };
       setSearchParams(query);
     }
