@@ -6,8 +6,12 @@ import PaymentFormModal from "./formModal";
 import { onSuccessToast, onErrorToast } from "./callback";
 import { usePaymentsQuery } from "./query";
 
+const defaultQuery = { sort: "DESC", sort_by: "tgl_tagihan" };
+
 export default function PaymentCreateButton() {
-  const { refetch: paymentsRefetch } = usePaymentsQuery();
+  const { refetch: paymentsRefetch } = usePaymentsQuery({
+    queryParam: { ...defaultQuery },
+  });
   const [isOpenCreateModal, setIsOpenCreateModal] = useState(false);
 
   const handleOpenModalCreate = () => setIsOpenCreateModal(true);

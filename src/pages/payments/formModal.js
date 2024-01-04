@@ -43,11 +43,15 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
         res.data.map((packet) => ({
           value: packet.id,
           label: packet.nama_paket,
-          quota_privat: packet.quota_privat,
-          quota_group: packet.quota_group,
+          quota_privat: packet.quota_privat || 0,
+          quota_group: packet.quota_group || 0,
+          harga: packet.harga || 0,
         })),
       onSuccess: (res) => {
         setValue("paketId", res[0].value);
+        setValue("quota_privat", res[0].quota_privat);
+        setValue("quota_group", res[0].quota_group);
+        setValue("jumlah_bayar", res[0].harga);
         setSelectedPacket([res[0]]);
       },
     },
@@ -119,6 +123,9 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
     setSelectedStudent([students[0]]);
     setValue("paketId", packets[0]?.value);
     setValue("studentId", students[0]?.value);
+    setValue("quota_privat", packets[0]?.quota_privat);
+    setValue("quota_group", packets[0]?.quota_group);
+    setValue("jumlah_bayar", packets[0]?.harga);
   };
 
   useEffect(() => {
@@ -295,6 +302,7 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
               <FormControl fullWidth error={!!errors.quota_privat}>
                 <CustomInputLabel htmlFor="quota_privat">Quota Private*</CustomInputLabel>
                 <CustomTextField
+                  disabled
                   {...register("quota_privat", { required: "Quota private Wajib diisi" })}
                   helperText={errors.quota_privat?.message}
                   error={!!errors.quota_privat}
@@ -305,6 +313,7 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
               <FormControl fullWidth error={!!errors.quota_group}>
                 <CustomInputLabel htmlFor="quota_group">Quota Group*</CustomInputLabel>
                 <CustomTextField
+                  disabled
                   {...register("quota_group", { required: "Quota group Wajib diisi" })}
                   helperText={errors.quota_group?.message}
                   error={!!errors.quota_group}

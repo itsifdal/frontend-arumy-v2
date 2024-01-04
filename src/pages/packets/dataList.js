@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-
+import { NumericFormat } from "react-number-format";
 import { Stack, Button } from "@mui/material";
 
 import Scrollbar from "../../components/Scrollbar";
@@ -53,7 +53,14 @@ export default function PacketList() {
           header={["NAMA PAKET", "HARGA", "QUOTA PRIVATE", "QUOTA GROUP", " "]}
           body={packets.data.map((packet) => [
             packet.nama_paket,
-            packet.harga,
+            <NumericFormat
+              prefix={"Rp"}
+              key={packet.id}
+              displayType="text"
+              value={packet.harga}
+              thousandSeparator="."
+              decimalSeparator=","
+            />,
             packet.quota_privat,
             packet.quota_group,
             <Stack key={packet.id} direction="row" spacing={2}>
