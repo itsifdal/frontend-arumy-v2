@@ -13,7 +13,7 @@ export default function Payments() {
   return (
     <Page title="Paket">
       <PageHeader title="Paket" rightContent={<PaymentCreateButton />} />
-      <Container maxWidth="xl" sx={{ paddingTop: 4 }}>
+      <Container maxWidth="xl" sx={{ paddingY: 4 }}>
         <ToastContainer pauseOnFocusLoss={false} />
         <PaymentList />
       </Container>

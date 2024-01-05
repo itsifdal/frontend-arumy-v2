@@ -13,7 +13,7 @@ export default function Packets() {
   return (
     <Page title="Paket">
       <PageHeader title="Paket" rightContent={<PacketCreateButton />} />
-      <Container maxWidth="xl" sx={{ paddingTop: 4 }}>
+      <Container maxWidth="xl" sx={{ paddingY: 4 }}>
         <ToastContainer pauseOnFocusLoss={false} />
         <PacketList />
       </Container>

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { NumericFormat } from "react-number-format";
-import { Stack, Button } from "@mui/material";
+import { Stack, Button, Pagination, PaginationItem } from "@mui/material";
+import { useSearchParams, Link } from "react-router-dom";
 
 import Scrollbar from "../../components/Scrollbar";
 import BasicTable from "../../components/BasicTable";
@@ -9,13 +10,25 @@ import PacketDeleteModal from "./deleteModal";
 import PacketFormModal from "./formModal";
 import { usePacketsQuery } from "./query";
 import { onSuccessToast, onErrorToast } from "./callback";
+import { queryToString } from "../../utils/queryToString";
+import { urlSearchParamsToQuery } from "../../utils/urlSearchParamsToQuery";
 
 export default function PacketList() {
   const [id, setId] = useState("");
   const [packetName, setPacketName] = useState("");
   const [isOpenUpdateModal, setIsOpenUpdateModal] = useState(false);
   const [isOpenDeleteModal, setIsOpenDeleteModal] = useState(false);
-  const { data: packets, isLoading, isError, refetch: packetsRefetch } = usePacketsQuery();
+
+  const [searchParams] = useSearchParams();
+  const queryParam = urlSearchParamsToQuery(searchParams);
+  const {
+    data: packets,
+    isLoading,
+    isError,
+    refetch: packetsRefetch,
+  } = usePacketsQuery({
+    queryParam: { ...queryParam },
+  });
 
   const handleCloseModalUpdate = () => setIsOpenUpdateModal(false);
   const handleCloseModalDelete = () => setIsOpenDeleteModal(false);
@@ -86,6 +99,20 @@ export default function PacketList() {
           ])}
         />
       </Scrollbar>
+
+      <Pagination
+        page={packets.pagination.current_page}
+        count={packets.pagination.total_pages}
+        shape="rounded"
+        sx={[{ ul: { justifyContent: "center" } }]}
+        renderItem={(item) => (
+          <PaginationItem
+            component={Link}
+            to={`/app/packet${queryToString({ ...queryParam, page: item.page === 1 ? null : item.page })}`}
+            {...item}
+          />
+        )}
+      />
 
       <PacketFormModal
         open={isOpenUpdateModal}

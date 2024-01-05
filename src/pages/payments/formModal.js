@@ -36,6 +36,16 @@ PaymentFormModal.propTypes = {
 export default function PaymentFormModal({ open, onClose, stateModal, id, onSuccess, onError }) {
   const [selectedPacket, setSelectedPacket] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState([]);
+  const [user, setUser] = useState({ id: undefined });
+
+  // localStorage
+  useEffect(() => {
+    const loggedInUser = localStorage.getItem("user");
+    if (loggedInUser) {
+      const foundUser = JSON.parse(loggedInUser);
+      setUser(foundUser);
+    }
+  }, []);
 
   const { data: packets = [], isLoading: isLoadingPackets } = usePacketsQuery({
     options: {
@@ -56,6 +66,7 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
         setSelectedPacket([res[0]]);
       },
     },
+    queryParam: { perPage: 99999 },
   });
 
   const { data: students = [], isLoading: isLoadingStudents } = useStudentsQuery({
@@ -339,6 +350,7 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
                 <CheckBoxReactHook name="confirmed_status" control={control} label={"Confirmed"} />
               </FormControl>
             </Grid>
+            <input type="hidden" {...register("userId")} value={user.id} />
           </Grid>
           <LoadingButton
             loading={submitAddPayment.isLoading || submitUpdatePayment.isLoading}
