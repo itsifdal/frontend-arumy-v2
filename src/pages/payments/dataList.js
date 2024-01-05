@@ -38,6 +38,7 @@ export default function PaymentList() {
           paketName: packet.paket?.nama_paket,
           paymentDate: format(new Date(packet.tgl_tagihan), "dd-MM-yyyy"),
           totalPaid: packet.jumlah_bayar,
+          receiptNumber: packet.receipt_number,
         })),
         pagination: res.pagination,
       }),
@@ -78,11 +79,12 @@ export default function PaymentList() {
     <>
       <Scrollbar>
         <BasicTable
-          header={["NAMA MURID", "NAMA PAKET", "TANGGAL TAGIHAN", "JUMLAH BAYAR", " "]}
+          header={["NAMA MURID", "NAMA PAKET", "TANGGAL TAGIHAN", "NOMOR INVOICE", "JUMLAH BAYAR", " "]}
           body={payments.data.map((payment) => [
             payment.studentName,
             payment.paketName,
             payment.paymentDate,
+            payment.receiptNumber,
             <NumericFormat
               prefix={"Rp"}
               key={payment.id}
