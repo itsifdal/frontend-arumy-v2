@@ -7,6 +7,9 @@ export const CustomTextField = styled(TextField)({
   input: {
     fontSize: "12px",
   },
+  textarea: {
+    fontSize: "12px",
+  },
   ".MuiInputBase-root": { borderRadius: "15px" },
   ".MuiOutlinedInput-notchedOutline": {
     borderColor: "rgba(115, 125, 170, 0.70)",

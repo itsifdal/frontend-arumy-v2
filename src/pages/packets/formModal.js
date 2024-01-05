@@ -42,6 +42,7 @@ export default function PacketFormModal({ open, onClose, stateModal, id, onSucce
           harga: data.harga,
           quota_privat: data.quota_privat,
           quota_group: data.quota_group,
+          description: data.description,
         };
         const entries = Object.entries(modelData);
         entries.forEach((packet) => {
@@ -146,6 +147,12 @@ export default function PacketFormModal({ open, onClose, stateModal, id, onSucce
               <FormControl fullWidth>
                 <CustomInputLabel htmlFor="quota_group">Quota Group</CustomInputLabel>
                 <CustomTextField {...register("quota_group")} />
+              </FormControl>
+            </Grid>
+            <Grid item xs={6}>
+              <FormControl fullWidth>
+                <CustomInputLabel htmlFor="description">Deskripsi</CustomInputLabel>
+                <CustomTextField {...register("description")} multiline maxRows={4} />
               </FormControl>
             </Grid>
           </Grid>
