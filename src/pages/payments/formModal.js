@@ -21,6 +21,7 @@ const paymentVia = [
   { value: "VA", label: "Virtual Account" },
   { value: "TRANSFER", label: "Transfer Bank" },
   { value: "CASH", label: "Tunai" },
+  { value: "PAPER", label: "Paper" },
 ];
 
 PaymentFormModal.propTypes = {
