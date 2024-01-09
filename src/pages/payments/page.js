@@ -11,8 +11,8 @@ import PaymentCreateButton from "./createButton";
 // ----------------------------------------------------------------------
 export default function Payments() {
   return (
-    <Page title="Paket">
-      <PageHeader title="Paket" rightContent={<PaymentCreateButton />} />
+    <Page title="Payment">
+      <PageHeader title="Payment" rightContent={<PaymentCreateButton />} />
       <Container maxWidth="xl" sx={{ paddingY: 4 }}>
         <ToastContainer pauseOnFocusLoss={false} />
         <PaymentList />

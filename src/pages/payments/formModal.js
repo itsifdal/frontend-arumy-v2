@@ -233,6 +233,7 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
                     setSelectedPacket([val]);
                     setValue("quota_privat", val.quota_privat);
                     setValue("quota_group", val.quota_group);
+                    setValue("jumlah_bayar", val.harga);
                   }}
                 />
               </FormControl>
