@@ -168,7 +168,7 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
     });
   };
 
-  const { refetch: bookingRefetch } = useQuery(
+  const { refetch: bookingRefetch, isLoading: isLoadingBookingRefetch } = useQuery(
     [queryKey.bookings, "DETAIL", id],
     () =>
       axios
@@ -201,6 +201,7 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
           jam_selesai_booking: parse(data.selesai, "HH:mm:ss", new Date()),
           jenis_kelas: data.jenis_kelas,
           durasi: Number(data.durasi),
+          notes: data.notes,
           status: data.status,
         };
         const entries = Object.entries(modelData);
@@ -218,6 +219,9 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
 
   useEffect(() => {
     if (open && state === "update" && id) {
+      dispatchStateForm({
+        type: "reset-field",
+      });
       bookingRefetch();
     }
   }, [open, id, bookingRefetch, state]);
@@ -236,6 +240,24 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
       });
     }
   }, [open, state]);
+
+  if (isLoadingBookingRefetch) {
+    return (
+      <Modal
+        open={open}
+        onClose={() => {
+          dispatchStateForm({
+            type: "reset-field",
+          });
+          onClose();
+        }}
+      >
+        <Box sx={{ ...modalStyle, maxWidth: 600 }}>
+          <>Loading Data</>
+        </Box>
+      </Modal>
+    );
+  }
 
   return (
     <Modal
