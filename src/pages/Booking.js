@@ -1,12 +1,11 @@
 /* eslint-disable camelcase */
 import React, { useEffect, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { useQuery, useMutation } from "react-query";
+import { useQuery } from "react-query";
 import { format, parse, addMinutes } from "date-fns";
 // React Toasts
 import { ToastContainer, toast } from "react-toastify";
 import axios from "axios";
-import { LoadingButton } from "@mui/lab";
 import PropTypes from "prop-types";
 import { downloadExcel } from "react-export-table-to-excel";
 
@@ -14,19 +13,7 @@ import { downloadExcel } from "react-export-table-to-excel";
 import "react-toastify/dist/ReactToastify.css";
 
 // material
-import {
-  Chip,
-  Tooltip,
-  Button,
-  Container,
-  Typography,
-  Modal,
-  FormControl,
-  Box,
-  Stack,
-  Pagination,
-  PaginationItem,
-} from "@mui/material";
+import { Chip, Tooltip, Button, Container, Typography, Box, Stack, Pagination, PaginationItem } from "@mui/material";
 import { InfoRounded } from "@mui/icons-material";
 
 // hooks
@@ -38,6 +25,7 @@ import PageHeader from "../components/PageHeader";
 import BasicTable from "../components/BasicTable";
 import CreateBooking from "../components/modal/createBooking";
 import ConfirmBooking from "../components/modal/confirmBooking";
+import DeleteBooking from "../components/modal/deleteBooking";
 import { cleanQuery } from "../utils/cleanQuery";
 import { urlSearchParamsToQuery } from "../utils/urlSearchParamsToQuery";
 import { queryToString } from "../utils/queryToString";
@@ -46,20 +34,6 @@ import BookingFilters from "../components/filter/bookingFilters";
 import CollapsibleTable from "../components/CollapsibleTable";
 import { bookingStatusObj } from "../constants/bookingStatus";
 import { fetchHeader } from "../constants/fetchHeader";
-
-// Style box
-const style = {
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  width: "100%",
-  maxWidth: "400px",
-  bgcolor: "background.paper",
-  border: "2px solid #000",
-  boxShadow: 24,
-  p: 4,
-};
 
 const hourModel = ({ timeStart, timeEnd, duration }) => {
   const formatTimeStart = format(parse(timeStart, "HH:mm:ss", new Date()), "HH:mm");
@@ -104,7 +78,7 @@ const generateStatus = ({ status, isMobile }) => {
 // ----------------------------------------------------------------------
 export default function Booking() {
   const [bookingId, setBookingId] = useState();
-  const [user, setUser] = useState("");
+  const [user, setUser] = useState({});
   const [openModalCreate, setOpenModalCreate] = useState(false);
   const [stateModalCreate, setStateModalCreate] = useState("create");
 
@@ -158,28 +132,6 @@ export default function Booking() {
     setOpenDel(true);
   };
   const handleCloseModalDelete = () => setOpenDel(false);
-
-  const submitDeleteBooking = useMutation(() =>
-    axios.delete(`${process.env.REACT_APP_BASE_URL}/api/booking/${bookingId}`, {
-      headers: fetchHeader,
-    })
-  );
-
-  const handleSubmitDelete = (e) => {
-    e.preventDefault();
-    submitDeleteBooking.mutate(
-      {},
-      {
-        onSuccess: (response) => {
-          setBookingId();
-          onSuccessMutateBooking(response);
-        },
-        onError: (error) => {
-          onErrorMutateBooking(error);
-        },
-      }
-    );
-  };
 
   const onSuccessMutateBooking = (response) => {
     bookingsRefetch();
@@ -323,23 +275,18 @@ export default function Booking() {
           userId={user.id}
         />
 
-        <Modal
+        <DeleteBooking
           open={openDel}
           onClose={handleCloseModalDelete}
-          aria-labelledby="modal-modal-title"
-          aria-describedby="modal-modal-description"
-        >
-          <Box sx={style}>
-            <Typography id="modal-modal-title" variant="h6" component="h2" marginBottom={5}>
-              Delete booking ?
-            </Typography>
-            <FormControl fullWidth>
-              <LoadingButton variant="contained" type="submit" onClick={handleSubmitDelete}>
-                Delete
-              </LoadingButton>
-            </FormControl>
-          </Box>
-        </Modal>
+          id={Number(bookingId)}
+          callbackSuccess={(response) => {
+            setBookingId();
+            onSuccessMutateBooking(response);
+          }}
+          callbackError={(error) => {
+            onErrorMutateBooking(error);
+          }}
+        />
 
         <ConfirmBooking
           open={openUpdStatus}
