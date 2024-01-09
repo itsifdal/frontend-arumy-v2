@@ -3,7 +3,6 @@ import { Typography, Modal, FormControl, Box, Grid } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { useForm, Controller } from "react-hook-form";
 import PropTypes from "prop-types";
-import { format } from "date-fns";
 
 import { modalStyle } from "../../constants/modalStyle";
 import { CustomTextField } from "../../components/input/inputBasic";
@@ -37,8 +36,6 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
   } = useForm({
     defaultValues: {
       bayar_via: paymentVia[0].value,
-      tgl_tagihan: format(new Date(), "yyyy-MM-dd"),
-      tgl_bayar: format(new Date(), "yyyy-MM-dd"),
     },
   });
 
@@ -107,14 +104,9 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
     },
   });
 
-  const resetAllForm = () => {
-    resetForm();
-    setValue("jumlah_bayar", packets[0]?.harga);
-  };
-
   useEffect(() => {
     if (!id) {
-      resetAllForm();
+      resetForm();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, open]);

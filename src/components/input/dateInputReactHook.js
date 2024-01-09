@@ -31,20 +31,26 @@ const newTheme = (theme) =>
 
 export default function DateInputReactHook(props) {
   const { name, rules, control, isError, helperText } = props;
+  let delayTyping;
   return (
     <Controller
       name={name}
       control={control}
       rules={rules}
-      render={({ field: { onChange, value } }) => (
+      render={({ field: { onChange, value = "" } }) => (
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={id}>
           <DatePicker
             inputFormat="dd/MM/yyyy"
             value={value}
             onChange={(value) => {
-              if (!isValid(value)) return false;
-              onChange(format(value, "yyyy-MM-dd"));
-              return value;
+              clearTimeout(delayTyping);
+              delayTyping = setTimeout(() => {
+                if (isValid(value)) {
+                  onChange(format(value, "yyyy-MM-dd"));
+                } else {
+                  onChange(value);
+                }
+              }, 700);
             }}
             renderInput={(props) => (
               <ThemeProvider theme={newTheme}>
