@@ -25,8 +25,6 @@ const paymentVia = [
 ];
 
 export default function PaymentFormModal({ open, onClose, stateModal, id, onSuccess, onError }) {
-  const [selectedPacket, setSelectedPacket] = useState(null);
-  const [selectedStudent, setSelectedStudent] = useState(null);
   const [user, setUser] = useState({ id: undefined });
 
   const {
@@ -105,8 +103,6 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
         entries.forEach((packet) => {
           setValue(packet[0], packet[1]);
         });
-        setSelectedPacket(packets.find((v) => v.value === data.paketId));
-        setSelectedStudent(students.find((v) => v.value === data.studentId));
       },
     },
   });
@@ -197,13 +193,11 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
                     required: "Nama paket wajib diisi",
                   }}
                   control={control}
-                  value={selectedPacket}
                   options={packets}
                   loading={isLoadingPackets}
                   isError={!!errors.paketId}
                   helperText={errors.paketId?.message}
                   onChangeCallback={(val) => {
-                    setSelectedPacket(val);
                     setValue("quota_privat", val?.quota_privat);
                     setValue("quota_group", val?.quota_group);
                     setValue("jumlah_bayar", val?.harga);
@@ -220,14 +214,10 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
                     required: "Nama murid wajib diisi",
                   }}
                   control={control}
-                  value={selectedStudent}
                   options={students}
                   loading={isLoadingStudents}
                   isError={!!errors.studentId}
                   helperText={errors.studentId?.message}
-                  onChangeCallback={(val) => {
-                    setSelectedStudent(val);
-                  }}
                 />
               </FormControl>
             </Grid>
