@@ -59,7 +59,7 @@ const CurrencyInputReactHook = (props) => {
       name={name}
       control={control}
       rules={rules}
-      render={({ field: { onChange, value } }) => (
+      render={({ field: { onChange, value = "" } }) => (
         <ThemeProvider theme={newTheme}>
           <TextField
             name={name}

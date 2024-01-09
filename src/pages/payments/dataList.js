@@ -58,7 +58,6 @@ export default function PaymentList() {
   const onClickDelete = ({ deleteId, deleteName }) => {
     setId(deleteId);
     setPacketName(deleteName);
-    console.log("deleteName ", deleteName);
     setIsOpenDeleteModal(true);
   };
 

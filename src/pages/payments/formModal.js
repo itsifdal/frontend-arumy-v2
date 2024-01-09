@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Typography, Modal, FormControl, Box, Grid } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import PropTypes from "prop-types";
 import { format } from "date-fns";
 
@@ -24,20 +24,25 @@ const paymentVia = [
   { value: "PAPER", label: "Paper" },
 ];
 
-PaymentFormModal.propTypes = {
-  open: PropTypes.bool,
-  onClose: PropTypes.func,
-  stateModal: PropTypes.string,
-  dataName: PropTypes.string,
-  id: PropTypes.string,
-  onSuccess: PropTypes.func,
-  onError: PropTypes.func,
-};
-
 export default function PaymentFormModal({ open, onClose, stateModal, id, onSuccess, onError }) {
-  const [selectedPacket, setSelectedPacket] = useState([]);
-  const [selectedStudent, setSelectedStudent] = useState([]);
+  const [selectedPacket, setSelectedPacket] = useState(null);
+  const [selectedStudent, setSelectedStudent] = useState(null);
   const [user, setUser] = useState({ id: undefined });
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    reset: resetForm,
+    formState: { errors },
+    control,
+  } = useForm({
+    defaultValues: {
+      bayar_via: paymentVia[0].value,
+      tgl_tagihan: format(new Date(), "yyyy-MM-dd"),
+      tgl_bayar: format(new Date(), "yyyy-MM-dd"),
+    },
+  });
 
   // localStorage
   useEffect(() => {
@@ -54,18 +59,11 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
       select: (res) =>
         res.data.map((packet) => ({
           value: packet.id,
-          label: packet.nama_paket,
+          label: `${packet.nama_paket}, ${packet.description}`,
           quota_privat: packet.quota_privat || 0,
           quota_group: packet.quota_group || 0,
           harga: packet.harga || 0,
         })),
-      onSuccess: (res) => {
-        setValue("paketId", res[0].value);
-        setValue("quota_privat", res[0].quota_privat);
-        setValue("quota_group", res[0].quota_group);
-        setValue("jumlah_bayar", res[0].harga);
-        setSelectedPacket([res[0]]);
-      },
     },
     queryParam: { perPage: 99999 },
   });
@@ -79,25 +77,6 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
           value: packet.id,
           label: packet.nama_murid,
         })),
-      onSuccess: (res) => {
-        setValue("studentId", res[0].value);
-        setSelectedStudent([res[0]]);
-      },
-    },
-  });
-
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    reset: resetForm,
-    formState: { errors },
-    control,
-  } = useForm({
-    defaultValues: {
-      bayar_via: paymentVia[0].value,
-      tgl_tagihan: format(new Date(), "yyyy-MM-dd"),
-      tgl_bayar: format(new Date(), "yyyy-MM-dd"),
     },
   });
 
@@ -126,20 +105,14 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
         entries.forEach((packet) => {
           setValue(packet[0], packet[1]);
         });
-        setSelectedPacket(packets.filter((v) => v.value === data.paketId));
-        setSelectedStudent(students.filter((v) => v.value === data.studentId));
+        setSelectedPacket(packets.find((v) => v.value === data.paketId));
+        setSelectedStudent(students.find((v) => v.value === data.studentId));
       },
     },
   });
 
   const resetAllForm = () => {
     resetForm();
-    setSelectedPacket([packets[0]]);
-    setSelectedStudent([students[0]]);
-    setValue("paketId", packets[0]?.value);
-    setValue("studentId", students[0]?.value);
-    setValue("quota_privat", packets[0]?.quota_privat);
-    setValue("quota_group", packets[0]?.quota_group);
     setValue("jumlah_bayar", packets[0]?.harga);
   };
 
@@ -224,16 +197,16 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
                     required: "Nama paket wajib diisi",
                   }}
                   control={control}
-                  value={selectedPacket[0]}
+                  value={selectedPacket}
                   options={packets}
                   loading={isLoadingPackets}
                   isError={!!errors.paketId}
                   helperText={errors.paketId?.message}
                   onChangeCallback={(val) => {
-                    setSelectedPacket([val]);
-                    setValue("quota_privat", val.quota_privat);
-                    setValue("quota_group", val.quota_group);
-                    setValue("jumlah_bayar", val.harga);
+                    setSelectedPacket(val);
+                    setValue("quota_privat", val?.quota_privat);
+                    setValue("quota_group", val?.quota_group);
+                    setValue("jumlah_bayar", val?.harga);
                   }}
                 />
               </FormControl>
@@ -247,14 +220,14 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
                     required: "Nama murid wajib diisi",
                   }}
                   control={control}
-                  value={selectedStudent[0]}
+                  value={selectedStudent}
                   options={students}
                   loading={isLoadingStudents}
-                  onChangeCallback={(val) => {
-                    setSelectedStudent([val]);
-                  }}
                   isError={!!errors.studentId}
                   helperText={errors.studentId?.message}
+                  onChangeCallback={(val) => {
+                    setSelectedStudent(val);
+                  }}
                 />
               </FormControl>
             </Grid>
@@ -318,22 +291,38 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
             <Grid item xs={6}>
               <FormControl fullWidth error={!!errors.quota_privat}>
                 <CustomInputLabel htmlFor="quota_privat">Quota Private*</CustomInputLabel>
-                <CustomTextField
-                  disabled
-                  {...register("quota_privat", { required: "Quota private Wajib diisi" })}
-                  helperText={errors.quota_privat?.message}
-                  error={!!errors.quota_privat}
+                <Controller
+                  name="quota_privat"
+                  control={control}
+                  rules={{ required: "Quota private Wajib diisi" }}
+                  render={({ field: { value = "", onChange } }) => (
+                    <CustomTextField
+                      disabled
+                      value={value}
+                      onChange={onChange}
+                      helperText={errors.quota_privat?.message}
+                      error={!!errors.quota_privat}
+                    />
+                  )}
                 />
               </FormControl>
             </Grid>
             <Grid item xs={6}>
               <FormControl fullWidth error={!!errors.quota_group}>
                 <CustomInputLabel htmlFor="quota_group">Quota Group*</CustomInputLabel>
-                <CustomTextField
-                  disabled
-                  {...register("quota_group", { required: "Quota group Wajib diisi" })}
-                  helperText={errors.quota_group?.message}
-                  error={!!errors.quota_group}
+                <Controller
+                  name="quota_group"
+                  control={control}
+                  rules={{ required: "Quota group Wajib diisi" }}
+                  render={({ field: { value = "", onChange } }) => (
+                    <CustomTextField
+                      disabled
+                      value={value}
+                      onChange={onChange}
+                      helperText={errors.quota_group?.message}
+                      error={!!errors.quota_group}
+                    />
+                  )}
                 />
               </FormControl>
             </Grid>
@@ -367,3 +356,13 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
     </Modal>
   );
 }
+
+PaymentFormModal.propTypes = {
+  open: PropTypes.bool,
+  onClose: PropTypes.func,
+  stateModal: PropTypes.string,
+  dataName: PropTypes.string,
+  id: PropTypes.string,
+  onSuccess: PropTypes.func,
+  onError: PropTypes.func,
+};

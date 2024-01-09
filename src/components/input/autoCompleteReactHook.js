@@ -8,7 +8,8 @@ import { CustomTextField } from "./inputBasic";
 export default function AutoCompleteReactHook(props) {
   const [open, setOpen] = useState(false);
   const { name, rules, control, value, options, loading, isError, onChangeCallback, helperText } = props;
-  if (loading) return null;
+  const isLoading = open && options.length === 0 && loading;
+
   return (
     <Controller
       name={name}
@@ -27,12 +28,10 @@ export default function AutoCompleteReactHook(props) {
           isOptionEqualToValue={(option, value) => option.label === value?.label}
           getOptionLabel={(option) => option.label}
           options={options}
-          loading={loading}
+          loading={isLoading}
           onChange={(_, newValue) => {
-            if (newValue) {
-              onChange(newValue?.value);
-              onChangeCallback(newValue);
-            }
+            onChange(newValue?.value);
+            onChangeCallback(newValue);
           }}
           renderInput={(params) => <CustomTextField {...params} helperText={helperText} error={isError} />}
         />
