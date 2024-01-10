@@ -9,6 +9,7 @@ import {
   FormLabel,
   RadioGroup,
   FormControlLabel,
+  Button,
   Radio,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
@@ -28,6 +29,7 @@ import TimeInputBasic from "../input/timeInputBasic";
 import AutoCompleteBasic from "../input/autoCompleteBasic";
 import TextareaBasic from "../input/textareaBasic";
 import { fetchHeader } from "../../constants/fetchHeader";
+import DeleteBooking from "./deleteBooking";
 
 import { bookingFormReducer, initialBookingFormState, validateBookingForm } from "../../utils/reducer/bookingReducer";
 
@@ -38,6 +40,7 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
   const [openInstrument, setOpenInstrument] = useState(false);
   const [stateForm, dispatchStateForm] = useReducer(bookingFormReducer, initialBookingFormState);
   const queryClient = useQueryClient();
+  const [openDel, setOpenDel] = useState(false);
 
   const { data: students = [], isLoading: isLoadingStudents } = useQuery(
     [queryKey.students],
@@ -241,6 +244,12 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
     }
   }, [open, state]);
 
+  const handleOpenModalDelete = (e) => {
+    e.preventDefault();
+    setOpenDel(true);
+  };
+  const handleCloseModalDelete = () => setOpenDel(false);
+
   if (isLoadingBookingRefetch) {
     return (
       <Modal
@@ -260,263 +269,285 @@ export default function CreateBooking({ open, onClose, state, id, callbackSucces
   }
 
   return (
-    <Modal
-      open={open}
-      onClose={onClose}
-      aria-labelledby="modal-create-booking"
-      aria-describedby="modal-for-create-booking"
-      disableEnforceFocus
-    >
-      <Box sx={{ ...modalStyle, maxWidth: 800 }}>
-        <Box marginBottom={2}>
-          <Typography id="modal-modal-title" variant="h4" component="h2" fontWeight={700} color={"#172560"}>
-            {state === "update" ? `Update Booking #${id}` : "Create Booking"}
-          </Typography>
-        </Box>
-        <Grid container spacing={2}>
-          <Grid item xs={6} paddingBottom={2}>
-            <SelectBasic
-              required
-              fullWidth
-              id="jenis_kelas"
-              name="jenis_kelas"
-              defaultValue={classType[0].value}
-              value={stateForm.values.jenis_kelas}
-              error={Boolean(stateForm.errors.jenis_kelas)}
-              errorMessage={stateForm.errors.jenis_kelas}
-              onChange={(e) => {
-                onChange({ target: { name: "user_group", value: [] } });
-                onChange(e);
-              }}
-              select
-              label="Class Type"
-              options={classType}
-            />
-          </Grid>
-          <Grid item xs={6} paddingBottom={2}>
-            <DateInputBasic
-              required
-              label="Date"
-              name="tgl_kelas"
-              value={stateForm.values.tgl_kelas}
-              error={Boolean(stateForm.errors.tgl_kelas)}
-              errorMessage={stateForm.errors.tgl_kelas}
-              onChange={onChange}
-            />
-          </Grid>
-          <Grid item xs={6} paddingBottom={2}>
-            <AutoCompleteBasic
-              multiple
-              required
-              label="Student Name"
-              name="user_group"
-              ChipProps={{ size: "small" }}
-              value={stateForm.values.user_group}
-              error={Boolean(stateForm.errors.user_group)}
-              errorMessage={stateForm.errors.user_group}
-              options={students}
-              loading={isLoadingStudents}
-              open={openStudent}
-              onOpen={() => {
-                setOpenStudent(true);
-              }}
-              onClose={() => {
-                setOpenStudent(false);
-              }}
-              onChange={(_, newValue) => {
-                let values = newValue;
-                // reset when class not group
-                if (stateForm.values.jenis_kelas !== "group") {
-                  values = values.slice(-1);
-                }
-                onChange({ target: { name: "user_group", value: values } });
-              }}
-            />
-          </Grid>
-          <Grid item xs={6} paddingBottom={2}>
-            <AutoCompleteBasic
-              required
-              label="Teacher Name"
-              name="teacherId"
-              value={stateForm.values.teacherId}
-              error={Boolean(stateForm.errors.teacherId)}
-              errorMessage={stateForm.errors.teacherId}
-              options={teachers}
-              loading={isLoadingTeachers}
-              open={openTeacher}
-              onOpen={() => {
-                setOpenTeacher(true);
-              }}
-              onClose={() => {
-                setOpenTeacher(false);
-              }}
-              onChange={(_, newValue) => {
-                onChange({ target: { name: "teacherId", value: newValue } });
-              }}
-            />
-          </Grid>
-
-          <Grid item xs={6} paddingBottom={2}>
-            <AutoCompleteBasic
-              required
-              label="Rooms"
-              name="roomId"
-              value={stateForm.values.roomId}
-              error={Boolean(stateForm.errors.roomId)}
-              errorMessage={stateForm.errors.roomId}
-              options={rooms}
-              loading={isLoadingRooms}
-              open={openRoom}
-              onOpen={() => {
-                setOpenRoom(true);
-              }}
-              onClose={() => {
-                setOpenRoom(false);
-              }}
-              onChange={(_, newValue) => {
-                onChange({ target: { name: "roomId", value: newValue } });
-                onChange({
-                  target: {
-                    name: "cabang",
-                    value: newValue ? rooms.find((room) => room.value === newValue.value).branch : "",
-                  },
-                });
-              }}
-            />
-          </Grid>
-          <Grid item xs={6} paddingBottom={2}>
-            <InputBasic
-              required
-              label="Branch"
-              name="cabang"
-              disabled
-              value={stateForm.values.cabang}
-              error={Boolean(stateForm.errors.cabang)}
-              errorMessage={stateForm.errors.cabang}
-            />
-          </Grid>
-          <Grid item xs={6} paddingBottom={2}>
-            <TimeInputBasic
-              required
-              label="Start"
-              name="jam_booking"
-              value={stateForm.values.jam_booking}
-              error={Boolean(stateForm.errors.jam_booking)}
-              errorMessage={stateForm.errors.jam_booking}
-              minutesStep={5}
-              onChange={(e) => {
-                onChange(e);
-                // auto change jam_selesai_booking
-                dispatchStateForm({
-                  type: "change-field",
-                  name: "jam_selesai_booking",
-                  value: addMinutes(e.target.value, 45),
-                  isEnableValidate: false,
-                });
-              }}
-            />
-          </Grid>
-          <Grid item xs={6} paddingBottom={2}>
-            <TimeInputBasic
-              required
-              label="End"
-              name="jam_selesai_booking"
-              value={stateForm.values.jam_selesai_booking}
-              error={Boolean(stateForm.errors.jam_selesai_booking)}
-              errorMessage={stateForm.errors.jam_selesai_booking}
-              minTime={stateForm.values.jam_booking}
-              minutesStep={5}
-              onChange={onChange}
-            />
-          </Grid>
-          <Grid item xs={6} paddingBottom={2}>
-            <AutoCompleteBasic
-              required
-              label="Instrument"
-              name="instrumentId"
-              value={stateForm.values.instrumentId}
-              error={Boolean(stateForm.errors.instrumentId)}
-              errorMessage={stateForm.errors.instrumentId}
-              options={instruments}
-              loading={isLoadingInstruments}
-              open={openInstrument}
-              onOpen={() => {
-                setOpenInstrument(true);
-              }}
-              onClose={() => {
-                setOpenInstrument(false);
-              }}
-              onChange={(_, newValue) => {
-                onChange({ target: { name: "instrumentId", value: newValue } });
-              }}
-            />
-          </Grid>
-          <Grid item xs={6} paddingBottom={2}>
-            <InputBasic
-              required
-              label="Durasi"
-              name="durasi"
-              disabled
-              value={stateForm.values.durasi}
-              error={Boolean(stateForm.errors.durasi)}
-              errorMessage={stateForm.errors.durasi}
-            />
-          </Grid>
-          <Grid item xs={12} paddingBottom={2}>
-            <TextareaBasic
-              label="Catatan"
-              name="notes"
-              id="notes"
-              value={stateForm.values.notes}
-              onChange={(e) => {
-                onChange(e);
-              }}
-            />
-          </Grid>
-          {state === "update" ? (
-            <Grid item xs={12}>
-              <FormControl>
-                <FormLabel id="status-kelas">Status Kelas</FormLabel>
-                <RadioGroup
-                  row
-                  aria-labelledby="status-kelas"
-                  name="status"
-                  value={stateForm.values.status}
-                  onChange={onChange}
-                >
-                  <FormControlLabel value="pending" control={<Radio />} label="Pending" />
-                  <FormControlLabel value="konfirmasi" control={<Radio />} label="Masuk" />
-                  <FormControlLabel value="batal" control={<Radio />} label="Hangus" />
-                  <FormControlLabel value="ijin" control={<Radio />} label="Ijin" />
-                </RadioGroup>
-              </FormControl>
+    <>
+      <Modal
+        open={open}
+        onClose={onClose}
+        aria-labelledby="modal-create-booking"
+        aria-describedby="modal-for-create-booking"
+        disableEnforceFocus
+      >
+        <Box sx={{ ...modalStyle, maxWidth: 800 }}>
+          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }} marginBottom={2}>
+            <Typography id="modal-modal-title" variant="h4" component="h2" fontWeight={700} color={"#172560"}>
+              {state === "update" ? `Update Booking #${id}` : "Create Booking"}
+            </Typography>
+            {state === "update" ? (
+              <Button variant="contained" color="error" size="small" data-id={id} onClick={handleOpenModalDelete}>
+                Delete
+              </Button>
+            ) : null}
+          </Box>
+          <Grid container spacing={2}>
+            <Grid item xs={6} paddingBottom={2}>
+              <SelectBasic
+                required
+                fullWidth
+                id="jenis_kelas"
+                name="jenis_kelas"
+                defaultValue={classType[0].value}
+                value={stateForm.values.jenis_kelas}
+                error={Boolean(stateForm.errors.jenis_kelas)}
+                errorMessage={stateForm.errors.jenis_kelas}
+                onChange={(e) => {
+                  onChange({ target: { name: "user_group", value: [] } });
+                  onChange(e);
+                }}
+                select
+                label="Class Type"
+                options={classType}
+              />
             </Grid>
-          ) : null}
-        </Grid>
-        <Stack direction={"row"} spacing={2}>
-          <LoadingButton
-            loading={submitAddBooking.isLoading || submitUpdateBooking.isLoading}
-            variant="outlined"
-            type="submit"
-            fullWidth
-            onClick={() => handleSubmitCreate({ addAnother: false })}
-          >
-            Save and Close
-          </LoadingButton>
-          {state !== "update" ? (
+            <Grid item xs={6} paddingBottom={2}>
+              <DateInputBasic
+                required
+                label="Date"
+                name="tgl_kelas"
+                value={stateForm.values.tgl_kelas}
+                error={Boolean(stateForm.errors.tgl_kelas)}
+                errorMessage={stateForm.errors.tgl_kelas}
+                onChange={onChange}
+              />
+            </Grid>
+            <Grid item xs={6} paddingBottom={2}>
+              <AutoCompleteBasic
+                multiple
+                required
+                label="Student Name"
+                name="user_group"
+                ChipProps={{ size: "small" }}
+                value={stateForm.values.user_group}
+                error={Boolean(stateForm.errors.user_group)}
+                errorMessage={stateForm.errors.user_group}
+                options={students}
+                loading={isLoadingStudents}
+                open={openStudent}
+                onOpen={() => {
+                  setOpenStudent(true);
+                }}
+                onClose={() => {
+                  setOpenStudent(false);
+                }}
+                onChange={(_, newValue) => {
+                  let values = newValue;
+                  // reset when class not group
+                  if (stateForm.values.jenis_kelas !== "group") {
+                    values = values.slice(-1);
+                  }
+                  onChange({ target: { name: "user_group", value: values } });
+                }}
+              />
+            </Grid>
+            <Grid item xs={6} paddingBottom={2}>
+              <AutoCompleteBasic
+                required
+                label="Teacher Name"
+                name="teacherId"
+                value={stateForm.values.teacherId}
+                error={Boolean(stateForm.errors.teacherId)}
+                errorMessage={stateForm.errors.teacherId}
+                options={teachers}
+                loading={isLoadingTeachers}
+                open={openTeacher}
+                onOpen={() => {
+                  setOpenTeacher(true);
+                }}
+                onClose={() => {
+                  setOpenTeacher(false);
+                }}
+                onChange={(_, newValue) => {
+                  onChange({ target: { name: "teacherId", value: newValue } });
+                }}
+              />
+            </Grid>
+
+            <Grid item xs={6} paddingBottom={2}>
+              <AutoCompleteBasic
+                required
+                label="Rooms"
+                name="roomId"
+                value={stateForm.values.roomId}
+                error={Boolean(stateForm.errors.roomId)}
+                errorMessage={stateForm.errors.roomId}
+                options={rooms}
+                loading={isLoadingRooms}
+                open={openRoom}
+                onOpen={() => {
+                  setOpenRoom(true);
+                }}
+                onClose={() => {
+                  setOpenRoom(false);
+                }}
+                onChange={(_, newValue) => {
+                  onChange({ target: { name: "roomId", value: newValue } });
+                  onChange({
+                    target: {
+                      name: "cabang",
+                      value: newValue ? rooms.find((room) => room.value === newValue.value).branch : "",
+                    },
+                  });
+                }}
+              />
+            </Grid>
+            <Grid item xs={6} paddingBottom={2}>
+              <InputBasic
+                required
+                label="Branch"
+                name="cabang"
+                disabled
+                value={stateForm.values.cabang}
+                error={Boolean(stateForm.errors.cabang)}
+                errorMessage={stateForm.errors.cabang}
+              />
+            </Grid>
+            <Grid item xs={6} paddingBottom={2}>
+              <TimeInputBasic
+                required
+                label="Start"
+                name="jam_booking"
+                value={stateForm.values.jam_booking}
+                error={Boolean(stateForm.errors.jam_booking)}
+                errorMessage={stateForm.errors.jam_booking}
+                minutesStep={5}
+                onChange={(e) => {
+                  onChange(e);
+                  // auto change jam_selesai_booking
+                  dispatchStateForm({
+                    type: "change-field",
+                    name: "jam_selesai_booking",
+                    value: addMinutes(e.target.value, 45),
+                    isEnableValidate: false,
+                  });
+                }}
+              />
+            </Grid>
+            <Grid item xs={6} paddingBottom={2}>
+              <TimeInputBasic
+                required
+                label="End"
+                name="jam_selesai_booking"
+                value={stateForm.values.jam_selesai_booking}
+                error={Boolean(stateForm.errors.jam_selesai_booking)}
+                errorMessage={stateForm.errors.jam_selesai_booking}
+                minTime={stateForm.values.jam_booking}
+                minutesStep={5}
+                onChange={onChange}
+              />
+            </Grid>
+            <Grid item xs={6} paddingBottom={2}>
+              <AutoCompleteBasic
+                required
+                label="Instrument"
+                name="instrumentId"
+                value={stateForm.values.instrumentId}
+                error={Boolean(stateForm.errors.instrumentId)}
+                errorMessage={stateForm.errors.instrumentId}
+                options={instruments}
+                loading={isLoadingInstruments}
+                open={openInstrument}
+                onOpen={() => {
+                  setOpenInstrument(true);
+                }}
+                onClose={() => {
+                  setOpenInstrument(false);
+                }}
+                onChange={(_, newValue) => {
+                  onChange({ target: { name: "instrumentId", value: newValue } });
+                }}
+              />
+            </Grid>
+            <Grid item xs={6} paddingBottom={2}>
+              <InputBasic
+                required
+                label="Durasi"
+                name="durasi"
+                disabled
+                value={stateForm.values.durasi}
+                error={Boolean(stateForm.errors.durasi)}
+                errorMessage={stateForm.errors.durasi}
+              />
+            </Grid>
+            <Grid item xs={12} paddingBottom={2}>
+              <TextareaBasic
+                label="Catatan"
+                name="notes"
+                id="notes"
+                value={stateForm.values.notes}
+                onChange={(e) => {
+                  onChange(e);
+                }}
+              />
+            </Grid>
+            {state === "update" ? (
+              <Grid item xs={12}>
+                <FormControl>
+                  <FormLabel id="status-kelas">Status Kelas</FormLabel>
+                  <RadioGroup
+                    row
+                    aria-labelledby="status-kelas"
+                    name="status"
+                    value={stateForm.values.status}
+                    onChange={onChange}
+                  >
+                    <FormControlLabel value="pending" control={<Radio />} label="Pending" />
+                    <FormControlLabel value="konfirmasi" control={<Radio />} label="Masuk" />
+                    <FormControlLabel value="batal" control={<Radio />} label="Hangus" />
+                    <FormControlLabel value="ijin" control={<Radio />} label="Ijin" />
+                  </RadioGroup>
+                </FormControl>
+              </Grid>
+            ) : null}
+          </Grid>
+          <Stack direction={"row"} spacing={2}>
             <LoadingButton
               loading={submitAddBooking.isLoading || submitUpdateBooking.isLoading}
-              variant="contained"
+              variant="outlined"
               type="submit"
               fullWidth
-              onClick={() => handleSubmitCreate({ addAnother: true })}
+              onClick={() => handleSubmitCreate({ addAnother: false })}
             >
-              Save and add another
+              Save and Close
             </LoadingButton>
-          ) : null}
-        </Stack>
-      </Box>
-    </Modal>
+            {state !== "update" ? (
+              <LoadingButton
+                loading={submitAddBooking.isLoading || submitUpdateBooking.isLoading}
+                variant="contained"
+                type="submit"
+                fullWidth
+                onClick={() => handleSubmitCreate({ addAnother: true })}
+              >
+                Save and add another
+              </LoadingButton>
+            ) : null}
+          </Stack>
+        </Box>
+      </Modal>
+
+      {state === "update" ? (
+        <DeleteBooking
+          open={openDel}
+          onClose={handleCloseModalDelete}
+          id={id}
+          callbackSuccess={(response) => {
+            setOpenDel(false);
+            callbackSuccess(response);
+          }}
+          callbackError={(error) => {
+            callbackError(error);
+          }}
+        />
+      ) : null}
+    </>
   );
 }
 

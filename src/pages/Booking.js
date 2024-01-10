@@ -25,7 +25,6 @@ import PageHeader from "../components/PageHeader";
 import BasicTable from "../components/BasicTable";
 import CreateBooking from "../components/modal/createBooking";
 import ConfirmBooking from "../components/modal/confirmBooking";
-import DeleteBooking from "../components/modal/deleteBooking";
 import { cleanQuery } from "../utils/cleanQuery";
 import { urlSearchParamsToQuery } from "../utils/urlSearchParamsToQuery";
 import { queryToString } from "../utils/queryToString";
@@ -95,7 +94,6 @@ export default function Booking() {
     }
   }, []);
 
-  const [openDel, setOpenDel] = useState(false);
   const [openUpdStatus, setOpenUpdStatus] = useState(false);
 
   // GET DATA BOOKING ALL
@@ -125,17 +123,9 @@ export default function Booking() {
         .then((res) => res.data)
   );
 
-  // Open Modal Delete
-  const handleOpenModalDelete = (e) => {
-    e.preventDefault();
-    setBookingId(e.target.getAttribute("data-id"));
-    setOpenDel(true);
-  };
-  const handleCloseModalDelete = () => setOpenDel(false);
-
   const onSuccessMutateBooking = (response) => {
+    setBookingId();
     bookingsRefetch();
-    setOpenDel(false);
     setOpenModalCreate(false);
     setOpenUpdStatus(false);
     toast.success(response.data.message, {
@@ -192,9 +182,6 @@ export default function Booking() {
             onClick={handleOpenModalCreate}
           >
             Update
-          </Button>
-          <Button variant="contained" color="error" size="small" data-id={book.id} onClick={handleOpenModalDelete}>
-            Delete
           </Button>
         </Stack>
       );
@@ -261,6 +248,7 @@ export default function Booking() {
           isUserGuru={isUserGuru}
           user={user}
         />
+
         <CreateBooking
           open={openModalCreate}
           onClose={() => setOpenModalCreate(false)}
@@ -273,19 +261,6 @@ export default function Booking() {
             onErrorMutateBooking(error);
           }}
           userId={user.id}
-        />
-
-        <DeleteBooking
-          open={openDel}
-          onClose={handleCloseModalDelete}
-          id={Number(bookingId)}
-          callbackSuccess={(response) => {
-            setBookingId();
-            onSuccessMutateBooking(response);
-          }}
-          callbackError={(error) => {
-            onErrorMutateBooking(error);
-          }}
         />
 
         <ConfirmBooking
@@ -421,7 +396,7 @@ function BookingData({
     "MURID",
     "PENGAJAR",
     "STATUS",
-    <Button key={"action"} onClick={handleDownloadExcel} variant="contained">
+    <Button key={"action"} onClick={handleDownloadExcel} variant="contained" sx={{ whiteSpace: "nowrap" }}>
       Export Excel
     </Button>,
   ];
