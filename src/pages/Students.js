@@ -40,6 +40,7 @@ import { cleanQuery } from "../utils/cleanQuery";
 import { queryToString } from "../utils/queryToString";
 import DateInputBasic from "../components/input/dateInputBasic";
 import { fetchHeader } from "../constants/fetchHeader";
+import { fNumber } from "../utils/formatNumber";
 
 // ----------------------------------------------------------------------
 export default function Students() {
@@ -92,6 +93,12 @@ export default function Students() {
       },
     }
   );
+
+  const pageInfo = students?.pagination
+    ? `Halaman ${fNumber(students.pagination.current_page)} dari ${fNumber(
+        students.pagination.total_pages
+      )}; Ditemukan ${fNumber(students.pagination.total_records)} data`
+    : "";
 
   useEffect(() => {
     if (id) {
@@ -244,7 +251,10 @@ export default function Students() {
         }}
       >
         <Container maxWidth="xl">
-          <Grid container>
+          <Grid container alignItems={"center"} width={"100%"}>
+            <Grid item xs={6} sm={9}>
+              <Typography fontSize={"14px"}>{pageInfo}</Typography>
+            </Grid>
             <Grid item xs={6} sm={3} paddingBottom={2}>
               <InputBasic
                 label="Nama Murid"

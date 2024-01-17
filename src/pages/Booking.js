@@ -33,6 +33,7 @@ import BookingFilters from "../components/filter/bookingFilters";
 import CollapsibleTable from "../components/CollapsibleTable";
 import { bookingStatusObj } from "../constants/bookingStatus";
 import { fetchHeader } from "../constants/fetchHeader";
+import { fNumber } from "../utils/formatNumber";
 
 const hourModel = ({ timeStart, timeEnd, duration }) => {
   const formatTimeStart = format(parse(timeStart, "HH:mm:ss", new Date()), "HH:mm");
@@ -122,6 +123,12 @@ export default function Booking() {
         )
         .then((res) => res.data)
   );
+
+  const pageInfo = bookings?.pagination
+    ? `Halaman ${fNumber(bookings.pagination.current_page)} dari ${fNumber(
+        bookings.pagination.total_pages
+      )}; Ditemukan ${fNumber(bookings.pagination.total_records)} data`
+    : "";
 
   const onSuccessMutateBooking = (response) => {
     setBookingId();
@@ -233,7 +240,7 @@ export default function Booking() {
         }}
       >
         <Container maxWidth="xl">
-          <BookingFilters />
+          <BookingFilters pageInfo={pageInfo} />
         </Container>
       </Box>
       <Container maxWidth="xl" sx={{ paddingTop: 4 }}>

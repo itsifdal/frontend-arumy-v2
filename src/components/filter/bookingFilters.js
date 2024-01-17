@@ -4,7 +4,7 @@ import axios from "axios";
 import { useQuery } from "react-query";
 import { format, parse, isValid } from "date-fns";
 import PropTypes from "prop-types";
-import { Button, Stack, Drawer, IconButton, Box, ToggleButtonGroup, ToggleButton } from "@mui/material";
+import { Button, Stack, Drawer, IconButton, Box, ToggleButtonGroup, ToggleButton, Typography } from "@mui/material";
 
 import useResponsive from "../../hooks/useResponsive";
 import AutoCompleteBasic from "../input/autoCompleteBasic";
@@ -28,7 +28,7 @@ const initFilter = {
   teacherLabel: "",
 };
 
-export default function BookingFilters() {
+export default function BookingFilters({ pageInfo }) {
   const [openDrawer, setOpenDrawer] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const [filters, setFilters] = useState(initFilter);
@@ -88,7 +88,16 @@ export default function BookingFilters() {
 
   return (
     <>
-      <Stack justifyContent={"flex-end"} direction={"row"} gap={isDesktop ? 2 : 1} flexWrap={"wrap"}>
+      <Stack
+        justifyContent={"flex-end"}
+        direction={"row"}
+        alignItems={"center"}
+        gap={isDesktop ? 2 : 1}
+        flexWrap={"wrap"}
+        width={"100%"}
+      >
+        <Typography fontSize={"14px"}>{pageInfo}</Typography>
+        <Box flexGrow={1} />
         <ToggleButtonGroup
           value={queryParam.eventTime || ""}
           exclusive
@@ -115,7 +124,7 @@ export default function BookingFilters() {
           <ToggleButton value="upcoming">Upcoming</ToggleButton>
           <ToggleButton value="past">Past</ToggleButton>
         </ToggleButtonGroup>
-        <Stack direction={"row"} width={isDesktop ? "auto" : "100%"} justifyContent={"flex-end"}>
+        <Stack direction={"row"} width={isDesktop ? "auto" : "100%"} justifyContent={"flex-end"} alignSelf={"stretch"}>
           <Button
             variant="outlined"
             startIcon={<Iconify icon="mdi:filter-outline" />}
@@ -147,6 +156,7 @@ export default function BookingFilters() {
   );
 }
 BookingFilters.propTypes = {
+  pageInfo: PropTypes.string,
   toggleValue: PropTypes.string,
 };
 

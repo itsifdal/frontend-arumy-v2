@@ -37,6 +37,8 @@ import { urlSearchParamsToQuery } from "../utils/urlSearchParamsToQuery";
 import { cleanQuery } from "../utils/cleanQuery";
 import { queryToString } from "../utils/queryToString";
 import { fetchHeader } from "../constants/fetchHeader";
+import useResponsive from "../hooks/useResponsive";
+import { fNumber } from "../utils/formatNumber";
 
 // ----------------------------------------------------------------------
 export default function Teachers() {
@@ -51,6 +53,7 @@ export default function Teachers() {
 
   const [searchParams] = useSearchParams();
   const queryParam = urlSearchParamsToQuery(searchParams);
+  const isDesktop = useResponsive("up", "lg");
 
   // query
   const {
@@ -64,6 +67,12 @@ export default function Teachers() {
       })
       .then((res) => res.data)
   );
+
+  const pageInfo = teachers?.pagination
+    ? `Halaman ${fNumber(teachers.pagination.current_page)} dari ${fNumber(
+        teachers.pagination.total_pages
+      )}; Ditemukan ${fNumber(teachers.pagination.total_records)} data`
+    : "";
 
   const { refetch: teacherRefetch } = useQuery(
     [queryKey.teachers, "DETAIL"],
@@ -225,6 +234,24 @@ export default function Teachers() {
           </Button>
         }
       />
+      <Box
+        sx={{
+          background: "#FFF",
+          boxShadow: "0px 4px 20px 0px rgba(0, 0, 0, 0.05)",
+          paddingY: isDesktop ? "20px" : "5px",
+          zIndex: 2,
+          position: "relative",
+          borderTop: "1px solid #c3c3e1",
+        }}
+      >
+        <Container maxWidth="xl">
+          <Grid container alignItems={"center"} width={"100%"}>
+            <Grid item xs={6} sm={9}>
+              <Typography fontSize={"14px"}>{pageInfo}</Typography>
+            </Grid>
+          </Grid>
+        </Container>
+      </Box>
       <Container maxWidth="xl" sx={{ paddingTop: 4 }}>
         <ToastContainer pauseOnFocusLoss={false} />
         {!isLoadingTeachers ? (
