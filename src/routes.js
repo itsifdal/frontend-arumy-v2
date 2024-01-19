@@ -20,7 +20,7 @@ import UpdateBookingPage from "./pages/UpdateBookingPage";
 import Students from "./pages/Students";
 
 import Rooms from "./pages/Rooms";
-import User from "./pages/user/page";
+import User from "./pages/users/page";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/Page404";

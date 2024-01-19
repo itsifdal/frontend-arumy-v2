@@ -2,7 +2,7 @@
 // import { Link as RouterLink } from 'react-router-dom';
 import { sentenceCase } from "change-case";
 import React, { useState, useReducer, useEffect } from "react";
-import { useQuery, useMutation } from "react-query";
+import { useMutation } from "react-query";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -22,10 +22,12 @@ import BasicTable from "../../components/BasicTable";
 import InputBasic from "../../components/input/inputBasic";
 import SelectBasic from "../../components/input/selectBasic";
 
-import { queryKey } from "../../constants/queryKey";
 import { modalStyle } from "../../constants/modalStyle";
 import AutoCompleteBasic from "../../components/input/autoCompleteBasic";
 import { fetchHeader } from "../../constants/fetchHeader";
+
+import { useGetUsers, useGetUser } from "./query";
+import { useGetTeachers } from "../teachers/query";
 
 // ----------------------------------------------------------------------
 export default function User() {
@@ -42,6 +44,7 @@ export default function User() {
   const [openDel, setOpenDel] = useState(false);
 
   const roleOptions = [
+    { value: "Super Admin", label: "Super Admin" },
     { value: "Admin", label: "Admin" },
     { value: "Guru", label: "Guru" },
     { value: "Reguler", label: "Reguler" },
@@ -52,15 +55,8 @@ export default function User() {
     data: users,
     refetch: usersRefetch,
     isLoading: isLoadingUsers,
-  } = useQuery(
-    [queryKey.users],
-    () =>
-      axios
-        .get(`${process.env.REACT_APP_BASE_URL}/api/user`, {
-          headers: fetchHeader,
-        })
-        .then((res) => res.data),
-    {
+  } = useGetUsers({
+    options: {
       select: (userList) =>
         userList.map((user) => ({
           id: user.id,
@@ -68,31 +64,19 @@ export default function User() {
           email: user.email,
           role: user.role,
         })),
-    }
-  );
+    },
+  });
 
-  const { data: teachers = [], isLoading: isLoadingTeachers } = useQuery(
-    [queryKey.teachers],
-    () =>
-      axios
-        .get(`${process.env.REACT_APP_BASE_URL}/api/teacher?perPage=9999`, {
-          headers: fetchHeader,
-        })
-        .then((res) => res.data),
-    {
+  const { data: teachers = [], isLoading: isLoadingTeachers } = useGetTeachers({
+    queryParams: { perPage: 9999 },
+    options: {
       select: (teachers) => teachers.data.map((teacher) => ({ value: teacher.id, label: teacher.nama_pengajar })),
-    }
-  );
+    },
+  });
 
-  const { refetch: userRefetch } = useQuery(
-    [queryKey.users, "DETAIL"],
-    () =>
-      axios
-        .get(`${process.env.REACT_APP_BASE_URL}/api/user/${userId}`, {
-          headers: fetchHeader,
-        })
-        .then((res) => res.data),
-    {
+  const { refetch: userRefetch } = useGetUser({
+    id: userId,
+    options: {
       enabled: Boolean(userId),
       onSuccess: (res) => {
         if (res) {
@@ -107,8 +91,8 @@ export default function User() {
           });
         }
       },
-    }
-  );
+    },
+  });
 
   useEffect(() => {
     if (userId) {
