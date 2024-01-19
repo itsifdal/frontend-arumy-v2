@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useQuery } from "react-query";
+import { useQuery, useMutation } from "react-query";
 
 import { queryKey } from "../../constants/queryKey";
 import { fetchHeader } from "../../constants/fetchHeader";
@@ -33,4 +33,28 @@ export function useGetUser(props) {
     options
   );
   return { refetch, data, isLoading, isError };
+}
+
+export function useAddUser() {
+  return useMutation((data) =>
+    axios.post(`${process.env.REACT_APP_BASE_URL}/api/user`, data, {
+      headers: fetchHeader,
+    })
+  );
+}
+
+export function useUpdateUser({ id }) {
+  return useMutation((data) =>
+    axios.put(`${process.env.REACT_APP_BASE_URL}/api/user/${id}`, data, {
+      headers: fetchHeader,
+    })
+  );
+}
+
+export function useDeleteUser({ id }) {
+  return useMutation(() =>
+    axios.delete(`${process.env.REACT_APP_BASE_URL}/api/user/${id}`, {
+      headers: fetchHeader,
+    })
+  );
 }

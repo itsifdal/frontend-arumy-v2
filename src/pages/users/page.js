@@ -1,9 +1,5 @@
-/* eslint-disable camelcase */
-// import { Link as RouterLink } from 'react-router-dom';
 import { sentenceCase } from "change-case";
 import React, { useState, useReducer, useEffect } from "react";
-import { useMutation } from "react-query";
-import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -24,9 +20,8 @@ import SelectBasic from "../../components/input/selectBasic";
 
 import { modalStyle } from "../../constants/modalStyle";
 import AutoCompleteBasic from "../../components/input/autoCompleteBasic";
-import { fetchHeader } from "../../constants/fetchHeader";
 
-import { useGetUsers, useGetUser } from "./query";
+import { useGetUsers, useGetUser, useAddUser, useUpdateUser, useDeleteUser } from "./query";
 import { useGetTeachers } from "../teachers/query";
 
 // ----------------------------------------------------------------------
@@ -100,25 +95,9 @@ export default function User() {
     }
   }, [userId, userRefetch]);
 
-  const submitDeleteUser = useMutation(() => {
-    if (!userId) {
-      return false;
-    }
-    return axios.delete(`${process.env.REACT_APP_BASE_URL}/api/user/${userId}`, {
-      headers: fetchHeader,
-    });
-  });
-
-  const submitAddUser = useMutation((data) =>
-    axios.post(`${process.env.REACT_APP_BASE_URL}/api/user`, data, {
-      headers: fetchHeader,
-    })
-  );
-  const submitUpdateUser = useMutation((data) =>
-    axios.put(`${process.env.REACT_APP_BASE_URL}/api/user/${userId}`, data, {
-      headers: fetchHeader,
-    })
-  );
+  const submitDeleteUser = useDeleteUser({ id: userId });
+  const submitAddUser = useAddUser();
+  const submitUpdateUser = useUpdateUser({ id: userId });
 
   // Create
   const handleOpenModalCreate = () => setOpen(true);
