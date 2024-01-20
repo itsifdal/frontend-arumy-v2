@@ -223,7 +223,7 @@ export default function BookingUpcoming() {
   };
 
   // Cek loggedin user admin
-  const isUserAdmin = user.role === "Admin";
+  const isUserAdmin = user.role === "Admin" || user.role === "Super Admin";
   const isUserGuru = user.role === "Guru";
 
   const generateButtonAction = (book) => {

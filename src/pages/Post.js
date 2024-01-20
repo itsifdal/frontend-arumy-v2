@@ -109,7 +109,7 @@ export default function Post() {
   };
 
   let button;
-  if (user && user.role === "Admin") {
+  if (user && (user.role === "Admin" || user.role === "Super Admin")) {
     button = (
       <Button
         variant="contained"
@@ -123,7 +123,7 @@ export default function Post() {
   }
 
   // Cek loggedin user admin
-  const isUserAdmin = user.role === "Admin";
+  const isUserAdmin = user.role === "Admin" || user.role === "Super Admin";
 
   return (
     <Page title="Post">

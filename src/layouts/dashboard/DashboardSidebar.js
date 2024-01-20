@@ -126,10 +126,10 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
 
   let nav;
   let activeNav;
-  if (user && user?.role === "Admin" && isDesktop) {
+  if (user && (user?.role === "Admin" || user?.role === "Super Admin") && isDesktop) {
     nav = <NavSection navConfig={navConfigAdmin} />;
     activeNav = navConfigAdmin;
-  } else if (user && user?.role === "Admin" && !isDesktop) {
+  } else if (user && (user?.role === "Admin" || user?.role === "Super Admin") && !isDesktop) {
     nav = renderBottomNavigation(navConfigAdminMobile);
     activeNav = navConfigAdminMobile;
   } else if (user && isDesktop) {

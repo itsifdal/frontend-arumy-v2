@@ -75,7 +75,11 @@ export default function UserList() {
           header={["NAMA USER", "ROLE", "EMAIL", " "]}
           body={users.map((user, index) => [
             user.name,
-            <Label key={index} variant="ghost" color={(user.role === "Admin" && "success") || "warning"}>
+            <Label
+              key={index}
+              variant="ghost"
+              color={((user.role === "Admin" || user.role === "Super Admin") && "success") || "warning"}
+            >
               {sentenceCase(user.role)}
             </Label>,
             user.email,

@@ -20,7 +20,6 @@ import UpdateBookingPage from "./pages/UpdateBookingPage";
 import Students from "./pages/Students";
 
 import Rooms from "./pages/Rooms";
-import User from "./pages/users/page";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/Page404";
@@ -28,12 +27,14 @@ import Dashboard from "./pages/Dashboard";
 import DashboardTimeline from "./pages/DashboardTimeline";
 import DashboardTeachers from "./pages/DashboardTeachers";
 import Teachers from "./pages/Teachers";
-import Branches from "./pages/branches/page";
-import Packets from "./pages/packets/page";
-import Payments from "./pages/payments/page";
 import Instruments from "./pages/Instruments";
 import BookingUpcoming from "./pages/BookingUpcoming";
 import BookingPast from "./pages/BookingPast";
+
+import Branches from "./pages/branches/page";
+import Packets from "./pages/packets/page";
+import Payments from "./pages/payments/page";
+import User from "./pages/users/page";
 
 // ----------------------------------------------------------------------
 

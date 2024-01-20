@@ -24,7 +24,7 @@ const paymentVia = [
 ];
 
 export default function PaymentFormModal({ open, onClose, stateModal, id, onSuccess, onError }) {
-  const [user, setUser] = useState({ id: undefined });
+  const [user, setUser] = useState({ id: undefined, role: undefined });
 
   const {
     register,
@@ -308,21 +308,25 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
                 />
               </FormControl>
             </Grid>
-            <Grid item xs={6}>
-              <FormControl fullWidth error={!!errors.receipt_number}>
-                <CustomInputLabel htmlFor="receipt_number">Receipt Number</CustomInputLabel>
-                <CustomTextField
-                  {...register("receipt_number")}
-                  helperText={errors.receipt_number?.message}
-                  error={!!errors.receipt_number}
-                />
-              </FormControl>
-            </Grid>
-            <Grid item xs={6}>
-              <FormControl fullWidth error={!!errors.confirmed_status}>
-                <CheckBoxReactHook name="confirmed_status" control={control} label={"Confirmed"} />
-              </FormControl>
-            </Grid>
+            {user.role === "Super Admin" ? (
+              <>
+                <Grid item xs={6}>
+                  <FormControl fullWidth error={!!errors.receipt_number}>
+                    <CustomInputLabel htmlFor="receipt_number">Receipt Number</CustomInputLabel>
+                    <CustomTextField
+                      {...register("receipt_number")}
+                      helperText={errors.receipt_number?.message}
+                      error={!!errors.receipt_number}
+                    />
+                  </FormControl>
+                </Grid>
+                <Grid item xs={6}>
+                  <FormControl fullWidth error={!!errors.confirmed_status}>
+                    <CheckBoxReactHook name="confirmed_status" control={control} label={"Confirmed"} />
+                  </FormControl>
+                </Grid>
+              </>
+            ) : null}
             <input type="hidden" {...register("userId")} value={user.id} />
           </Grid>
           <LoadingButton
