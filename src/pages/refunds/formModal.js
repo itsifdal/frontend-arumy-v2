@@ -11,7 +11,7 @@ import AutoCompleteReactHook from "../../components/input/autoCompleteReactHook"
 import CurrencyInputReactHook from "../../components/input/currencyInputReactHook";
 import { useGetRefund, useAddRefund, useUpdateRefund } from "./query";
 import { usePacketsQuery } from "../packets/query";
-import { useStudentsQuery } from "../students/query";
+import { useGetStudents } from "../students/query";
 
 export default function RefundFormModal({ open, onClose, stateModal, id, onSuccess, onError }) {
   const [, /* user */ setUser] = useState({ id: undefined, role: undefined });
@@ -49,7 +49,7 @@ export default function RefundFormModal({ open, onClose, stateModal, id, onSucce
     queryParam: { perPage: 99999 },
   });
 
-  const { data: students = [], isLoading: isLoadingStudents } = useStudentsQuery({
+  const { data: students = [], isLoading: isLoadingStudents } = useGetStudents({
     queryParam: { perPage: 9999 },
     options: {
       enabled: open,

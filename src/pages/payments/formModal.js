@@ -14,7 +14,7 @@ import SelectReactHook from "../../components/input/selectReactHook";
 import CheckBoxReactHook from "../../components/input/checkBoxReactHook";
 import { usePaymentQuery, useAddPayment, useUpdatePayment } from "./query";
 import { usePacketsQuery } from "../packets/query";
-import { useStudentsQuery } from "../students/query";
+import { useGetStudents } from "../students/query";
 
 const paymentVia = [
   { value: "VA", label: "Virtual Account" },
@@ -63,7 +63,7 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
     queryParam: { perPage: 99999 },
   });
 
-  const { data: students = [], isLoading: isLoadingStudents } = useStudentsQuery({
+  const { data: students = [], isLoading: isLoadingStudents } = useGetStudents({
     queryParam: { perPage: 9999 },
     options: {
       enabled: open,

@@ -1,10 +1,11 @@
-import { Container, Typography, Box, Grid } from "@mui/material";
+import { Container, Typography, Box, Stack } from "@mui/material";
 import { useSearchParams } from "react-router-dom";
 
 import useResponsive from "../../hooks/useResponsive";
 import { fNumber } from "../../utils/formatNumber";
 import { urlSearchParamsToQuery } from "../../utils/urlSearchParamsToQuery";
 import { usePaymentsQuery } from "./query";
+import PaymentFilters from "./filterModal";
 
 const defaultQuery = { sort: "DESC", sort_by: "tgl_tagihan" };
 
@@ -34,11 +35,11 @@ export default function PaymentFilterBar() {
       }}
     >
       <Container maxWidth="xl">
-        <Grid container alignItems={"center"} width={"100%"}>
-          <Grid item xs={6} sm={9}>
-            <Typography fontSize={"14px"}>{pageInfo}</Typography>
-          </Grid>
-        </Grid>
+        <Stack direction="row" alignItems={"center"} width={"100%"}>
+          <Typography fontSize={"14px"}>{pageInfo}</Typography>
+          <Box flexGrow={"1"} />
+          <PaymentFilters />
+        </Stack>
       </Container>
     </Box>
   );

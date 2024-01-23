@@ -5,7 +5,7 @@ import { queryKey } from "../../constants/queryKey";
 import { fetchHeader } from "../../constants/fetchHeader";
 import { queryToString } from "../../utils/queryToString";
 
-export function useStudentsQuery(props) {
+export function useGetStudents(props) {
   const options = props?.options || {};
   const queryParam = props?.queryParam || {};
   const { data, isLoading, isError, refetch } = useQuery(
@@ -21,7 +21,7 @@ export function useStudentsQuery(props) {
   return { refetch, data, isLoading, isError };
 }
 
-export function useStudentQuery({ id, options }) {
+export function useGetStudent({ id, options }) {
   const { data, isLoading, isError, refetch } = useQuery(
     [queryKey.students, "DETAIL", id],
     () =>
