@@ -44,6 +44,7 @@ const navConfigAdmin = [
   MENU.instruments,
   MENU.packet,
   MENU.payment,
+  MENU.refund,
 ];
 
 const navConfigAdminMobile = [MENU.dashboard, MENU.bookings, MENU.users, MENU.students, MENU.more];
@@ -55,6 +56,7 @@ const navConfigAdminMore = [
   MENU.instruments,
   MENU.packet,
   MENU.payment,
+  MENU.refund,
   MENU.logout,
 ];
 

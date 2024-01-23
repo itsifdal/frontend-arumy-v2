@@ -68,4 +68,9 @@ export const MENU = {
     path: "/app/payment",
     icon: getIcon("tdesign:money"),
   },
+  refund: {
+    title: "Refund",
+    path: "/app/refund",
+    icon: getIcon("mdi:cash-refund"),
+  },
 };

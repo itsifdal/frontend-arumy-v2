@@ -11,4 +11,5 @@ export const queryKey = {
   packets: "PACKETS",
   payments: "PAYMENTS",
   studentPackets: "STUDENT_PACKETS",
+  refunds: "REFUNDS",
 };

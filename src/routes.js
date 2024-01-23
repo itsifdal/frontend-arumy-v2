@@ -34,6 +34,7 @@ import BookingPast from "./pages/BookingPast";
 import Branches from "./pages/branches/page";
 import Packets from "./pages/packets/page";
 import Payments from "./pages/payments/page";
+import Refunds from "./pages/refunds/page";
 import User from "./pages/users/page";
 
 // ----------------------------------------------------------------------
@@ -75,6 +76,7 @@ export default function Router() {
         { path: "instruments", element: <Instruments /> },
         { path: "packet", element: <Packets /> },
         { path: "payment", element: <Payments /> },
+        { path: "refund", element: <Refunds /> },
       ],
     },
     {
