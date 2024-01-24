@@ -9,15 +9,16 @@ import { CustomTextField } from "../../components/input/inputBasic";
 import CustomInputLabel from "../../components/input/inputLabel";
 import AutoCompleteReactHook from "../../components/input/autoCompleteReactHook";
 import CurrencyInputReactHook from "../../components/input/currencyInputReactHook";
+import DateInputReactHook from "../../components/input/dateInputReactHook";
 import { useGetRefund, useAddRefund, useUpdateRefund } from "./query";
 import { usePacketsQuery } from "../packets/query";
 import { useGetStudents } from "../students/query";
 
 export default function RefundFormModal({ open, onClose, stateModal, id, onSuccess, onError }) {
-  const [, /* user */ setUser] = useState({ id: undefined, role: undefined });
+  const [user, setUser] = useState({ id: undefined, role: undefined });
 
   const {
-    /* register, */
+    register,
     handleSubmit,
     setValue,
     reset: resetForm,
@@ -76,6 +77,8 @@ export default function RefundFormModal({ open, onClose, stateModal, id, onSucce
           refund_amount: data.refund_amount,
           quota_privat: data.quota_privat || 0,
           quota_group: data.quota_group || 0,
+          transfer_date: data.transfer_date,
+          recipient_account: data.recipient_account,
         };
         const entries = Object.entries(modelData);
         entries.forEach((packet) => {
@@ -244,7 +247,31 @@ export default function RefundFormModal({ open, onClose, stateModal, id, onSucce
                 />
               </FormControl>
             </Grid>
-            {/* <input type="hidden" {...register("userId")} value={user.id} /> */}
+            <Grid item xs={6}>
+              <FormControl fullWidth error={!!errors.transfer_date}>
+                <CustomInputLabel htmlFor="transfer_date">Tanggal Refund*</CustomInputLabel>
+                <DateInputReactHook
+                  name="transfer_date"
+                  rules={{
+                    required: "Tanggal refund wajib diisi",
+                  }}
+                  control={control}
+                  isError={!!errors.transfer_date}
+                  helperText={errors.transfer_date?.message}
+                />
+              </FormControl>
+            </Grid>
+            <Grid item xs={6}>
+              <FormControl fullWidth error={!!errors.recipient_account}>
+                <CustomInputLabel htmlFor="recipient_account">Info Penerima</CustomInputLabel>
+                <CustomTextField
+                  {...register("recipient_account", { required: "Informasi penerima wajib diisi" })}
+                  helperText={errors.recipient_account?.message}
+                  error={!!errors.recipient_account}
+                />
+              </FormControl>
+            </Grid>
+            <input type="hidden" {...register("userId")} value={user.id} />
           </Grid>
           <LoadingButton
             loading={submitAddRefund.isLoading || submitUpdateRefund.isLoading}
@@ -264,7 +291,6 @@ RefundFormModal.propTypes = {
   open: PropTypes.bool,
   onClose: PropTypes.func,
   stateModal: PropTypes.string,
-  /* dataName: PropTypes.string, */
   id: PropTypes.string,
   onSuccess: PropTypes.func,
   onError: PropTypes.func,

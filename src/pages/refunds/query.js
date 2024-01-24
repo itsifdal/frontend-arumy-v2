@@ -7,7 +7,6 @@ import { cleanQuery } from "../../utils/cleanQuery";
 import { queryToString } from "../../utils/queryToString";
 
 export function useGetRefunds(props) {
-  console.log(fetchHeader);
   const options = props?.options || {};
   const queryParam = props?.queryParam || {};
   const { data, isLoading, isError, refetch } = useQuery(

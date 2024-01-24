@@ -347,7 +347,6 @@ PaymentFormModal.propTypes = {
   open: PropTypes.bool,
   onClose: PropTypes.func,
   stateModal: PropTypes.string,
-  dataName: PropTypes.string,
   id: PropTypes.string,
   onSuccess: PropTypes.func,
   onError: PropTypes.func,

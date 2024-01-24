@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import { Stack, Button /* Pagination, PaginationItem */ } from "@mui/material";
+import { Stack, Button, Pagination, PaginationItem } from "@mui/material";
 import { NumericFormat } from "react-number-format";
-import { useSearchParams /* Link */ } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
 
 import Scrollbar from "../../components/Scrollbar";
 import BasicTable from "../../components/BasicTable";
 import Iconify from "../../components/Iconify";
-/* import { queryToString } from "../../utils/queryToString"; */
+import { queryToString } from "../../utils/queryToString";
 import { urlSearchParamsToQuery } from "../../utils/urlSearchParamsToQuery";
 import RefundDeleteModal from "./deleteModal";
 import RefundFormModal from "./formModal";
@@ -33,11 +33,13 @@ export default function RefundList() {
       select: (res) => ({
         data: res.data.map((refund) => ({
           id: refund.id,
+          studentName: refund.student?.nama_murid,
+          packetName: refund.paket?.nama_paket,
           totalRefund: refund.refund_amount,
           quotaPrivate: refund.quota_privat,
           quotaGroup: refund.quota_group,
         })),
-        // pagination: res.pagination,
+        pagination: res.pagination,
       }),
     },
     queryParam: { ...defaultQuery, ...queryParam },
@@ -75,8 +77,10 @@ export default function RefundList() {
     <>
       <Scrollbar>
         <BasicTable
-          header={["QUOTA PRIVATE", "QUOTA GROUP", "TOTAL", " "]}
+          header={["NAMA MURID", "NAMA PAKET", "QUOTA PRIVATE", "QUOTA GROUP", "TOTAL", " "]}
           body={refunds.data.map((refund) => [
+            refund.studentName,
+            refund.packetName,
             refund.quotaPrivate,
             refund.quotaGroup,
             <NumericFormat
@@ -116,7 +120,7 @@ export default function RefundList() {
         />
       </Scrollbar>
 
-      {/* <Pagination
+      <Pagination
         page={refunds.pagination.currentPage}
         count={refunds.pagination.totalPages}
         shape="rounded"
@@ -128,7 +132,7 @@ export default function RefundList() {
             {...item}
           />
         )}
-      /> */}
+      />
 
       <RefundFormModal
         open={isOpenUpdateModal}
