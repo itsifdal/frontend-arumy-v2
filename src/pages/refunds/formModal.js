@@ -78,7 +78,7 @@ export default function RefundFormModal({ open, onClose, stateModal, id, onSucce
           quota_privat: data.quota_privat || 0,
           quota_group: data.quota_group || 0,
           transfer_date: data.transfer_date,
-          recipient_account: data.recipient_account,
+          notes: data.notes,
         };
         const entries = Object.entries(modelData);
         entries.forEach((packet) => {
@@ -262,12 +262,14 @@ export default function RefundFormModal({ open, onClose, stateModal, id, onSucce
               </FormControl>
             </Grid>
             <Grid item xs={6}>
-              <FormControl fullWidth error={!!errors.recipient_account}>
-                <CustomInputLabel htmlFor="recipient_account">Info Penerima</CustomInputLabel>
+              <FormControl fullWidth error={!!errors.notes}>
+                <CustomInputLabel htmlFor="notes">Notes</CustomInputLabel>
                 <CustomTextField
-                  {...register("recipient_account", { required: "Informasi penerima wajib diisi" })}
-                  helperText={errors.recipient_account?.message}
-                  error={!!errors.recipient_account}
+                  {...register("notes")}
+                  helperText={errors.notes?.message}
+                  error={!!errors.notes}
+                  multiline
+                  maxRows={4}
                 />
               </FormControl>
             </Grid>
