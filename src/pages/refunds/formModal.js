@@ -11,7 +11,7 @@ import AutoCompleteReactHook from "../../components/input/autoCompleteReactHook"
 import CurrencyInputReactHook from "../../components/input/currencyInputReactHook";
 import DateInputReactHook from "../../components/input/dateInputReactHook";
 import { useGetRefund, useAddRefund, useUpdateRefund } from "./query";
-import { usePacketsQuery } from "../packets/query";
+import { useGetPackets } from "../packets/query";
 import { useGetStudents } from "../students/query";
 
 export default function RefundFormModal({ open, onClose, stateModal, id, onSuccess, onError }) {
@@ -35,7 +35,7 @@ export default function RefundFormModal({ open, onClose, stateModal, id, onSucce
     }
   }, []);
 
-  const { data: packets = [], isLoading: isLoadingPackets } = usePacketsQuery({
+  const { data: packets = [], isLoading: isLoadingPackets } = useGetPackets({
     options: {
       enabled: open,
       select: (res) =>

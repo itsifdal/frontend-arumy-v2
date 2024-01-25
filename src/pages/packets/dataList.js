@@ -8,7 +8,7 @@ import BasicTable from "../../components/BasicTable";
 import Iconify from "../../components/Iconify";
 import PacketDeleteModal from "./deleteModal";
 import PacketFormModal from "./formModal";
-import { usePacketsQuery } from "./query";
+import { useGetPackets } from "./query";
 import { onSuccessToast, onErrorToast } from "./callback";
 import { queryToString } from "../../utils/queryToString";
 import { urlSearchParamsToQuery } from "../../utils/urlSearchParamsToQuery";
@@ -26,7 +26,7 @@ export default function PacketList() {
     isLoading,
     isError,
     refetch: packetsRefetch,
-  } = usePacketsQuery({
+  } = useGetPackets({
     queryParam: { ...queryParam },
   });
 

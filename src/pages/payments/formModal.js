@@ -13,7 +13,7 @@ import CurrencyInputReactHook from "../../components/input/currencyInputReactHoo
 import SelectReactHook from "../../components/input/selectReactHook";
 import CheckBoxReactHook from "../../components/input/checkBoxReactHook";
 import { usePaymentQuery, useAddPayment, useUpdatePayment } from "./query";
-import { usePacketsQuery } from "../packets/query";
+import { useGetPackets } from "../packets/query";
 import { useGetStudents } from "../students/query";
 
 const paymentVia = [
@@ -48,7 +48,7 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
     }
   }, []);
 
-  const { data: packets = [], isLoading: isLoadingPackets } = usePacketsQuery({
+  const { data: packets = [], isLoading: isLoadingPackets } = useGetPackets({
     options: {
       enabled: open,
       select: (res) =>

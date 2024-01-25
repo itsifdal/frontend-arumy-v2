@@ -4,13 +4,13 @@ import { useSearchParams } from "react-router-dom";
 import useResponsive from "../../hooks/useResponsive";
 import { fNumber } from "../../utils/formatNumber";
 import { urlSearchParamsToQuery } from "../../utils/urlSearchParamsToQuery";
-import { usePacketsQuery } from "./query";
+import { useGetPackets } from "./query";
 
 export default function PeacketFilterBar() {
   const isDesktop = useResponsive("up", "lg");
   const [searchParams] = useSearchParams();
   const queryParam = urlSearchParamsToQuery(searchParams);
-  const { data: packets } = usePacketsQuery({
+  const { data: packets } = useGetPackets({
     queryParam: { ...queryParam },
   });
 

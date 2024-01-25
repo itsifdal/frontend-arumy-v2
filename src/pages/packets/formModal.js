@@ -7,7 +7,7 @@ import PropTypes from "prop-types";
 import { modalStyle } from "../../constants/modalStyle";
 import { CustomTextField } from "../../components/input/inputBasic";
 import CustomInputLabel from "../../components/input/inputLabel";
-import { usePacketQuery, useAddPacket, useUpdatePacket } from "./query";
+import { useGetPacket, useAddPacket, useUpdatePacket } from "./query";
 
 PacketFormModal.propTypes = {
   open: PropTypes.bool,
@@ -31,7 +31,7 @@ export default function PacketFormModal({ open, onClose, stateModal, id, onSucce
   const submitAddPacket = useAddPacket();
   const submitUpdatePacket = useUpdatePacket({ id });
 
-  const { refetch: packetsRefetch, isLoading: isLoadingPacket } = usePacketQuery({
+  const { refetch: packetsRefetch, isLoading: isLoadingPacket } = useGetPacket({
     id,
     options: {
       enabled: Boolean(id),

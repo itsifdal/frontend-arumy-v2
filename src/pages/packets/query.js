@@ -6,7 +6,7 @@ import { fetchHeader } from "../../constants/fetchHeader";
 import { cleanQuery } from "../../utils/cleanQuery";
 import { queryToString } from "../../utils/queryToString";
 
-export function usePacketsQuery(props) {
+export function useGetPackets(props) {
   const options = props?.options || {};
   const queryParam = props?.queryParam || {};
   const { data, isLoading, isError, refetch } = useQuery(
@@ -32,7 +32,7 @@ export function usePacketsQuery(props) {
   return { refetch, data, isLoading, isError };
 }
 
-export function usePacketQuery({ id, options }) {
+export function useGetPacket({ id, options }) {
   const { data, isLoading, isError, refetch } = useQuery(
     [queryKey.packets, "DETAIL", id],
     () =>

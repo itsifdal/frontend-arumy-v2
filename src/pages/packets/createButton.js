@@ -5,13 +5,13 @@ import { useSearchParams } from "react-router-dom";
 import Iconify from "../../components/Iconify";
 import PacketFormModal from "./formModal";
 import { onSuccessToast, onErrorToast } from "./callback";
-import { usePacketsQuery } from "./query";
+import { useGetPackets } from "./query";
 import { urlSearchParamsToQuery } from "../../utils/urlSearchParamsToQuery";
 
 export default function PacketCreateButton() {
   const [searchParams] = useSearchParams();
   const queryParam = urlSearchParamsToQuery(searchParams);
-  const { refetch: packetsRefetch } = usePacketsQuery({
+  const { refetch: packetsRefetch } = useGetPackets({
     queryParam: { ...queryParam },
   });
   const [isOpenCreateModal, setIsOpenCreateModal] = useState(false);
