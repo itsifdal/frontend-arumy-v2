@@ -72,6 +72,7 @@ export default function RefundList() {
 
   if (isLoading) return <>Loading Data</>;
   if (isError) return <>Error Loading Data</>;
+  if (refunds.data.length === 0) return <>No Data Found</>;
 
   return (
     <>
