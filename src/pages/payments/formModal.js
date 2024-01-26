@@ -84,22 +84,23 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
       enabled: Boolean(id),
       onSuccess: (res) => {
         const { data } = res;
-        const modelData = {
-          paketId: data.paketId,
-          studentId: data.studentId,
-          tgl_tagihan: data.tgl_tagihan,
-          tgl_bayar: data.tgl_bayar,
-          jumlah_bayar: data.jumlah_bayar,
-          bayar_via: data.bayar_via,
-          quota_privat: data.quota_privat || 0,
-          quota_group: data.quota_group || 0,
-          receipt_number: data.receipt_number,
-          confirmed_status: data.confirmed_status,
-        };
-        const entries = Object.entries(modelData);
-        entries.forEach((packet) => {
-          setValue(packet[0], packet[1]);
-        });
+        if (data) {
+          const modelData = {
+            paketId: data.paketId,
+            studentId: data.studentId,
+            tgl_bayar: data.tgl_bayar,
+            jumlah_bayar: data.jumlah_bayar,
+            bayar_via: data.bayar_via,
+            quota_privat: data.quota_privat || 0,
+            quota_group: data.quota_group || 0,
+            receipt_number: data.receipt_number,
+            confirmed_status: data.confirmed_status,
+          };
+          const entries = Object.entries(modelData);
+          entries.forEach((packet) => {
+            setValue(packet[0], packet[1]);
+          });
+        }
       },
     },
   });
@@ -214,20 +215,6 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
               </FormControl>
             </Grid>
             <Grid item xs={6}>
-              <FormControl fullWidth error={!!errors.tgl_tagihan}>
-                <CustomInputLabel htmlFor="tgl_tagihan">Tanggal Tagihan*</CustomInputLabel>
-                <DateInputReactHook
-                  name="tgl_tagihan"
-                  rules={{
-                    required: "Tanggal tagihan wajib diisi",
-                  }}
-                  control={control}
-                  isError={!!errors.tgl_tagihan}
-                  helperText={errors.tgl_tagihan?.message}
-                />
-              </FormControl>
-            </Grid>
-            <Grid item xs={6}>
               <FormControl fullWidth error={!!errors.tgl_bayar}>
                 <CustomInputLabel htmlFor="tgl_bayar">Tanggal Bayar*</CustomInputLabel>
                 <DateInputReactHook
@@ -252,21 +239,6 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
                   control={control}
                   helperText={errors.jumlah_bayar?.message}
                   isError={!!errors.jumlah_bayar}
-                />
-              </FormControl>
-            </Grid>
-            <Grid item xs={6}>
-              <FormControl fullWidth error={!!errors.bayar_via}>
-                <CustomInputLabel htmlFor="bayar_via">Pembayaran Via*</CustomInputLabel>
-                <SelectReactHook
-                  name="bayar_via"
-                  rules={{
-                    required: "Bayar via wajib diisi",
-                  }}
-                  control={control}
-                  helperText={errors.bayar_via?.message}
-                  isError={!!errors.bayar_via}
-                  options={paymentVia}
                 />
               </FormControl>
             </Grid>
@@ -305,6 +277,21 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
                       error={!!errors.quota_group}
                     />
                   )}
+                />
+              </FormControl>
+            </Grid>
+            <Grid item xs={6}>
+              <FormControl fullWidth error={!!errors.bayar_via}>
+                <CustomInputLabel htmlFor="bayar_via">Pembayaran Via*</CustomInputLabel>
+                <SelectReactHook
+                  name="bayar_via"
+                  rules={{
+                    required: "Bayar via wajib diisi",
+                  }}
+                  control={control}
+                  helperText={errors.bayar_via?.message}
+                  isError={!!errors.bayar_via}
+                  options={paymentVia}
                 />
               </FormControl>
             </Grid>

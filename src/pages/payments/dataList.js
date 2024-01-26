@@ -14,7 +14,7 @@ import PaymentFormModal from "./formModal";
 import { usePaymentsQuery } from "./query";
 import { onSuccessToast, onErrorToast } from "./callback";
 
-const defaultQuery = { sort: "DESC", sort_by: "tgl_tagihan" };
+const defaultQuery = { sort: "DESC", sort_by: "tgl_bayar" };
 
 export default function PaymentList() {
   const [id, setId] = useState("");
@@ -36,7 +36,7 @@ export default function PaymentList() {
           id: packet.id,
           studentName: packet.student?.nama_murid,
           paketName: packet.paket?.nama_paket,
-          paymentDate: format(new Date(packet.tgl_tagihan), "dd-MM-yyyy"),
+          paymentDate: format(new Date(packet.tgl_bayar), "dd-MM-yyyy"),
           totalPaid: packet.jumlah_bayar,
           receiptNumber: packet.receipt_number,
         })),
@@ -78,7 +78,7 @@ export default function PaymentList() {
     <>
       <Scrollbar>
         <BasicTable
-          header={["NAMA MURID", "NAMA PAKET", "TANGGAL TAGIHAN", "NOMOR INVOICE", "JUMLAH BAYAR", " "]}
+          header={["NAMA MURID", "NAMA PAKET", "TANGGAL BAYAR", "NOMOR INVOICE", "JUMLAH BAYAR", " "]}
           body={payments.data.map((payment) => [
             payment.studentName,
             payment.paketName,

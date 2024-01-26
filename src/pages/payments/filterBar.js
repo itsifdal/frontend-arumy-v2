@@ -7,7 +7,7 @@ import { urlSearchParamsToQuery } from "../../utils/urlSearchParamsToQuery";
 import { usePaymentsQuery } from "./query";
 import PaymentFilters from "./filterModal";
 
-const defaultQuery = { sort: "DESC", sort_by: "tgl_tagihan" };
+const defaultQuery = { sort: "DESC", sort_by: "tgl_bayar" };
 
 export default function PaymentFilterBar() {
   const isDesktop = useResponsive("up", "lg");

@@ -1,22 +1,19 @@
 import React, { useState } from "react";
 import { Button } from "@mui/material";
+import { useQueryClient } from "react-query";
 
 import Iconify from "../../components/Iconify";
 import PaymentFormModal from "./formModal";
 import { onSuccessToast, onErrorToast } from "./callback";
-import { usePaymentsQuery } from "./query";
-
-const defaultQuery = { sort: "DESC", sort_by: "tgl_tagihan" };
+import { queryKey } from "../../constants/queryKey";
 
 export default function PaymentCreateButton() {
-  const { refetch: paymentsRefetch } = usePaymentsQuery({
-    queryParam: { ...defaultQuery },
-  });
+  const queryClient = useQueryClient();
   const [isOpenCreateModal, setIsOpenCreateModal] = useState(false);
 
   const handleOpenModalCreate = () => setIsOpenCreateModal(true);
   const handleCloseModalCreate = () => {
-    paymentsRefetch();
+    queryClient.invalidateQueries({ queryKey: [queryKey.payments] });
     setIsOpenCreateModal(false);
   };
 
