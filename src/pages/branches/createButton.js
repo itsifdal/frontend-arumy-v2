@@ -1,18 +1,19 @@
 import React, { useState } from "react";
 import { Button } from "@mui/material";
+import { useQueryClient } from "react-query";
 
 import Iconify from "../../components/Iconify";
 import BranchFormModal from "./formModal";
 import { onSuccessToast, onErrorToast } from "./callback";
-import { useBranchQuery } from "./query";
+import { queryKey } from "../../constants/queryKey";
 
 export default function BranchCreateButton() {
-  const { refetch: branchesRefetch } = useBranchQuery();
+  const queryClient = useQueryClient();
   const [isOpenCreateModal, setIsOpenCreateModal] = useState(false);
 
   const handleOpenModalCreate = () => setIsOpenCreateModal(true);
   const handleCloseModalCreate = () => {
-    branchesRefetch();
+    queryClient.invalidateQueries({ queryKey: [queryKey.branches] });
     setIsOpenCreateModal(false);
   };
 

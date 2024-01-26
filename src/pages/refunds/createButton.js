@@ -1,22 +1,19 @@
 import React, { useState } from "react";
 import { Button } from "@mui/material";
+import { useQueryClient } from "react-query";
 
 import Iconify from "../../components/Iconify";
 import RefundFormModal from "./formModal";
 import { onSuccessToast, onErrorToast } from "./callback";
-import { useGetRefunds } from "./query";
-
-const defaultQuery = { sort: "DESC", sort_by: "tgl_tagihan" };
+import { queryKey } from "../../constants/queryKey";
 
 export default function RefundCreateButton() {
-  const { refetch: refundsRefetch } = useGetRefunds({
-    queryParam: { ...defaultQuery },
-  });
+  const queryClient = useQueryClient();
   const [isOpenCreateModal, setIsOpenCreateModal] = useState(false);
 
   const handleOpenModalCreate = () => setIsOpenCreateModal(true);
   const handleCloseModalCreate = () => {
-    refundsRefetch();
+    queryClient.invalidateQueries({ queryKey: [queryKey.refunds] });
     setIsOpenCreateModal(false);
   };
 

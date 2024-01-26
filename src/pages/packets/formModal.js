@@ -37,17 +37,19 @@ export default function PacketFormModal({ open, onClose, stateModal, id, onSucce
       enabled: Boolean(id),
       onSuccess: (res) => {
         const { data } = res;
-        const modelData = {
-          nama_paket: data.nama_paket,
-          harga: data.harga,
-          quota_privat: data.quota_privat,
-          quota_group: data.quota_group,
-          description: data.description,
-        };
-        const entries = Object.entries(modelData);
-        entries.forEach((packet) => {
-          setValue(packet[0], packet[1]);
-        });
+        if (data) {
+          const modelData = {
+            nama_paket: data.nama_paket,
+            harga: data.harga,
+            quota_privat: data.quota_privat,
+            quota_group: data.quota_group,
+            description: data.description,
+          };
+          const entries = Object.entries(modelData);
+          entries.forEach((packet) => {
+            setValue(packet[0], packet[1]);
+          });
+        }
       },
     },
   });

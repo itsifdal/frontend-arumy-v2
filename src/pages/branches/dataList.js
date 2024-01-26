@@ -7,7 +7,7 @@ import BasicTable from "../../components/BasicTable";
 import Iconify from "../../components/Iconify";
 import BranchDeleteModal from "./deleteModal";
 import BranchFormModal from "./formModal";
-import { useBranchQuery } from "./query";
+import { useGetBranchs } from "./query";
 import { onSuccessToast, onErrorToast } from "./callback";
 
 export default function BranchList() {
@@ -15,7 +15,7 @@ export default function BranchList() {
   const [branchName, setBranchName] = useState("");
   const [isOpenUpdateModal, setIsOpenUpdateModal] = useState(false);
   const [isOpenDeleteModal, setIsOpenDeleteModal] = useState(false);
-  const { data: branches, isLoading, isError, refetch: branchesRefetch } = useBranchQuery();
+  const { data: branches, isLoading, isError, refetch: branchesRefetch } = useGetBranchs();
 
   const handleCloseModalUpdate = () => setIsOpenUpdateModal(false);
   const handleCloseModalDelete = () => setIsOpenDeleteModal(false);

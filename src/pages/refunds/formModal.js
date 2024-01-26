@@ -71,19 +71,21 @@ export default function RefundFormModal({ open, onClose, stateModal, id, onSucce
       enabled: Boolean(id),
       onSuccess: (res) => {
         const { data } = res;
-        const modelData = {
-          paketId: data.paketId,
-          studentId: data.studentId,
-          refund_amount: data.refund_amount,
-          quota_privat: data.quota_privat || 0,
-          quota_group: data.quota_group || 0,
-          transfer_date: data.transfer_date,
-          notes: data.notes,
-        };
-        const entries = Object.entries(modelData);
-        entries.forEach((packet) => {
-          setValue(packet[0], packet[1]);
-        });
+        if (data) {
+          const modelData = {
+            paketId: data.paketId,
+            studentId: data.studentId,
+            refund_amount: data.refund_amount,
+            quota_privat: data.quota_privat || 0,
+            quota_group: data.quota_group || 0,
+            transfer_date: data.transfer_date,
+            notes: data.notes,
+          };
+          const entries = Object.entries(modelData);
+          entries.forEach((packet) => {
+            setValue(packet[0], packet[1]);
+          });
+        }
       },
     },
   });

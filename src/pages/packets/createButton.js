@@ -1,24 +1,19 @@
 import React, { useState } from "react";
 import { Button } from "@mui/material";
-import { useSearchParams } from "react-router-dom";
+import { useQueryClient } from "react-query";
 
 import Iconify from "../../components/Iconify";
 import PacketFormModal from "./formModal";
 import { onSuccessToast, onErrorToast } from "./callback";
-import { useGetPackets } from "./query";
-import { urlSearchParamsToQuery } from "../../utils/urlSearchParamsToQuery";
+import { queryKey } from "../../constants/queryKey";
 
 export default function PacketCreateButton() {
-  const [searchParams] = useSearchParams();
-  const queryParam = urlSearchParamsToQuery(searchParams);
-  const { refetch: packetsRefetch } = useGetPackets({
-    queryParam: { ...queryParam },
-  });
+  const queryClient = useQueryClient();
   const [isOpenCreateModal, setIsOpenCreateModal] = useState(false);
 
   const handleOpenModalCreate = () => setIsOpenCreateModal(true);
   const handleCloseModalCreate = () => {
-    packetsRefetch();
+    queryClient.invalidateQueries({ queryKey: [queryKey.packets] });
     setIsOpenCreateModal(false);
   };
 
