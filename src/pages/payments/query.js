@@ -6,7 +6,7 @@ import { fetchHeader } from "../../constants/fetchHeader";
 import { cleanQuery } from "../../utils/cleanQuery";
 import { queryToString } from "../../utils/queryToString";
 
-export function usePaymentsQuery(props) {
+export function useGetPayments(props) {
   const options = props?.options || {};
   const queryParam = props?.queryParam || {};
   const { data, isLoading, isError, refetch } = useQuery(
@@ -32,7 +32,7 @@ export function usePaymentsQuery(props) {
   return { refetch, data, isLoading, isError };
 }
 
-export function usePaymentQuery({ id, options }) {
+export function useGetPayment({ id, options }) {
   const { data, isLoading, isError, refetch } = useQuery(
     [queryKey.payments, "DETAIL", id],
     () =>

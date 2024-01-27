@@ -100,7 +100,7 @@ function BookingFilterForm({ toggleDrawer }) {
       select: (res) =>
         res.data.map((packet) => ({
           value: packet.id,
-          label: `${packet.nama_paket}, ${packet.description}`,
+          label: `${packet.nama_paket}${packet.description && `, ${packet.description}`}`,
         })),
     },
   });

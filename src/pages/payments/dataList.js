@@ -11,7 +11,7 @@ import { queryToString } from "../../utils/queryToString";
 import { urlSearchParamsToQuery } from "../../utils/urlSearchParamsToQuery";
 import PaymentDeleteModal from "./deleteModal";
 import PaymentFormModal from "./formModal";
-import { usePaymentsQuery } from "./query";
+import { useGetPayments } from "./query";
 import { onSuccessToast, onErrorToast } from "./callback";
 
 const defaultQuery = { sort: "DESC", sort_by: "tgl_bayar" };
@@ -29,7 +29,7 @@ export default function PaymentList() {
     isLoading,
     isError,
     refetch: packetsRefetch,
-  } = usePaymentsQuery({
+  } = useGetPayments({
     options: {
       select: (res) => ({
         data: res.data.map((packet) => ({

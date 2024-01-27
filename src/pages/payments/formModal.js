@@ -12,7 +12,7 @@ import DateInputReactHook from "../../components/input/dateInputReactHook";
 import CurrencyInputReactHook from "../../components/input/currencyInputReactHook";
 import SelectReactHook from "../../components/input/selectReactHook";
 import CheckBoxReactHook from "../../components/input/checkBoxReactHook";
-import { usePaymentQuery, useAddPayment, useUpdatePayment } from "./query";
+import { useGetPayment, useAddPayment, useUpdatePayment } from "./query";
 import { useGetPackets } from "../packets/query";
 import { useGetStudents } from "../students/query";
 
@@ -54,7 +54,7 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
       select: (res) =>
         res.data.map((packet) => ({
           value: packet.id,
-          label: `${packet.nama_paket}, ${packet.description}`,
+          label: `${packet.nama_paket}${packet.description && `, ${packet.description}`}`,
           quota_privat: packet.quota_privat || 0,
           quota_group: packet.quota_group || 0,
           harga: packet.harga || 0,
@@ -78,7 +78,7 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
   const submitAddPayment = useAddPayment();
   const submitUpdatePayment = useUpdatePayment({ id });
 
-  const { refetch: paymentRefetch, isLoading: isLoadingPayment } = usePaymentQuery({
+  const { refetch: paymentRefetch, isLoading: isLoadingPayment } = useGetPayment({
     id,
     options: {
       enabled: Boolean(id),

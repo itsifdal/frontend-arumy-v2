@@ -4,7 +4,7 @@ import { useSearchParams } from "react-router-dom";
 import useResponsive from "../../hooks/useResponsive";
 import { fNumber } from "../../utils/formatNumber";
 import { urlSearchParamsToQuery } from "../../utils/urlSearchParamsToQuery";
-import { usePaymentsQuery } from "./query";
+import { useGetPayments } from "./query";
 import PaymentFilters from "./filterModal";
 
 const defaultQuery = { sort: "DESC", sort_by: "tgl_bayar" };
@@ -13,7 +13,7 @@ export default function PaymentFilterBar() {
   const isDesktop = useResponsive("up", "lg");
   const [searchParams] = useSearchParams();
   const queryParam = urlSearchParamsToQuery(searchParams);
-  const { data: payments } = usePaymentsQuery({
+  const { data: payments } = useGetPayments({
     queryParam: { ...defaultQuery, ...queryParam },
   });
 
