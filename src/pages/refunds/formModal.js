@@ -41,7 +41,7 @@ export default function RefundFormModal({ open, onClose, stateModal, id, onSucce
       select: (res) =>
         res.data.map((packet) => ({
           value: packet.id,
-          label: `${packet.nama_paket}${packet.description && `, ${packet.description}`}`,
+          label: `${packet.nama_paket}${packet.description ? `, ${packet.description}` : ""}`,
           quota_privat: packet.quota_privat || 0,
           quota_group: packet.quota_group || 0,
           harga: packet.harga || 0,
