@@ -317,6 +317,7 @@ function BookingFilterForm({ toggleDrawer }) {
             if (!isValid(e.target.value)) return false;
             return setFilters((prevState) => ({ ...prevState, dateFrom: format(e.target.value, "yyyy-MM-dd") }));
           }}
+          maxDate={parse(filters.dateTo, "yyyy-MM-dd", new Date())}
         />
         <DateInputBasic
           disableValidation
@@ -333,6 +334,7 @@ function BookingFilterForm({ toggleDrawer }) {
             if (!isValid(e.target.value)) return false;
             return setFilters((prevState) => ({ ...prevState, dateTo: format(e.target.value, "yyyy-MM-dd") }));
           }}
+          minDate={parse(filters.dateFrom, "yyyy-MM-dd", new Date())}
         />
       </Stack>
       <NativeSelectBasic

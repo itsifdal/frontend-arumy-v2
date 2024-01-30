@@ -7,7 +7,7 @@ import { urlSearchParamsToQuery } from "../../utils/urlSearchParamsToQuery";
 import { useGetRefunds } from "./query";
 import RefundFilters from "./filterModal";
 
-const defaultQuery = { sort: "DESC", sort_by: "tgl_tagihan" };
+const defaultQuery = { sort: "DESC", sort_by: "id" };
 
 export default function RefundFilterBar() {
   const isDesktop = useResponsive("up", "lg");

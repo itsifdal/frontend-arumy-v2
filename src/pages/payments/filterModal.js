@@ -10,6 +10,7 @@ import DateInputBasic from "../../components/input/dateInputBasic";
 import { urlSearchParamsToQuery } from "../../utils/urlSearchParamsToQuery";
 import Iconify from "../../components/Iconify";
 import { useGetStudents } from "../students/query";
+import { useGetPackets } from "../packets/query";
 
 const initFilter = {
   confirmed_status: "",
@@ -18,6 +19,8 @@ const initFilter = {
   dateTo: "",
   studentId: "",
   studentLabel: "",
+  paketId: "",
+  paketLabel: "",
 };
 
 export default function PaymentFilters() {
@@ -27,6 +30,7 @@ export default function PaymentFilters() {
   const filterString = useMemo(
     () => [
       filters.studentLabel,
+      filters.paketLabel,
       filters.dateFrom && format(parse(filters.dateFrom, "yyyy-MM-dd", new Date()), "d MMM yyyy"),
       filters.dateTo && format(parse(filters.dateTo, "yyyy-MM-dd", new Date()), "d MMM yyyy"),
       filters.confirmed_status && `Status ${filters.confirmed_status ? "Terkonfirmasi" : "Belum Terkonfirmasi"}`,
@@ -89,6 +93,7 @@ export default function PaymentFilters() {
 
 function BookingFilterForm({ toggleDrawer }) {
   const [openStudent, setOpenStudent] = useState(false);
+  const [openPacket, setOpenPacket] = useState(false);
   const [filters, setFilters] = useState(initFilter);
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -100,6 +105,18 @@ function BookingFilterForm({ toggleDrawer }) {
         res.data.map((packet) => ({
           value: packet.id,
           label: packet.nama_murid,
+        })),
+    },
+  });
+
+  const { data: packets = [], isLoading: isLoadingPackets } = useGetPackets({
+    queryParam: { perPage: 9999 },
+    options: {
+      enabled: openPacket,
+      select: (res) =>
+        res.data.map((packet) => ({
+          value: packet.id,
+          label: `${packet.nama_paket}${packet.description ? `, ${packet.description}` : ""}`,
         })),
     },
   });
@@ -142,6 +159,27 @@ function BookingFilterForm({ toggleDrawer }) {
         loading={isLoadingStudents}
         value={{ value: filters.studentId || "", label: filters.studentLabel || "" }}
       />
+      <AutoCompleteBasic
+        label="Nama Paket"
+        name="paketId"
+        open={openPacket}
+        onOpen={() => {
+          setOpenPacket(true);
+        }}
+        onClose={() => {
+          setOpenPacket(false);
+        }}
+        onChange={(_, newValue) => {
+          setFilters((prevState) => ({
+            ...prevState,
+            paketId: newValue?.value || "",
+            paketLabel: newValue?.label || "",
+          }));
+        }}
+        options={packets}
+        loading={isLoadingPackets}
+        value={{ value: filters.paketId || "", label: filters.paketLabel || "" }}
+      />
       <Stack direction={"row"} gap={2}>
         <DateInputBasic
           disableValidation
@@ -158,6 +196,7 @@ function BookingFilterForm({ toggleDrawer }) {
             if (!isValid(e.target.value)) return false;
             return setFilters((prevState) => ({ ...prevState, dateFrom: format(e.target.value, "yyyy-MM-dd") }));
           }}
+          maxDate={parse(filters.dateTo, "yyyy-MM-dd", new Date())}
         />
         <DateInputBasic
           disableValidation
@@ -174,6 +213,7 @@ function BookingFilterForm({ toggleDrawer }) {
             if (!isValid(e.target.value)) return false;
             return setFilters((prevState) => ({ ...prevState, dateTo: format(e.target.value, "yyyy-MM-dd") }));
           }}
+          minDate={parse(filters.dateFrom, "yyyy-MM-dd", new Date())}
         />
       </Stack>
       <FormGroup>

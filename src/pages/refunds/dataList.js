@@ -13,7 +13,7 @@ import RefundFormModal from "./formModal";
 import { useGetRefunds } from "./query";
 import { onSuccessToast, onErrorToast } from "./callback";
 
-const defaultQuery = {};
+const defaultQuery = { sort: "DESC", sort_by: "id" };
 
 export default function RefundList() {
   const [id, setId] = useState("");
