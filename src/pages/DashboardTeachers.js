@@ -115,7 +115,19 @@ export default function DashboardTeachers() {
         )
         .then((res) => res.data),
     {
-      select: (summaries) => summaries.data?.map((summary) => ({ ...summary })),
+      select: (summaries) =>
+        summaries.data?.map((summary) => ({
+          id: summary.studentId,
+          studentName: summary.studentName,
+          privateDuration: summary.privateDuration,
+          groupDuration: summary.groupDuration,
+          privateIjinCount: summary.privateIjinCount,
+          privateExpiredCount: summary.privateExpiredCount,
+          privatePendingCount: summary.privatePendingCount,
+          groupIjinCount: summary.groupIjinCount,
+          groupExpiredCount: summary.groupExpiredCount,
+          groupPendingCount: summary.groupPendingCount,
+        })),
       enabled: openTeacher,
     }
   );
@@ -193,7 +205,7 @@ export default function DashboardTeachers() {
     const exportedTeacherSummary = teacherSummary.map((summary) => ({
       "Nama Murid": summary.studentName,
       "Durasi Private": summary.privateDuration,
-      "Sesi Group": summary.groupCount,
+      "Sesi Group": summary.summary.groupDuration / 60,
       "Booking Private Ijin": summary.privateIjinCount,
       "Booking Private Pending": summary.privatePendingCount,
       "Booking Private Kadaluarsa": summary.privateExpiredCount,
@@ -336,12 +348,14 @@ export default function DashboardTeachers() {
               <TableBody>
                 {teacherSummary.length ? (
                   teacherSummary.map((summary) => (
-                    <StyledTableRow key={summary.studentId}>
+                    <StyledTableRow key={summary.id}>
                       <StyledTableCell component="th" scope="row">
                         {summary.studentName}
                       </StyledTableCell>
                       <StyledTableCell align="right">{summary.privateDuration} menit</StyledTableCell>
-                      <StyledTableCell align="right">{summary.groupCount}</StyledTableCell>
+                      <StyledTableCell align="right">
+                        {summary.groupDuration / 60} ({summary.groupDuration} menit)
+                      </StyledTableCell>
                       <StyledTableCell width={"100px"}>
                         <Stack direction={"row"} gap={1} width={"auto"} justifyContent={"flex-end"}>
                           <Tooltip title={`${summary.privateIjinCount} booking private ijin`}>
