@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import PropTypes from "prop-types";
 import { Button, Stack, Drawer, IconButton, Box } from "@mui/material";
+import { format, parse, isValid } from "date-fns";
 
 import useResponsive from "../../hooks/useResponsive";
 import AutoCompleteBasic from "../../components/input/autoCompleteBasic";
@@ -9,19 +10,30 @@ import { urlSearchParamsToQuery } from "../../utils/urlSearchParamsToQuery";
 import Iconify from "../../components/Iconify";
 import { useGetStudents } from "../students/query";
 import { useGetPackets } from "../packets/query";
+import DateInputBasic from "../../components/input/dateInputBasic";
 
 const initFilter = {
   paketId: "",
   paketLabel: "",
   studentId: "",
   studentLabel: "",
+  dateFrom: "",
+  dateTo: "",
 };
 
 export default function RefundFilters() {
   const [openDrawer, setOpenDrawer] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const [filters, setFilters] = useState(initFilter);
-  const filterString = useMemo(() => [filters.studentLabel, filters.paketLabel], [filters]);
+  const filterString = useMemo(
+    () => [
+      filters.studentLabel,
+      filters.paketLabel,
+      filters.dateFrom && format(parse(filters.dateFrom, "yyyy-MM-dd", new Date()), "d MMM yyyy"),
+      filters.dateTo && format(parse(filters.dateTo, "yyyy-MM-dd", new Date()), "d MMM yyyy"),
+    ],
+    [filters]
+  );
   const isDesktop = useResponsive("up", "lg");
 
   useEffect(() => {
@@ -164,6 +176,42 @@ function BookingFilterForm({ toggleDrawer }) {
         loading={isLoadingPackets}
         value={{ value: filters.paketId || "", label: filters.paketLabel || "" }}
       />
+      <Stack direction={"row"} gap={2}>
+        <DateInputBasic
+          disableValidation
+          id="dateFrom"
+          name="dateFrom"
+          label="From Date"
+          value={parse(filters.dateFrom, "yyyy-MM-dd", new Date())}
+          onChange={(e) => {
+            if (e.target.value === null)
+              return setFilters((prevState) => {
+                delete prevState.dateFrom;
+                return { ...prevState };
+              });
+            if (!isValid(e.target.value)) return false;
+            return setFilters((prevState) => ({ ...prevState, dateFrom: format(e.target.value, "yyyy-MM-dd") }));
+          }}
+          maxDate={parse(filters.dateTo, "yyyy-MM-dd", new Date())}
+        />
+        <DateInputBasic
+          disableValidation
+          id="dateTo"
+          name="dateTo"
+          label="To Date"
+          value={parse(filters.dateTo, "yyyy-MM-dd", new Date())}
+          onChange={(e) => {
+            if (e.target.value === null)
+              return setFilters((prevState) => {
+                delete prevState.dateTo;
+                return { ...prevState };
+              });
+            if (!isValid(e.target.value)) return false;
+            return setFilters((prevState) => ({ ...prevState, dateTo: format(e.target.value, "yyyy-MM-dd") }));
+          }}
+          minDate={parse(filters.dateFrom, "yyyy-MM-dd", new Date())}
+        />
+      </Stack>
       <Stack spacing={1} direction={"row"} flexShrink={0} alignItems="flex-end" width={"100%"}>
         <Button
           variant="contained"
