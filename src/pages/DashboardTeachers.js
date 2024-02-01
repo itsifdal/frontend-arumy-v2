@@ -205,7 +205,7 @@ export default function DashboardTeachers() {
     const exportedTeacherSummary = teacherSummary.map((summary) => ({
       "Nama Murid": summary.studentName,
       "Durasi Private": summary.privateDuration,
-      "Sesi Group": summary.groupDuration / 60,
+      "Sesi Group": summary.groupDuration,
       "Booking Private Ijin": summary.privateIjinCount,
       "Booking Private Pending": summary.privatePendingCount,
       "Booking Private Kadaluarsa": summary.privateExpiredCount,
