@@ -40,6 +40,8 @@ import { fetchHeader } from "../constants/fetchHeader";
 
 const initFilter = {
   tgl_kelas: format(new Date(), "yyyy-MM-dd"),
+  sort: "asc",
+  sort_by: "tgl_kelas",
 };
 
 // ----------------------------------------------------------------------
