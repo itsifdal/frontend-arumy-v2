@@ -71,7 +71,7 @@ export default function Dashboard() {
     refetch: refetchBooking,
     isError: isErrorDashboard,
   } = useQuery(
-    [queryKey.dashboard],
+    [queryKey.dashboard, cleanQuery(defaultQueryBooking)],
     () =>
       axios
         .get(`${process.env.REACT_APP_BASE_URL}/api/dashboard/booking${queryToString(queryParam)}`, {
