@@ -173,7 +173,7 @@ function BookingFilterForm({ toggleDrawer }) {
     () =>
       axios
         .get(`${process.env.REACT_APP_BASE_URL}/api/student?perPage=9999`, {
-          headers: { "x-api-key": process.env.REACT_API_KEY },
+          headers: fetchHeader,
         })
         .then((res) => res.data),
     {
