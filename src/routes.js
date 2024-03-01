@@ -24,7 +24,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/Page404";
 import Dashboard from "./pages/Dashboard";
-import DashboardTimeline from "./pages/DashboardTimeline";
+import DashboardTimeline from "./pages/dashboard/timeline/page";
 import DashboardTeachers from "./pages/DashboardTeachers";
 import Teachers from "./pages/Teachers";
 import Instruments from "./pages/Instruments";
@@ -36,6 +36,7 @@ import Packets from "./pages/packets/page";
 import Payments from "./pages/payments/page";
 import Refunds from "./pages/refunds/page";
 import User from "./pages/users/page";
+import DashboardStudents from "./pages/dashboard/students/page";
 
 // ----------------------------------------------------------------------
 
@@ -56,6 +57,7 @@ export default function Router() {
         { path: "dashboard", element: <Dashboard /> },
         { path: "dashboard/timeline", element: <DashboardTimeline /> },
         { path: "dashboard/teachers", element: <DashboardTeachers /> },
+        { path: "dashboard/students", element: <DashboardStudents /> },
         { path: "user", element: <User /> },
         { path: "room", element: <Room /> },
         { path: "booking", element: <Booking /> },

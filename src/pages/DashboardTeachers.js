@@ -1,4 +1,4 @@
-import { Link as RouterLink, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import { useQuery } from "react-query";
 import { format, parse, sub, isValid } from "date-fns";
@@ -37,6 +37,7 @@ import { urlSearchParamsToQuery } from "../utils/urlSearchParamsToQuery";
 import { cleanQuery } from "../utils/cleanQuery";
 import { queryToString } from "../utils/queryToString";
 import { fetchHeader } from "../constants/fetchHeader";
+import DashboardNav from "./dashboard/dashboardNav";
 
 const initFilter = {
   teacherId: 1,
@@ -229,20 +230,7 @@ export default function DashboardTeachers() {
 
   return (
     <Page title="Dashboard">
-      <PageHeader
-        title="Dashboard"
-        rightContent={
-          <Stack direction={"row"} spacing={2}>
-            <Button variant="contained">TEACHERS</Button>
-            <Button variant="outlined" component={RouterLink} to="/app/dashboard/timeline">
-              ROOM
-            </Button>
-            <Button variant="outlined" component={RouterLink} to="/app/dashboard">
-              BOOKING
-            </Button>
-          </Stack>
-        }
-      />
+      <PageHeader title="Dashboard" rightContent={<DashboardNav active="teachers" />} />
       <Box
         sx={{
           background: "#FFF",

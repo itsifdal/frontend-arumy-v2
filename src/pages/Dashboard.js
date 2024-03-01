@@ -1,4 +1,4 @@
-import { Link as RouterLink, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import React, { useEffect, useState, useMemo } from "react";
 import { useQuery } from "react-query";
 import { format, parse, isValid } from "date-fns";
@@ -10,7 +10,6 @@ import {
   Link,
   Table,
   Stack,
-  Button,
   TableRow,
   TableHead,
   TableBody,
@@ -37,6 +36,7 @@ import { queryToString } from "../utils/queryToString";
 import { cleanQuery } from "../utils/cleanQuery";
 import { mapRoomChart } from "../utils/map/roomChart";
 import { fetchHeader } from "../constants/fetchHeader";
+import DashboardNav from "./dashboard/dashboardNav";
 
 const initFilter = {
   tgl_kelas: format(new Date(), "yyyy-MM-dd"),
@@ -209,22 +209,7 @@ export default function Dashboard() {
 
   return (
     <Page title="Dashboard">
-      <PageHeader
-        title="Dashboard"
-        rightContent={
-          <Stack direction={"row"} spacing={2}>
-            {!isTeacher ? (
-              <Button variant="outlined" component={RouterLink} to="/app/dashboard/teachers">
-                TEACHERS
-              </Button>
-            ) : null}
-            <Button variant="outlined" component={RouterLink} to="/app/dashboard/timeline">
-              ROOM
-            </Button>
-            <Button variant="contained">BOOKING</Button>
-          </Stack>
-        }
-      />
+      <PageHeader title="Dashboard" rightContent={<DashboardNav active="bookings" />} />
       <Box
         sx={{
           background: "#FFF",
