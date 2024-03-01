@@ -12,4 +12,5 @@ export const queryKey = {
   payments: "PAYMENTS",
   studentPackets: "STUDENT_PACKETS",
   refunds: "REFUNDS",
+  quotaDetails: "QUOTA_DETAILS",
 };

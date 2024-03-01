@@ -58,3 +58,19 @@ export function useDeleteStudent({ id }) {
     })
   );
 }
+
+export function useGetQuotaStudents(props) {
+  const options = props?.options || {};
+  const queryParam = props?.queryParam || {};
+  const { data, isLoading, isError, refetch } = useQuery(
+    [queryKey.students, queryKey.quotaDetails, queryParam],
+    () =>
+      axios
+        .get(`${process.env.REACT_APP_BASE_URL}/api/student/quotaDetails${queryToString(queryParam)}`, {
+          headers: fetchHeader,
+        })
+        .then((res) => res.data),
+    options
+  );
+  return { refetch, data, isLoading, isError };
+}
