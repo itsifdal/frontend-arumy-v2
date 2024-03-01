@@ -9,6 +9,8 @@ import {
   Pagination,
   PaginationItem,
   Box,
+  Button,
+  Stack,
 } from "@mui/material";
 import TableCell, { tableCellClasses } from "@mui/material/TableCell";
 import { styled } from "@mui/material/styles";
@@ -18,6 +20,7 @@ import { format, sub } from "date-fns";
 import { useGetQuotaStudents } from "../../students/query";
 import { urlSearchParamsToQuery } from "../../../utils/urlSearchParamsToQuery";
 import { queryToString } from "../../../utils/queryToString";
+import Iconify from "../../../components/Iconify";
 
 // ----------------------------------------------------------------------
 
@@ -48,16 +51,26 @@ const initQuery = {
   dateTo: format(new Date(), "yyyy-MM-dd"),
 };
 
+const buttonSortStyle = {
+  minWidth: 0,
+  padding: 0,
+  fontSize: "16px",
+  color: "white",
+  ":hover": {
+    bgcolor: "transparent",
+  },
+};
+
 export default function DashboardStudentsData() {
-  const [searchParams] = useSearchParams();
-  const queryParam = urlSearchParamsToQuery(searchParams);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const queryParam = { ...initQuery, ...urlSearchParamsToQuery(searchParams) };
 
   const {
     data: students = [],
     isLoading,
     isError,
   } = useGetQuotaStudents({
-    queryParam: { ...initQuery, ...queryParam },
+    queryParam,
   });
 
   if (isLoading) return <>Loading...</>;
@@ -75,8 +88,52 @@ export default function DashboardStudentsData() {
               <StyledTableCell align="right">Quota Group</StyledTableCell>
               <StyledTableCell align="right">Taken Private</StyledTableCell>
               <StyledTableCell align="right">Taken Group</StyledTableCell>
-              <StyledTableCell align="right">Remaining Private</StyledTableCell>
-              <StyledTableCell align="right">Remaining Group</StyledTableCell>
+              <StyledTableCell align="right">
+                <Stack direction={"row"} gap={"5px"}>
+                  <Button
+                    sx={buttonSortStyle}
+                    disabled={queryParam.sort === "ASC" && queryParam.sort_by === "privateQuotaLeft"}
+                    onClick={() => {
+                      setSearchParams({ ...queryParam, sort: "ASC", sort_by: "privateQuotaLeft" });
+                    }}
+                  >
+                    <Iconify icon="octicon:sort-asc-16" />
+                  </Button>
+                  <Button
+                    sx={buttonSortStyle}
+                    onClick={() => {
+                      setSearchParams({ ...queryParam, sort: "DESC", sort_by: "privateQuotaLeft" });
+                    }}
+                    disabled={queryParam.sort === "DESC" && queryParam.sort_by === "privateQuotaLeft"}
+                  >
+                    <Iconify icon="octicon:sort-desc-16" />
+                  </Button>
+                  <span>Remaining Private</span>
+                </Stack>
+              </StyledTableCell>
+              <StyledTableCell align="right">
+                <Stack direction={"row"} gap={"5px"}>
+                  <Button
+                    sx={buttonSortStyle}
+                    disabled={queryParam.sort === "ASC" && queryParam.sort_by === "groupQuotaLeft"}
+                    onClick={() => {
+                      setSearchParams({ ...queryParam, sort: "ASC", sort_by: "groupQuotaLeft" });
+                    }}
+                  >
+                    <Iconify icon="octicon:sort-asc-16" />
+                  </Button>
+                  <Button
+                    sx={buttonSortStyle}
+                    onClick={() => {
+                      setSearchParams({ ...queryParam, sort: "DESC", sort_by: "groupQuotaLeft" });
+                    }}
+                    disabled={queryParam.sort === "DESC" && queryParam.sort_by === "groupQuotaLeft"}
+                  >
+                    <Iconify icon="octicon:sort-desc-16" />
+                  </Button>
+                  <span>Remaining Group</span>
+                </Stack>
+              </StyledTableCell>
             </TableRow>
           </TableHead>
           <TableBody>

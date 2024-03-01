@@ -5,7 +5,7 @@ import Page from "../../../components/Page";
 import PageHeader from "../../../components/PageHeader";
 import DashboardNav from "../dashboardNav";
 import DashboardStudentsFilter from "./filterBar";
-import DashboardStudentsData from "./data";
+import DashboardStudentsData from "./dataList";
 
 export default function DashboardStudents() {
   return (

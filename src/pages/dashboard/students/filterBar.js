@@ -50,11 +50,11 @@ export default function DashboardStudentsFilter() {
       }}
     >
       <Container maxWidth="xl">
-        <Grid container spacing={1} flexGrow={1}>
-          <Grid item xs={4}>
+        <Grid container spacing={1} flexGrow={1} alignItems={"center"}>
+          <Grid item xs={6}>
             <Typography fontSize={"14px"}>{pageInfo}</Typography>
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={3}>
             <DateInputBasic
               disableValidation
               id="dateFrom"
@@ -68,7 +68,7 @@ export default function DashboardStudentsFilter() {
               maxDate={parse(defaultFilter.dateTo, "yyyy-MM-dd", new Date())}
             />
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={3}>
             <DateInputBasic
               disableValidation
               id="dateTo"
