@@ -1,7 +1,7 @@
 import React from "react";
 import { Container, Box, Typography, Grid } from "@mui/material";
 import { useSearchParams } from "react-router-dom";
-import { format, parse, isValid, sub } from "date-fns";
+import { format, parse, isValid } from "date-fns";
 import setDefaultOptions from "date-fns/setDefaultOptions";
 import id from "date-fns/locale/id";
 
@@ -9,13 +9,7 @@ import DateInputBasic from "../../../components/input/dateInputBasic";
 import { useGetQuotaStudents } from "../../students/query";
 import { fNumber } from "../../../utils/formatNumber";
 import { urlSearchParamsToQuery } from "../../../utils/urlSearchParamsToQuery";
-
-const initQuery = {
-  sort: "DESC",
-  sort_by: "privateQuotaLeft",
-  dateFrom: format(sub(new Date(), { months: 1 }), "yyyy-MM-dd"),
-  dateTo: format(new Date(), "yyyy-MM-dd"),
-};
+import { initQuery } from "./constant";
 
 export default function DashboardStudentsFilter() {
   setDefaultOptions({ locale: id });

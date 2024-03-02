@@ -15,12 +15,12 @@ import {
 import TableCell, { tableCellClasses } from "@mui/material/TableCell";
 import { styled } from "@mui/material/styles";
 import { useSearchParams, Link } from "react-router-dom";
-import { format, sub } from "date-fns";
 
 import { useGetQuotaStudents } from "../../students/query";
 import { urlSearchParamsToQuery } from "../../../utils/urlSearchParamsToQuery";
 import { queryToString } from "../../../utils/queryToString";
 import Iconify from "../../../components/Iconify";
+import { initQuery } from "./constant";
 
 // ----------------------------------------------------------------------
 
@@ -43,13 +43,6 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
     border: 0,
   },
 }));
-
-const initQuery = {
-  sort: "DESC",
-  sort_by: "privateQuotaLeft",
-  dateFrom: format(sub(new Date(), { months: 1 }), "yyyy-MM-dd"),
-  dateTo: format(new Date(), "yyyy-MM-dd"),
-};
 
 const buttonSortStyle = {
   minWidth: 0,
@@ -84,17 +77,17 @@ export default function DashboardStudentsData() {
           <TableHead>
             <TableRow>
               <StyledTableCell>Nama Murid</StyledTableCell>
-              <StyledTableCell align="right">Quota Private</StyledTableCell>
+              <StyledTableCell align="right">Quota Priv.</StyledTableCell>
               <StyledTableCell align="right">Quota Group</StyledTableCell>
-              <StyledTableCell align="right">Taken Private</StyledTableCell>
+              <StyledTableCell align="right">Taken Priv.</StyledTableCell>
               <StyledTableCell align="right">Taken Group</StyledTableCell>
               <StyledTableCell align="right">
-                <Stack direction={"row"} gap={"5px"}>
+                <Stack direction={"row"} gap={"5px"} justifyContent={"flex-end"}>
                   <Button
                     sx={buttonSortStyle}
                     disabled={queryParam.sort === "ASC" && queryParam.sort_by === "privateQuotaLeft"}
                     onClick={() => {
-                      setSearchParams({ ...queryParam, sort: "ASC", sort_by: "privateQuotaLeft" });
+                      setSearchParams({ ...queryParam, sort: "ASC", sort_by: "privateQuotaLeft", page: 1 });
                     }}
                   >
                     <Iconify icon="octicon:sort-asc-16" />
@@ -102,22 +95,22 @@ export default function DashboardStudentsData() {
                   <Button
                     sx={buttonSortStyle}
                     onClick={() => {
-                      setSearchParams({ ...queryParam, sort: "DESC", sort_by: "privateQuotaLeft" });
+                      setSearchParams({ ...queryParam, sort: "DESC", sort_by: "privateQuotaLeft", page: 1 });
                     }}
                     disabled={queryParam.sort === "DESC" && queryParam.sort_by === "privateQuotaLeft"}
                   >
                     <Iconify icon="octicon:sort-desc-16" />
                   </Button>
-                  <span>Remaining Private</span>
+                  <span>Sisa Priv.</span>
                 </Stack>
               </StyledTableCell>
               <StyledTableCell align="right">
-                <Stack direction={"row"} gap={"5px"}>
+                <Stack direction={"row"} gap={"5px"} justifyContent={"flex-end"}>
                   <Button
                     sx={buttonSortStyle}
                     disabled={queryParam.sort === "ASC" && queryParam.sort_by === "groupQuotaLeft"}
                     onClick={() => {
-                      setSearchParams({ ...queryParam, sort: "ASC", sort_by: "groupQuotaLeft" });
+                      setSearchParams({ ...queryParam, sort: "ASC", sort_by: "groupQuotaLeft", page: 1 });
                     }}
                   >
                     <Iconify icon="octicon:sort-asc-16" />
@@ -125,13 +118,13 @@ export default function DashboardStudentsData() {
                   <Button
                     sx={buttonSortStyle}
                     onClick={() => {
-                      setSearchParams({ ...queryParam, sort: "DESC", sort_by: "groupQuotaLeft" });
+                      setSearchParams({ ...queryParam, sort: "DESC", sort_by: "groupQuotaLeft", page: 1 });
                     }}
                     disabled={queryParam.sort === "DESC" && queryParam.sort_by === "groupQuotaLeft"}
                   >
                     <Iconify icon="octicon:sort-desc-16" />
                   </Button>
-                  <span>Remaining Group</span>
+                  <span>Sisa Group</span>
                 </Stack>
               </StyledTableCell>
             </TableRow>
