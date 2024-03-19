@@ -22,7 +22,6 @@ import Page from "../../components/Page";
 import Iconify from "../../components/Iconify";
 import PageHeader from "../../components/PageHeader";
 import BasicTable from "../../components/BasicTable";
-import CreateBooking from "../../components/modal/createBooking";
 import ConfirmBooking from "../../components/modal/confirmBooking";
 import { cleanQuery } from "../../utils/cleanQuery";
 import { urlSearchParamsToQuery } from "../../utils/urlSearchParamsToQuery";
@@ -33,6 +32,7 @@ import CollapsibleTable from "../../components/CollapsibleTable";
 import { fetchHeader } from "../../constants/fetchHeader";
 import { hourModel, studentModel, generateStatus, pageInfo } from "./utils";
 import { useGetBookings } from "./query";
+import { BookingFormModal } from "./formModal";
 
 // ----------------------------------------------------------------------
 export default function Booking() {
@@ -194,7 +194,7 @@ export default function Booking() {
           user={user}
         />
 
-        <CreateBooking
+        <BookingFormModal
           open={openModalCreate}
           onClose={() => setOpenModalCreate(false)}
           id={Number(bookingId)}
