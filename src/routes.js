@@ -14,7 +14,7 @@ import AddPost from "./pages/AddPost";
 import AddBooking from "./pages/AddBooking";
 import UpdateBooking from "./pages/UpdateBooking";
 import UpdatePost from "./pages/UpdatePost";
-import Booking from "./pages/Booking";
+import Bookings from "./pages/bookings/page";
 import BookingDetail from "./pages/BookingDetail";
 import UpdateBookingPage from "./pages/UpdateBookingPage";
 import Students from "./pages/Students";
@@ -60,7 +60,7 @@ export default function Router() {
         { path: "dashboard/students", element: <DashboardStudents /> },
         { path: "user", element: <User /> },
         { path: "room", element: <Room /> },
-        { path: "booking", element: <Booking /> },
+        { path: "booking", element: <Bookings /> },
         { path: "booking/upcoming", element: <BookingUpcoming /> },
         { path: "booking/past", element: <BookingPast /> },
         { path: "booking/:id", element: <BookingDetail /> },
