@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { useQuery } from "react-query";
-import { format, parse, addMinutes } from "date-fns";
+import { format, parse } from "date-fns";
 // React Toasts
 import { ToastContainer, toast } from "react-toastify";
 import axios from "axios";
@@ -13,8 +13,7 @@ import { downloadExcel } from "react-export-table-to-excel";
 import "react-toastify/dist/ReactToastify.css";
 
 // material
-import { Chip, Tooltip, Button, Container, Typography, Box, Stack, Pagination, PaginationItem } from "@mui/material";
-import { InfoRounded } from "@mui/icons-material";
+import { Button, Container, Typography, Box, Stack, Pagination, PaginationItem } from "@mui/material";
 
 // hooks
 import useResponsive from "../../hooks/useResponsive";
@@ -31,49 +30,9 @@ import { queryToString } from "../../utils/queryToString";
 import { queryKey } from "../../constants/queryKey";
 import BookingFilters from "../../components/filter/bookingFilters";
 import CollapsibleTable from "../../components/CollapsibleTable";
-import { bookingStatusObj } from "../../constants/bookingStatus";
 import { fetchHeader } from "../../constants/fetchHeader";
-import { fNumber } from "../../utils/formatNumber";
-
-const hourModel = ({ timeStart, timeEnd, duration }) => {
-  const formatTimeStart = format(parse(timeStart, "HH:mm:ss", new Date()), "HH:mm");
-  const formatTimeEnd = timeEnd
-    ? format(parse(timeEnd, "HH:mm:ss", new Date()), "HH:mm")
-    : format(addMinutes(parse(timeStart, "HH:mm:ss", new Date()), duration), "HH:mm");
-  return `${formatTimeStart}-${formatTimeEnd}`;
-};
-
-const studentModel = ({ students }) => {
-  if (students) {
-    const arrayStudents = JSON.parse(students);
-    return (
-      <Stack direction={"row"}>
-        <Typography noWrap maxWidth={"200px"} fontSize={["12px", "14px"]}>
-          {arrayStudents.map((student) => student.nama_murid).join(", ")}
-        </Typography>
-        {arrayStudents.length > 1 && (
-          <Tooltip title={arrayStudents.map((student) => student.nama_murid).join(", ")} placement="bottom">
-            <InfoRounded fontSize="small" />
-          </Tooltip>
-        )}
-      </Stack>
-    );
-  }
-  return <></>;
-};
-
-const generateStatus = ({ status, isMobile }) => {
-  if (status) {
-    return (
-      <Chip
-        label={bookingStatusObj[status].label}
-        color={bookingStatusObj[status].color}
-        {...(isMobile && { size: "small", sx: { fontSize: "12px", height: "auto" } })}
-      />
-    );
-  }
-  return <></>;
-};
+import { hourModel, studentModel, generateStatus, pageInfo } from "./utils";
+import { useGetBookings } from "./query";
 
 // ----------------------------------------------------------------------
 export default function Booking() {
@@ -102,33 +61,12 @@ export default function Booking() {
     data: bookings,
     refetch: bookingsRefetch,
     isLoading: isLoadingBookings,
-  } = useQuery(
-    [
-      queryKey.bookings,
-      cleanQuery({
-        ...queryParam,
-        ...(user.role === "Guru" && { teacherId: user?.teacherId }),
-      }),
-    ],
-    () =>
-      axios
-        .get(
-          `${process.env.REACT_APP_BASE_URL}/api/booking${queryToString({
-            ...queryParam,
-            ...(user.role === "Guru" && { teacherId: user?.teacherId }),
-          })}`,
-          {
-            headers: fetchHeader,
-          }
-        )
-        .then((res) => res.data)
-  );
-
-  const pageInfo = bookings?.pagination
-    ? `Halaman ${fNumber(bookings.pagination.current_page)} dari ${fNumber(
-        bookings.pagination.total_pages
-      )}; Ditemukan ${fNumber(bookings.pagination.total_records)} data`
-    : "";
+  } = useGetBookings({
+    queryParam: cleanQuery({
+      ...queryParam,
+      ...(user.role === "Guru" && { teacherId: user?.teacherId }),
+    }),
+  });
 
   const onSuccessMutateBooking = (response) => {
     setBookingId();
@@ -240,7 +178,7 @@ export default function Booking() {
         }}
       >
         <Container maxWidth="xl">
-          <BookingFilters pageInfo={pageInfo} />
+          <BookingFilters pageInfo={pageInfo(bookings?.pagination)} />
         </Container>
       </Box>
       <Container maxWidth="xl" sx={{ paddingTop: 4 }}>
