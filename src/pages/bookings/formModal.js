@@ -14,8 +14,7 @@ import {
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import PropTypes from "prop-types";
-import { useQuery, useQueryClient } from "react-query";
-import axios from "axios";
+import { useQueryClient } from "react-query";
 import { differenceInMinutes, format, parse, addMinutes } from "date-fns";
 import { toast } from "react-toastify";
 
@@ -28,16 +27,15 @@ import { queryKey } from "../../constants/queryKey";
 import TimeInputBasic from "../../components/input/timeInputBasic";
 import AutoCompleteBasic from "../../components/input/autoCompleteBasic";
 import TextareaBasic from "../../components/input/textareaBasic";
-import { fetchHeader } from "../../constants/fetchHeader";
-import DeleteBooking from "../../components/modal/deleteBooking";
 import { bookingFormReducer, initialBookingFormState, validateBookingForm } from "../../utils/reducer/bookingReducer";
 import { useGetStudents } from "../students/query";
 import { useGetTeachers } from "../teachers/query";
 import { useGetRooms } from "../rooms/query";
 import { useGetInstruments } from "../instruments/query";
-import { useAddBooking, useUpdateBooking } from "./query";
+import { useAddBooking, useUpdateBooking, useGetBooking } from "./query";
+import { BookingDeleteModal } from "./deleteModal";
 
-export const BookingFormModal = ({ open, onClose, state, id, callbackSuccess, callbackError, userId }) => {
+export const BookingFormModal = ({ open, onClose, state, id, onSuccess, onError, userId }) => {
   const [openStudent, setOpenStudent] = useState(false);
   const [openTeacher, setOpenTeacher] = useState(false);
   const [openRoom, setOpenRoom] = useState(false);
@@ -85,7 +83,7 @@ export const BookingFormModal = ({ open, onClose, state, id, callbackSuccess, ca
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: [queryKey.bookings] });
       if (!addAnother) {
-        callbackSuccess(response);
+        onSuccess(response);
       } else {
         toast.success(response.data.message, {
           position: "top-center",
@@ -95,7 +93,7 @@ export const BookingFormModal = ({ open, onClose, state, id, callbackSuccess, ca
       }
     },
     onError: (error) => {
-      callbackError(error);
+      onError(error);
     },
   });
 
@@ -140,15 +138,9 @@ export const BookingFormModal = ({ open, onClose, state, id, callbackSuccess, ca
     });
   };
 
-  const { refetch: bookingRefetch, isLoading: isLoadingBookingRefetch } = useQuery(
-    [queryKey.bookings, "DETAIL", id],
-    () =>
-      axios
-        .get(`${process.env.REACT_APP_BASE_URL}/api/booking/${id}`, {
-          headers: fetchHeader,
-        })
-        .then((res) => res.data),
-    {
+  const { refetch: bookingRefetch, isLoading: isLoadingBookingRefetch } = useGetBooking({
+    id,
+    options: {
       enabled: Boolean(id),
       onSuccess: (res) => {
         const { data } = res;
@@ -186,8 +178,8 @@ export const BookingFormModal = ({ open, onClose, state, id, callbackSuccess, ca
           });
         });
       },
-    }
-  );
+    },
+  });
 
   useEffect(() => {
     if (open && state === "update" && id) {
@@ -503,16 +495,16 @@ export const BookingFormModal = ({ open, onClose, state, id, callbackSuccess, ca
       </Modal>
 
       {state === "update" ? (
-        <DeleteBooking
+        <BookingDeleteModal
           open={openDel}
           onClose={handleCloseModalDelete}
           id={id}
-          callbackSuccess={(response) => {
+          onSuccess={(response) => {
             setOpenDel(false);
-            callbackSuccess(response);
+            onSuccess(response);
           }}
-          callbackError={(error) => {
-            callbackError(error);
+          onError={(error) => {
+            onError(error);
           }}
         />
       ) : null}
@@ -525,7 +517,7 @@ BookingFormModal.propTypes = {
   onClose: PropTypes.func,
   state: PropTypes.string,
   id: PropTypes.number,
-  callbackSuccess: PropTypes.func,
-  callbackError: PropTypes.func,
+  onSuccess: PropTypes.func,
+  onError: PropTypes.func,
   userId: PropTypes.number,
 };

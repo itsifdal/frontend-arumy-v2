@@ -199,10 +199,10 @@ export default function Booking() {
           onClose={() => setOpenModalCreate(false)}
           id={Number(bookingId)}
           state={stateModalCreate}
-          callbackSuccess={(response) => {
+          onSuccess={(response) => {
             onSuccessMutateBooking(response);
           }}
-          callbackError={(error) => {
+          onError={(error) => {
             onErrorMutateBooking(error);
           }}
           userId={user.id}
