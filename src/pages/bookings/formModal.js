@@ -35,7 +35,7 @@ import { useGetInstruments } from "../instruments/query";
 import { useAddBooking, useUpdateBooking, useGetBooking } from "./query";
 import { BookingDeleteModal } from "./deleteModal";
 
-export const BookingFormModal = ({ open, onClose, state, id, onSuccess, onError, userId }) => {
+export const BookingFormModal = ({ open, onClose, stateModal, id, onSuccess, onError, userId }) => {
   const [openStudent, setOpenStudent] = useState(false);
   const [openTeacher, setOpenTeacher] = useState(false);
   const [openRoom, setOpenRoom] = useState(false);
@@ -112,11 +112,11 @@ export const BookingFormModal = ({ open, onClose, state, id, onSuccess, onError,
         jenis_kelas: stateForm.values.jenis_kelas,
         durasi: stateForm.values.durasi,
         notes: stateForm.values.notes,
-        status: state === "create" ? "pending" : stateForm.values.status,
+        status: stateModal === "create" ? "pending" : stateForm.values.status,
         userId,
       };
 
-      if (state === "update") {
+      if (stateModal === "update") {
         submitUpdateBooking.mutate(data, handleCallbackMutate({ addAnother }));
       } else {
         submitAddBooking.mutate(data, handleCallbackMutate({ addAnother }));
@@ -182,13 +182,13 @@ export const BookingFormModal = ({ open, onClose, state, id, onSuccess, onError,
   });
 
   useEffect(() => {
-    if (open && state === "update" && id) {
+    if (open && stateModal === "update" && id) {
       dispatchStateForm({
         type: "reset-field",
       });
       bookingRefetch();
     }
-  }, [open, id, bookingRefetch, state]);
+  }, [open, id, bookingRefetch, stateModal]);
 
   useEffect(() => {
     if (stateForm.values.jam_booking && stateForm.values.jam_selesai_booking) {
@@ -198,12 +198,12 @@ export const BookingFormModal = ({ open, onClose, state, id, onSuccess, onError,
   }, [stateForm.values.jam_booking, stateForm.values.jam_selesai_booking]);
 
   useEffect(() => {
-    if (open && state === "create") {
+    if (open && stateModal === "create") {
       dispatchStateForm({
         type: "reset-field",
       });
     }
-  }, [open, state]);
+  }, [open, stateModal]);
 
   const handleOpenModalDelete = (e) => {
     e.preventDefault();
@@ -241,9 +241,9 @@ export const BookingFormModal = ({ open, onClose, state, id, onSuccess, onError,
         <Box sx={{ ...modalStyle, maxWidth: 800 }}>
           <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }} marginBottom={2}>
             <Typography id="modal-modal-title" variant="h4" component="h2" fontWeight={700} color={"#172560"}>
-              {state === "update" ? `Update Booking #${id}` : "Create Booking"}
+              {stateModal === "update" ? `Update Booking #${id}` : "Create Booking"}
             </Typography>
-            {state === "update" ? (
+            {stateModal === "update" ? (
               <Button variant="contained" color="error" size="small" data-id={id} onClick={handleOpenModalDelete}>
                 Delete
               </Button>
@@ -449,7 +449,7 @@ export const BookingFormModal = ({ open, onClose, state, id, onSuccess, onError,
                 }}
               />
             </Grid>
-            {state === "update" ? (
+            {stateModal === "update" ? (
               <Grid item xs={12}>
                 <FormControl>
                   <FormLabel id="status-kelas">Status Kelas</FormLabel>
@@ -479,7 +479,7 @@ export const BookingFormModal = ({ open, onClose, state, id, onSuccess, onError,
             >
               Save and Close
             </LoadingButton>
-            {state !== "update" ? (
+            {stateModal !== "update" ? (
               <LoadingButton
                 loading={submitAddBooking.isLoading || submitUpdateBooking.isLoading}
                 variant="contained"
@@ -494,7 +494,7 @@ export const BookingFormModal = ({ open, onClose, state, id, onSuccess, onError,
         </Box>
       </Modal>
 
-      {state === "update" ? (
+      {stateModal === "update" ? (
         <BookingDeleteModal
           open={openDel}
           onClose={handleCloseModalDelete}
@@ -515,7 +515,7 @@ export const BookingFormModal = ({ open, onClose, state, id, onSuccess, onError,
 BookingFormModal.propTypes = {
   open: PropTypes.bool,
   onClose: PropTypes.func,
-  state: PropTypes.string,
+  stateModal: PropTypes.string,
   id: PropTypes.number,
   onSuccess: PropTypes.func,
   onError: PropTypes.func,

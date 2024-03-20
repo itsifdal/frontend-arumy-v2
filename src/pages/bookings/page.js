@@ -198,7 +198,7 @@ export default function Booking() {
           open={openModalCreate}
           onClose={() => setOpenModalCreate(false)}
           id={Number(bookingId)}
-          state={stateModalCreate}
+          stateModal={stateModalCreate}
           onSuccess={(response) => {
             onSuccessMutateBooking(response);
           }}
