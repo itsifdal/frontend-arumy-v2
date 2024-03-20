@@ -3,6 +3,7 @@ import { Typography, Modal, FormControl, Box, Grid } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { useForm, Controller } from "react-hook-form";
 import PropTypes from "prop-types";
+import { format } from "date-fns";
 
 import { modalStyle } from "../../constants/modalStyle";
 import { CustomTextField } from "../../components/input/inputBasic";
@@ -120,8 +121,9 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
 
   const onSubmit = (data) => {
     // console.log("onSubmit", data);
+    const modelData = { ...data, tgl_bayar: format(data.tgl_bayar, "yyyy-MM-dd") };
     if (stateModal === "update") {
-      submitUpdatePayment.mutate(data, {
+      submitUpdatePayment.mutate(modelData, {
         onSuccess: (response) => {
           resetForm();
           onSuccess(response);
@@ -131,7 +133,7 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
         },
       });
     } else {
-      submitAddPayment.mutate(data, {
+      submitAddPayment.mutate(modelData, {
         onSuccess: (response) => {
           resetForm();
           onSuccess(response);
@@ -221,6 +223,7 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
                   name="tgl_bayar"
                   rules={{
                     required: "Tanggal bayar wajib diisi",
+                    validate: (value) => !!value.getDate() || "Format tanggal salah",
                   }}
                   control={control}
                   isError={!!errors.tgl_bayar}

@@ -3,6 +3,7 @@ import { Typography, Modal, FormControl, Box, Grid } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { useForm, Controller } from "react-hook-form";
 import PropTypes from "prop-types";
+import { format } from "date-fns";
 
 import { modalStyle } from "../../constants/modalStyle";
 import { CustomTextField } from "../../components/input/inputBasic";
@@ -105,8 +106,9 @@ export default function RefundFormModal({ open, onClose, stateModal, id, onSucce
 
   const onSubmit = (data) => {
     // console.log("onSubmit", data);
+    const modelData = { ...data, transfer_date: format(data.transfer_date, "yyyy-MM-dd") };
     if (stateModal === "update") {
-      submitUpdateRefund.mutate(data, {
+      submitUpdateRefund.mutate(modelData, {
         onSuccess: (response) => {
           resetForm();
           onSuccess(response);
@@ -116,7 +118,7 @@ export default function RefundFormModal({ open, onClose, stateModal, id, onSucce
         },
       });
     } else {
-      submitAddRefund.mutate(data, {
+      submitAddRefund.mutate(modelData, {
         onSuccess: (response) => {
           resetForm();
           onSuccess(response);
@@ -256,6 +258,7 @@ export default function RefundFormModal({ open, onClose, stateModal, id, onSucce
                   name="transfer_date"
                   rules={{
                     required: "Tanggal refund wajib diisi",
+                    validate: (value) => !!value.getDate() || "Format tanggal salah",
                   }}
                   control={control}
                   isError={!!errors.transfer_date}

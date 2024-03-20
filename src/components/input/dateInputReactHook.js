@@ -7,7 +7,6 @@ import PropTypes from "prop-types";
 import { Controller } from "react-hook-form";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { TextField } from "@mui/material";
-import { format, isValid } from "date-fns";
 
 const newTheme = (theme) =>
   createTheme({
@@ -31,7 +30,6 @@ const newTheme = (theme) =>
 
 export default function DateInputReactHook(props) {
   const { name, rules, control, isError, helperText } = props;
-  let delayTyping;
   return (
     <Controller
       name={name}
@@ -43,14 +41,7 @@ export default function DateInputReactHook(props) {
             inputFormat="dd/MM/yyyy"
             value={value}
             onChange={(value) => {
-              clearTimeout(delayTyping);
-              delayTyping = setTimeout(() => {
-                if (isValid(value)) {
-                  onChange(format(value, "yyyy-MM-dd"));
-                } else {
-                  onChange(value);
-                }
-              }, 700);
+              onChange(value);
             }}
             renderInput={(props) => (
               <ThemeProvider theme={newTheme}>
