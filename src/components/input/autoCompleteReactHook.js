@@ -7,8 +7,15 @@ import { CustomTextField } from "./inputBasic";
 
 export default function AutoCompleteReactHook(props) {
   const [open, setOpen] = useState(false);
-  const { name, rules, control, options, loading, isError, onChangeCallback, helperText } = props;
+  const { name, rules, control, options, loading, isError, onChangeCallback, helperText, multiple = false } = props;
   const isLoading = open && options.length === 0 && loading;
+
+  const setSelected = (selected) => {
+    if (multiple) {
+      return selected ? options.filter((option) => selected.find((select) => option.value === select.value)) : [];
+    }
+    return selected ? options.find((option) => option.value === selected.value) : null;
+  };
 
   return (
     <Controller
@@ -17,8 +24,10 @@ export default function AutoCompleteReactHook(props) {
       rules={rules}
       render={({ field: { onChange, value } }) => (
         <Autocomplete
+          multiple={multiple}
+          ChipProps={{ size: "small" }}
           open={open}
-          value={value ? options.find((option) => option.value === value) : null}
+          value={setSelected(value)}
           onOpen={() => {
             setOpen(true);
           }}
@@ -30,7 +39,7 @@ export default function AutoCompleteReactHook(props) {
           options={options}
           loading={isLoading}
           onChange={(_, newValue) => {
-            onChange(newValue?.value);
+            onChange(newValue);
             if (onChangeCallback) {
               onChangeCallback(newValue);
             }
@@ -51,4 +60,5 @@ AutoCompleteReactHook.propTypes = {
   onChangeCallback: PropTypes.func,
   isError: PropTypes.bool,
   helperText: PropTypes.string,
+  multiple: PropTypes.bool,
 };

@@ -1,4 +1,4 @@
-import { format, parse, addMinutes } from "date-fns";
+import { format, parse, addMinutes, isValid, differenceInMinutes } from "date-fns";
 import { Chip, Tooltip, Typography, Stack } from "@mui/material";
 import { InfoRounded } from "@mui/icons-material";
 import { bookingStatusObj } from "../../constants/bookingStatus";
@@ -52,4 +52,27 @@ export const pageInfo = (pagination) => {
   }
 
   return "";
+};
+
+export const generateDuration = (start, end) => {
+  if (isValid(start) && isValid(end)) {
+    const diffTime = differenceInMinutes(end, start);
+    return diffTime;
+  }
+  return "";
+};
+
+export const modelBooking = (booking) => {
+  if (booking) {
+    return {
+      ...booking,
+      jam_booking: format(booking.jam_booking, "HH:mm:ss"),
+      tgl_kelas: format(booking.tgl_kelas, "yyyy-MM-dd"),
+      user_group: booking.user_group.map((student) => ({ id: student.value, nama_murid: student.label })),
+      instrumentId: booking.instrumentId.value,
+      roomId: booking.roomId.value,
+      teacherId: booking.teacherId.value,
+    };
+  }
+  return {};
 };

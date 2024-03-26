@@ -1,46 +1,48 @@
-import React, { useEffect, useState, useReducer } from "react";
-import {
-  Typography,
-  Modal,
-  Box,
-  Grid,
-  Stack,
-  FormControl,
-  FormLabel,
-  RadioGroup,
-  FormControlLabel,
-  Button,
-  Radio,
-} from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { Typography, Modal, Box, Grid, Stack, FormControl, FormLabel, Button } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import PropTypes from "prop-types";
 import { useQueryClient } from "react-query";
-import { differenceInMinutes, format, parse, addMinutes } from "date-fns";
+import { parse, addMinutes, isValid } from "date-fns";
 import { toast } from "react-toastify";
+import { useForm, Controller } from "react-hook-form";
 
-import InputBasic from "../../components/input/inputBasic";
-import SelectBasic from "../../components/input/selectBasic";
-import DateInputBasic from "../../components/input/dateInputBasic";
+import CustomInputLabel from "../../components/input/inputLabel";
+import { CustomTextField } from "../../components/input/inputBasic";
 import { modalStyle } from "../../constants/modalStyle";
 import { classType } from "../../constants/classType";
 import { queryKey } from "../../constants/queryKey";
-import TimeInputBasic from "../../components/input/timeInputBasic";
-import AutoCompleteBasic from "../../components/input/autoCompleteBasic";
-import TextareaBasic from "../../components/input/textareaBasic";
-import { bookingFormReducer, initialBookingFormState, validateBookingForm } from "../../utils/reducer/bookingReducer";
+import TimeInputReactHook from "../../components/input/timeInputReactHook";
+import SelectReactHook from "../../components/input/selectReactHook";
+import DateInputReactHook from "../../components/input/dateInputReactHook";
+import AutoCompleteReactHook from "../../components/input/autoCompleteReactHook";
+import RadioGroupReactHook from "../../components/input/radioGroupReactHook";
 import { useGetStudents } from "../students/query";
 import { useGetTeachers } from "../teachers/query";
 import { useGetRooms } from "../rooms/query";
 import { useGetInstruments } from "../instruments/query";
 import { useAddBooking, useUpdateBooking, useGetBooking } from "./query";
 import { BookingDeleteModal } from "./deleteModal";
+import { generateDuration, modelBooking } from "./utils";
 
-export const BookingFormModal = ({ open, onClose, stateModal, id, onSuccess, onError, userId }) => {
-  const [openStudent, setOpenStudent] = useState(false);
-  const [openTeacher, setOpenTeacher] = useState(false);
-  const [openRoom, setOpenRoom] = useState(false);
-  const [openInstrument, setOpenInstrument] = useState(false);
-  const [stateForm, dispatchStateForm] = useReducer(bookingFormReducer, initialBookingFormState);
+export const BookingFormModal = ({ open, onClose, stateModal, id, onSuccess, onError }) => {
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    reset,
+    formState: { errors },
+    control,
+    watch,
+    resetField,
+  } = useForm({
+    defaultValues: {
+      jenis_kelas: classType[0].value,
+      status: "pending",
+    },
+  });
+  const watchClassType = watch("jenis_kelas");
+  const watchTimeBooking = watch(["jam_booking", "jam_selesai_booking"]);
   const queryClient = useQueryClient();
   const [openDel, setOpenDel] = useState(false);
 
@@ -48,7 +50,7 @@ export const BookingFormModal = ({ open, onClose, stateModal, id, onSuccess, onE
     queryParam: { perPage: 9999 },
     options: {
       select: (students) => students.data?.map((student) => ({ value: student.id, label: student.nama_murid })),
-      enabled: openStudent,
+      enabled: open,
     },
   });
 
@@ -56,7 +58,7 @@ export const BookingFormModal = ({ open, onClose, stateModal, id, onSuccess, onE
     queryParam: { perPage: 9999 },
     options: {
       select: (teachers) => teachers.data?.map((teacher) => ({ value: teacher.id, label: teacher.nama_pengajar })),
-      enabled: openTeacher,
+      enabled: open,
     },
   });
 
@@ -64,7 +66,7 @@ export const BookingFormModal = ({ open, onClose, stateModal, id, onSuccess, onE
     options: {
       select: (roomList) =>
         roomList.map((room) => ({ value: room.id, label: room.nama_ruang, branch: room.cabang?.nama_cabang })),
-      enabled: openRoom,
+      enabled: open,
     },
   });
 
@@ -72,7 +74,7 @@ export const BookingFormModal = ({ open, onClose, stateModal, id, onSuccess, onE
     options: {
       select: (instruments) =>
         instruments.map((instrument) => ({ value: instrument.id, label: instrument.nama_instrument })),
-      enabled: openInstrument,
+      enabled: open,
     },
   });
 
@@ -97,45 +99,12 @@ export const BookingFormModal = ({ open, onClose, stateModal, id, onSuccess, onE
     },
   });
 
-  const handleSubmitCreate = ({ addAnother = false }) => {
-    const errors = validateBookingForm(stateForm.values);
-    const hasError = Object.values(errors).some((value) => Boolean(value));
-    if (!hasError) {
-      const data = {
-        roomId: stateForm.values.roomId.value,
-        teacherId: stateForm.values.teacherId.value,
-        user_group: stateForm.values.user_group.map((student) => ({ id: student.value, nama_murid: student.label })),
-        instrumentId: stateForm.values.instrumentId.value,
-        tgl_kelas: format(stateForm.values.tgl_kelas, "yyyy-MM-dd"),
-        cabang: stateForm.values.cabang,
-        jam_booking: format(stateForm.values.jam_booking, "HH:mm"),
-        jenis_kelas: stateForm.values.jenis_kelas,
-        durasi: stateForm.values.durasi,
-        notes: stateForm.values.notes,
-        status: stateModal === "create" ? "pending" : stateForm.values.status,
-        userId,
-      };
-
-      if (stateModal === "update") {
-        submitUpdateBooking.mutate(data, handleCallbackMutate({ addAnother }));
-      } else {
-        submitAddBooking.mutate(data, handleCallbackMutate({ addAnother }));
-      }
+  const handleSubmitCreate = ({ data, addAnother = false }) => {
+    if (stateModal === "update") {
+      submitUpdateBooking.mutate(data, handleCallbackMutate({ addAnother }));
     } else {
-      dispatchStateForm({
-        type: "change-error",
-        value: errors,
-      });
+      submitAddBooking.mutate(data, handleCallbackMutate({ addAnother }));
     }
-  };
-
-  const onChange = (e) => {
-    dispatchStateForm({
-      type: "change-field",
-      name: e.target.name,
-      value: e.target.value,
-      isEnableValidate: true,
-    });
   };
 
   const { refetch: bookingRefetch, isLoading: isLoadingBookingRefetch } = useGetBooking({
@@ -169,13 +138,8 @@ export const BookingFormModal = ({ open, onClose, stateModal, id, onSuccess, onE
           status: data.status,
         };
         const entries = Object.entries(modelData);
-        entries.forEach((booking) => {
-          dispatchStateForm({
-            type: "change-field",
-            name: booking[0],
-            value: booking[1],
-            isEnableValidate: true,
-          });
+        entries.forEach((packet) => {
+          setValue(packet[0], packet[1]);
         });
       },
     },
@@ -183,27 +147,14 @@ export const BookingFormModal = ({ open, onClose, stateModal, id, onSuccess, onE
 
   useEffect(() => {
     if (open && stateModal === "update" && id) {
-      dispatchStateForm({
-        type: "reset-field",
-      });
+      reset();
       bookingRefetch();
     }
-  }, [open, id, bookingRefetch, stateModal]);
+  }, [open, id, bookingRefetch, stateModal, reset]);
 
   useEffect(() => {
-    if (stateForm.values.jam_booking && stateForm.values.jam_selesai_booking) {
-      const duration = differenceInMinutes(stateForm.values.jam_selesai_booking, stateForm.values.jam_booking);
-      onChange({ target: { name: "durasi", value: duration } });
-    }
-  }, [stateForm.values.jam_booking, stateForm.values.jam_selesai_booking]);
-
-  useEffect(() => {
-    if (open && stateModal === "create") {
-      dispatchStateForm({
-        type: "reset-field",
-      });
-    }
-  }, [open, stateModal]);
+    setValue("durasi", generateDuration(watchTimeBooking[0], watchTimeBooking[1]));
+  }, [setValue, watchTimeBooking]);
 
   const handleOpenModalDelete = (e) => {
     e.preventDefault();
@@ -211,14 +162,24 @@ export const BookingFormModal = ({ open, onClose, stateModal, id, onSuccess, onE
   };
   const handleCloseModalDelete = () => setOpenDel(false);
 
+  const onSubmit = (data) => {
+    delete data.jam_selesai_booking;
+    const modelData = modelBooking(data);
+    handleSubmitCreate({ data: modelData, addAnother: false });
+  };
+
+  const onSubmitAnother = (data) => {
+    delete data.jam_selesai_booking;
+    const modelData = modelBooking(data);
+    handleSubmitCreate({ data: modelData, addAnother: true });
+  };
+
   if (isLoadingBookingRefetch) {
     return (
       <Modal
         open={open}
         onClose={() => {
-          dispatchStateForm({
-            type: "reset-field",
-          });
+          reset();
           onClose();
         }}
       >
@@ -239,243 +200,268 @@ export const BookingFormModal = ({ open, onClose, stateModal, id, onSuccess, onE
         disableEnforceFocus
       >
         <Box sx={{ ...modalStyle, maxWidth: 800 }}>
-          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }} marginBottom={2}>
-            <Typography id="modal-modal-title" variant="h4" component="h2" fontWeight={700} color={"#172560"}>
-              {stateModal === "update" ? `Update Booking #${id}` : "Create Booking"}
-            </Typography>
-            {stateModal === "update" ? (
-              <Button variant="contained" color="error" size="small" data-id={id} onClick={handleOpenModalDelete}>
-                Delete
-              </Button>
-            ) : null}
-          </Box>
-          <Grid container spacing={2}>
-            <Grid item xs={6} paddingBottom={2}>
-              <SelectBasic
-                required
-                fullWidth
-                id="jenis_kelas"
-                name="jenis_kelas"
-                defaultValue={classType[0].value}
-                value={stateForm.values.jenis_kelas}
-                error={Boolean(stateForm.errors.jenis_kelas)}
-                errorMessage={stateForm.errors.jenis_kelas}
-                onChange={(e) => {
-                  onChange({ target: { name: "user_group", value: [] } });
-                  onChange(e);
-                }}
-                select
-                label="Class Type"
-                options={classType}
-              />
-            </Grid>
-            <Grid item xs={6} paddingBottom={2}>
-              <DateInputBasic
-                required
-                label="Date"
-                name="tgl_kelas"
-                value={stateForm.values.tgl_kelas}
-                error={Boolean(stateForm.errors.tgl_kelas)}
-                errorMessage={stateForm.errors.tgl_kelas}
-                onChange={onChange}
-              />
-            </Grid>
-            <Grid item xs={6} paddingBottom={2}>
-              <AutoCompleteBasic
-                multiple
-                required
-                label="Student Name"
-                name="user_group"
-                ChipProps={{ size: "small" }}
-                value={stateForm.values.user_group}
-                error={Boolean(stateForm.errors.user_group)}
-                errorMessage={stateForm.errors.user_group}
-                options={students}
-                loading={isLoadingStudents}
-                open={openStudent}
-                onOpen={() => {
-                  setOpenStudent(true);
-                }}
-                onClose={() => {
-                  setOpenStudent(false);
-                }}
-                onChange={(_, newValue) => {
-                  let values = newValue;
-                  // reset when class not group
-                  if (stateForm.values.jenis_kelas !== "group") {
-                    values = values.slice(-1);
-                  }
-                  onChange({ target: { name: "user_group", value: values } });
-                }}
-              />
-            </Grid>
-            <Grid item xs={6} paddingBottom={2}>
-              <AutoCompleteBasic
-                required
-                label="Teacher Name"
-                name="teacherId"
-                value={stateForm.values.teacherId}
-                error={Boolean(stateForm.errors.teacherId)}
-                errorMessage={stateForm.errors.teacherId}
-                options={teachers}
-                loading={isLoadingTeachers}
-                open={openTeacher}
-                onOpen={() => {
-                  setOpenTeacher(true);
-                }}
-                onClose={() => {
-                  setOpenTeacher(false);
-                }}
-                onChange={(_, newValue) => {
-                  onChange({ target: { name: "teacherId", value: newValue } });
-                }}
-              />
-            </Grid>
-
-            <Grid item xs={6} paddingBottom={2}>
-              <AutoCompleteBasic
-                required
-                label="Rooms"
-                name="roomId"
-                value={stateForm.values.roomId}
-                error={Boolean(stateForm.errors.roomId)}
-                errorMessage={stateForm.errors.roomId}
-                options={rooms}
-                loading={isLoadingRooms}
-                open={openRoom}
-                onOpen={() => {
-                  setOpenRoom(true);
-                }}
-                onClose={() => {
-                  setOpenRoom(false);
-                }}
-                onChange={(_, newValue) => {
-                  onChange({ target: { name: "roomId", value: newValue } });
-                  onChange({
-                    target: {
-                      name: "cabang",
-                      value: newValue ? rooms.find((room) => room.value === newValue.value).branch : "",
-                    },
-                  });
-                }}
-              />
-            </Grid>
-            <Grid item xs={6} paddingBottom={2}>
-              <InputBasic
-                required
-                label="Branch"
-                name="cabang"
-                disabled
-                value={stateForm.values.cabang}
-                error={Boolean(stateForm.errors.cabang)}
-                errorMessage={stateForm.errors.cabang}
-              />
-            </Grid>
-            <Grid item xs={6} paddingBottom={2}>
-              <TimeInputBasic
-                required
-                label="Start"
-                name="jam_booking"
-                value={stateForm.values.jam_booking}
-                error={Boolean(stateForm.errors.jam_booking)}
-                errorMessage={stateForm.errors.jam_booking}
-                minutesStep={5}
-                onChange={(e) => {
-                  onChange(e);
-                  // auto change jam_selesai_booking
-                  dispatchStateForm({
-                    type: "change-field",
-                    name: "jam_selesai_booking",
-                    value: addMinutes(e.target.value, 45),
-                    isEnableValidate: false,
-                  });
-                }}
-              />
-            </Grid>
-            <Grid item xs={6} paddingBottom={2}>
-              <TimeInputBasic
-                required
-                label="End"
-                name="jam_selesai_booking"
-                value={stateForm.values.jam_selesai_booking}
-                error={Boolean(stateForm.errors.jam_selesai_booking)}
-                errorMessage={stateForm.errors.jam_selesai_booking}
-                minTime={stateForm.values.jam_booking}
-                minutesStep={5}
-                onChange={onChange}
-              />
-            </Grid>
-            <Grid item xs={6} paddingBottom={2}>
-              <AutoCompleteBasic
-                required
-                label="Instrument"
-                name="instrumentId"
-                value={stateForm.values.instrumentId}
-                error={Boolean(stateForm.errors.instrumentId)}
-                errorMessage={stateForm.errors.instrumentId}
-                options={instruments}
-                loading={isLoadingInstruments}
-                open={openInstrument}
-                onOpen={() => {
-                  setOpenInstrument(true);
-                }}
-                onClose={() => {
-                  setOpenInstrument(false);
-                }}
-                onChange={(_, newValue) => {
-                  onChange({ target: { name: "instrumentId", value: newValue } });
-                }}
-              />
-            </Grid>
-            <Grid item xs={6} paddingBottom={2}>
-              <InputBasic
-                required
-                label="Durasi"
-                name="durasi"
-                disabled
-                value={stateForm.values.durasi}
-                error={Boolean(stateForm.errors.durasi)}
-                errorMessage={stateForm.errors.durasi}
-              />
-            </Grid>
-            <Grid item xs={12} paddingBottom={2}>
-              <TextareaBasic
-                label="Catatan"
-                name="notes"
-                id="notes"
-                value={stateForm.values.notes}
-                onChange={(e) => {
-                  onChange(e);
-                }}
-              />
-            </Grid>
-            {stateModal === "update" ? (
-              <Grid item xs={12}>
-                <FormControl>
-                  <FormLabel id="status-kelas">Status Kelas</FormLabel>
-                  <RadioGroup
-                    row
-                    aria-labelledby="status-kelas"
-                    name="status"
-                    value={stateForm.values.status}
-                    onChange={onChange}
-                  >
-                    <FormControlLabel value="pending" control={<Radio />} label="Pending" />
-                    <FormControlLabel value="konfirmasi" control={<Radio />} label="Masuk" />
-                    <FormControlLabel value="batal" control={<Radio />} label="Hangus" />
-                    <FormControlLabel value="ijin" control={<Radio />} label="Ijin" />
-                  </RadioGroup>
+          <form>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }} marginBottom={2}>
+              <Typography id="modal-modal-title" variant="h4" component="h2" fontWeight={700} color={"#172560"}>
+                {stateModal === "update" ? `Update Booking #${id}` : "Create Booking"}
+              </Typography>
+              {stateModal === "update" ? (
+                <Button variant="contained" color="error" size="small" data-id={id} onClick={handleOpenModalDelete}>
+                  Delete
+                </Button>
+              ) : null}
+            </Box>
+            <Grid container spacing={2}>
+              {/* Jenis Kelas */}
+              <Grid item xs={6} paddingBottom={2}>
+                <FormControl fullWidth error={!!errors.jenis_kelas}>
+                  <CustomInputLabel htmlFor="jenis_kelas">Jenis kelas*</CustomInputLabel>
+                  <SelectReactHook
+                    name="jenis_kelas"
+                    rules={{
+                      required: "Jenis kelas wajib diisi",
+                    }}
+                    control={control}
+                    helperText={errors.jenis_kelas?.message}
+                    isError={!!errors.jenis_kelas}
+                    options={classType}
+                    onChangeCallback={() => {
+                      resetField("user_group");
+                    }}
+                  />
                 </FormControl>
               </Grid>
-            ) : null}
-          </Grid>
+
+              {/* Tanggal Kelas */}
+              <Grid item xs={6} paddingBottom={2}>
+                <FormControl fullWidth error={!!errors.tgl_kelas}>
+                  <CustomInputLabel htmlFor="tgl_kelas">Tanggal kelas*</CustomInputLabel>
+                  <DateInputReactHook
+                    name="tgl_kelas"
+                    rules={{
+                      required: "Tanggal kelas wajib diisi",
+                      validate: (value) => !!value.getDate() || "Format tanggal salah",
+                    }}
+                    control={control}
+                    isError={!!errors.tgl_kelas}
+                    helperText={errors.tgl_kelas?.message}
+                  />
+                </FormControl>
+              </Grid>
+
+              {/* Siswa */}
+              <Grid item xs={6} paddingBottom={2}>
+                <FormControl fullWidth error={!!errors.user_group}>
+                  <CustomInputLabel htmlFor="user_group">Nama murid*</CustomInputLabel>
+                  <AutoCompleteReactHook
+                    multiple
+                    name="user_group"
+                    rules={{
+                      required: "Nama murid wajib diisi",
+                    }}
+                    control={control}
+                    options={students}
+                    loading={isLoadingStudents}
+                    isError={!!errors.user_group}
+                    helperText={errors.user_group?.message}
+                    onChangeCallback={(value) => {
+                      let values = value;
+                      // reset when class not group
+                      if (watchClassType !== "group") {
+                        values = values.slice(-1);
+                      }
+                      setValue("user_group", values);
+                    }}
+                  />
+                </FormControl>
+              </Grid>
+
+              {/* Guru */}
+              <Grid item xs={6} paddingBottom={2}>
+                <FormControl fullWidth error={!!errors.teacherId}>
+                  <CustomInputLabel htmlFor="teacherId">Nama Guru*</CustomInputLabel>
+                  <AutoCompleteReactHook
+                    name="teacherId"
+                    rules={{
+                      required: "Nama guru wajib diisi",
+                    }}
+                    control={control}
+                    options={teachers}
+                    loading={isLoadingTeachers}
+                    isError={!!errors.teacherId}
+                    helperText={errors.teacherId?.message}
+                  />
+                </FormControl>
+              </Grid>
+
+              {/* Ruang */}
+              <Grid item xs={6} paddingBottom={2}>
+                <FormControl fullWidth error={!!errors.roomId}>
+                  <CustomInputLabel htmlFor="roomId">Nama ruang*</CustomInputLabel>
+                  <AutoCompleteReactHook
+                    name="roomId"
+                    rules={{
+                      required: "Nama ruang wajib diisi",
+                    }}
+                    control={control}
+                    options={rooms}
+                    loading={isLoadingRooms}
+                    isError={!!errors.roomId}
+                    helperText={errors.roomId?.message}
+                    onChangeCallback={(newValue) => {
+                      setValue("cabang", newValue?.branch || "");
+                    }}
+                  />
+                </FormControl>
+              </Grid>
+
+              {/* Cabang */}
+              <Grid item xs={6} paddingBottom={2}>
+                <FormControl fullWidth error={!!errors.cabang}>
+                  <CustomInputLabel htmlFor="cabang">Cabang</CustomInputLabel>
+                  <Controller
+                    name="cabang"
+                    control={control}
+                    rules={{ required: "Cabang Wajib diisi" }}
+                    render={({ field: { value = "" } }) => (
+                      <CustomTextField
+                        disabled
+                        value={value}
+                        helperText={errors.cabang?.message}
+                        error={!!errors.cabang}
+                      />
+                    )}
+                  />
+                </FormControl>
+              </Grid>
+
+              {/* Jam Booking */}
+              <Grid item xs={6} paddingBottom={2}>
+                <FormControl fullWidth error={!!errors.jam_booking}>
+                  <CustomInputLabel htmlFor="jam_booking">Jam booking*</CustomInputLabel>
+                  <TimeInputReactHook
+                    name="jam_booking"
+                    rules={{
+                      required: "Jam booking wajib diisi",
+                      validate: (value) => !!value.getTime() || "Format jam salah",
+                    }}
+                    control={control}
+                    isError={!!errors.jam_booking}
+                    helperText={errors.jam_booking?.message}
+                    onChangeCallback={(val) => {
+                      if (isValid(val)) {
+                        setValue("jam_selesai_booking", addMinutes(val, 45));
+                      } else {
+                        resetField("durasi");
+                      }
+                    }}
+                  />
+                </FormControl>
+              </Grid>
+
+              {/* Jam Selesai */}
+              <Grid item xs={6} paddingBottom={2}>
+                <FormControl fullWidth error={!!errors.jam_selesai_booking}>
+                  <CustomInputLabel htmlFor="jam_selesai_booking">Jam selesai*</CustomInputLabel>
+                  <TimeInputReactHook
+                    name="jam_selesai_booking"
+                    rules={{
+                      required: "Jam selesai booking wajib diisi",
+                      validate: (value) => !!value.getTime() || "Format jam salah",
+                    }}
+                    control={control}
+                    isError={!!errors.jam_selesai_booking}
+                    helperText={errors.jam_selesai_booking?.message}
+                    onChangeCallback={(val) => {
+                      if (!isValid(val)) {
+                        resetField("durasi");
+                      }
+                    }}
+                  />
+                </FormControl>
+              </Grid>
+
+              {/* Instrument */}
+              <Grid item xs={6} paddingBottom={2}>
+                <FormControl fullWidth error={!!errors.instrumentId}>
+                  <CustomInputLabel htmlFor="instrumentId">Instrument*</CustomInputLabel>
+                  <AutoCompleteReactHook
+                    name="instrumentId"
+                    rules={{
+                      required: "Instrument wajib diisi",
+                    }}
+                    control={control}
+                    options={instruments}
+                    loading={isLoadingInstruments}
+                    isError={!!errors.instrumentId}
+                    helperText={errors.instrumentId?.message}
+                  />
+                </FormControl>
+              </Grid>
+
+              {/* Durasi */}
+              <Grid item xs={6} paddingBottom={2}>
+                <FormControl fullWidth error={!!errors.durasi}>
+                  <CustomInputLabel htmlFor="durasi">Durasi</CustomInputLabel>
+                  <Controller
+                    name="durasi"
+                    control={control}
+                    rules={{ required: "Durasi tidak terhitung" }}
+                    render={({ field: { value = "" } }) => (
+                      <CustomTextField
+                        disabled
+                        value={value}
+                        helperText={errors.durasi?.message}
+                        error={!!errors.durasi}
+                      />
+                    )}
+                  />
+                </FormControl>
+              </Grid>
+
+              {/* Notes */}
+              <Grid item xs={12} paddingBottom={2}>
+                <FormControl fullWidth error={!!errors.notes}>
+                  <CustomInputLabel htmlFor="notes">Notes</CustomInputLabel>
+                  <CustomTextField
+                    {...register("notes")}
+                    helperText={errors.notes?.message}
+                    error={!!errors.notes}
+                    multiline
+                    maxRows={4}
+                  />
+                </FormControl>
+              </Grid>
+
+              {/* Status Kelas */}
+              {stateModal === "update" ? (
+                <Grid item xs={12}>
+                  <FormControl fullWidth error={!!errors.status}>
+                    <FormLabel id="status">Status Kelas</FormLabel>
+                    <RadioGroupReactHook
+                      name="status"
+                      control={control}
+                      rules={{ required: "Status booking wajib diisi" }}
+                      options={[
+                        { value: "pending", label: "Pending" },
+                        { value: "konfirmasi", label: "Masuk" },
+                        { value: "batal", label: "Hangus" },
+                        { value: "ijin", label: "Ijin" },
+                      ]}
+                      helperText={errors.status?.message}
+                      error={!!errors.status}
+                    />
+                  </FormControl>
+                </Grid>
+              ) : null}
+            </Grid>
+          </form>
           <Stack direction={"row"} spacing={2}>
             <LoadingButton
               loading={submitAddBooking.isLoading || submitUpdateBooking.isLoading}
               variant="outlined"
-              type="submit"
               fullWidth
-              onClick={() => handleSubmitCreate({ addAnother: false })}
+              onClick={handleSubmit(onSubmit)}
             >
               Save and Close
             </LoadingButton>
@@ -483,9 +469,8 @@ export const BookingFormModal = ({ open, onClose, stateModal, id, onSuccess, onE
               <LoadingButton
                 loading={submitAddBooking.isLoading || submitUpdateBooking.isLoading}
                 variant="contained"
-                type="submit"
                 fullWidth
-                onClick={() => handleSubmitCreate({ addAnother: true })}
+                onClick={handleSubmit(onSubmitAnother)}
               >
                 Save and add another
               </LoadingButton>

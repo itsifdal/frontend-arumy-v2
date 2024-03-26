@@ -28,7 +28,7 @@ const newTheme = (theme) =>
   });
 
 export default function SelectReactHook(props) {
-  const { name, rules, control, isError, helperText, options } = props;
+  const { name, rules, control, isError, helperText, options, onChangeCallback } = props;
   return (
     <Controller
       name={name}
@@ -46,6 +46,9 @@ export default function SelectReactHook(props) {
             helperText={helperText}
             onChange={(v) => {
               onChange(v.target.value);
+              if (onChangeCallback) {
+                onChangeCallback(v.target.value);
+              }
             }}
           >
             {options.map((option) => (
@@ -67,4 +70,5 @@ SelectReactHook.propTypes = {
   isError: PropTypes.bool,
   helperText: PropTypes.string,
   options: PropTypes.array,
+  onChangeCallback: PropTypes.func,
 };
