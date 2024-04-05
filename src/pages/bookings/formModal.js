@@ -4,7 +4,6 @@ import { LoadingButton } from "@mui/lab";
 import PropTypes from "prop-types";
 import { useQueryClient } from "react-query";
 import { parse, addMinutes, isValid } from "date-fns";
-import { toast } from "react-toastify";
 import { useForm, Controller } from "react-hook-form";
 
 import CustomInputLabel from "../../components/input/inputLabel";
@@ -24,6 +23,7 @@ import { useGetInstruments } from "../instruments/query";
 import { useAddBooking, useUpdateBooking, useGetBooking } from "./query";
 import { BookingDeleteModal } from "./deleteModal";
 import { generateDuration, modelBooking } from "./utils";
+import { onSuccessToast } from "./callback";
 
 export const BookingFormModal = ({ open, onClose, stateModal, id, onSuccess, onError }) => {
   const {
@@ -78,69 +78,42 @@ export const BookingFormModal = ({ open, onClose, stateModal, id, onSuccess, onE
     },
   });
 
-  const submitUpdateBooking = useUpdateBooking({ id });
-  const submitAddBooking = useAddBooking();
-
-  const handleCallbackMutate = ({ addAnother }) => ({
-    onSuccess: (response) => {
-      queryClient.invalidateQueries({ queryKey: [queryKey.bookings] });
-      if (!addAnother) {
-        onSuccess(response);
-      } else {
-        toast.success(response.data.message, {
-          position: "top-center",
-          autoClose: 5000,
-          theme: "colored",
-        });
-      }
-    },
-    onError: (error) => {
-      onError(error);
-    },
-  });
-
-  const handleSubmitCreate = ({ data, addAnother = false }) => {
-    if (stateModal === "update") {
-      submitUpdateBooking.mutate(data, handleCallbackMutate({ addAnother }));
-    } else {
-      submitAddBooking.mutate(data, handleCallbackMutate({ addAnother }));
-    }
-  };
-
   const { refetch: bookingRefetch, isLoading: isLoadingBookingRefetch } = useGetBooking({
     id,
     options: {
       enabled: Boolean(id),
       onSuccess: (res) => {
         const { data } = res;
-        const modelData = {
-          roomId: {
-            value: data.roomId ?? "",
-            label: data.room?.nama_ruang ?? "",
-          },
-          teacherId: {
-            value: data.teacherId ?? "",
-            label: data.teacher?.nama_pengajar ?? "",
-          },
-          user_group:
-            JSON.parse(data.user_group)?.map((student) => ({ value: student.id, label: student.nama_murid })) || [],
-          instrumentId: {
-            value: data.instrumentId ?? "",
-            label: data.instrument?.nama_instrument ?? "",
-          },
-          tgl_kelas: parse(data.tgl_kelas, "yyyy-MM-dd", new Date()),
-          cabang: data.cabang,
-          jam_booking: parse(data.jam_booking, "HH:mm:ss", new Date()),
-          jam_selesai_booking: parse(data.selesai, "HH:mm:ss", new Date()),
-          jenis_kelas: data.jenis_kelas,
-          durasi: Number(data.durasi),
-          notes: data.notes,
-          status: data.status,
-        };
-        const entries = Object.entries(modelData);
-        entries.forEach((packet) => {
-          setValue(packet[0], packet[1]);
-        });
+        if (data) {
+          const modelData = {
+            roomId: {
+              value: data.roomId ?? "",
+              label: data.room?.nama_ruang ?? "",
+            },
+            teacherId: {
+              value: data.teacherId ?? "",
+              label: data.teacher?.nama_pengajar ?? "",
+            },
+            user_group:
+              JSON.parse(data.user_group)?.map((student) => ({ value: student.id, label: student.nama_murid })) || [],
+            instrumentId: {
+              value: data.instrumentId ?? "",
+              label: data.instrument?.nama_instrument ?? "",
+            },
+            tgl_kelas: parse(data.tgl_kelas, "yyyy-MM-dd", new Date()),
+            cabang: data.cabang,
+            jam_booking: parse(data.jam_booking, "HH:mm:ss", new Date()),
+            jam_selesai_booking: parse(data.selesai, "HH:mm:ss", new Date()),
+            jenis_kelas: data.jenis_kelas,
+            durasi: Number(data.durasi),
+            notes: data.notes,
+            status: data.status,
+          };
+          const entries = Object.entries(modelData);
+          entries.forEach((packet) => {
+            setValue(packet[0], packet[1]);
+          });
+        }
       },
     },
   });
@@ -156,11 +129,32 @@ export const BookingFormModal = ({ open, onClose, stateModal, id, onSuccess, onE
     setValue("durasi", generateDuration(watchTimeBooking[0], watchTimeBooking[1]));
   }, [setValue, watchTimeBooking]);
 
-  const handleOpenModalDelete = (e) => {
-    e.preventDefault();
-    setOpenDel(true);
+  const submitUpdateBooking = useUpdateBooking({ id });
+  const submitAddBooking = useAddBooking();
+
+  const handleCallbackMutate = ({ addAnother }) => ({
+    onSuccess: (response) => {
+      queryClient.invalidateQueries({ queryKey: [queryKey.bookings] });
+      if (!addAnother) {
+        onSuccess(response);
+        reset();
+        onClose();
+      } else {
+        onSuccessToast(response);
+      }
+    },
+    onError: (error) => {
+      onError(error);
+    },
+  });
+
+  const handleSubmitCreate = ({ data, addAnother = false }) => {
+    if (stateModal === "update") {
+      submitUpdateBooking.mutate(data, handleCallbackMutate({ addAnother }));
+    } else {
+      submitAddBooking.mutate(data, handleCallbackMutate({ addAnother }));
+    }
   };
-  const handleCloseModalDelete = () => setOpenDel(false);
 
   const onSubmit = (data) => {
     delete data.jam_selesai_booking;
@@ -173,6 +167,14 @@ export const BookingFormModal = ({ open, onClose, stateModal, id, onSuccess, onE
     const modelData = modelBooking(data);
     handleSubmitCreate({ data: modelData, addAnother: true });
   };
+
+  const onOpenDeleteModal = () => setOpenDel(true);
+  const onCloseDeleteModal = () => setOpenDel(false);
+  const onSuccessDelete = (res) => {
+    setOpenDel(false);
+    onSuccess(res);
+  };
+  const onErrorDelete = (err) => onError(err);
 
   if (isLoadingBookingRefetch) {
     return (
@@ -206,7 +208,7 @@ export const BookingFormModal = ({ open, onClose, stateModal, id, onSuccess, onE
                 {stateModal === "update" ? `Update Booking #${id}` : "Create Booking"}
               </Typography>
               {stateModal === "update" ? (
-                <Button variant="contained" color="error" size="small" data-id={id} onClick={handleOpenModalDelete}>
+                <Button variant="contained" color="error" size="small" data-id={id} onClick={onOpenDeleteModal}>
                   Delete
                 </Button>
               ) : null}
@@ -322,7 +324,7 @@ export const BookingFormModal = ({ open, onClose, stateModal, id, onSuccess, onE
                   <Controller
                     name="cabang"
                     control={control}
-                    rules={{ required: "Cabang Wajib diisi" }}
+                    rules={{ required: "Cabang belum terpilih, silahkan pilih ruang dahulu" }}
                     render={({ field: { value = "" } }) => (
                       <CustomTextField
                         disabled
@@ -406,7 +408,7 @@ export const BookingFormModal = ({ open, onClose, stateModal, id, onSuccess, onE
                   <Controller
                     name="durasi"
                     control={control}
-                    rules={{ required: "Durasi tidak terhitung" }}
+                    rules={{ required: "Durasi tidak terhitung, masukkan jam booking/jam selesai lagi" }}
                     render={({ field: { value = "" } }) => (
                       <CustomTextField
                         disabled
@@ -482,15 +484,10 @@ export const BookingFormModal = ({ open, onClose, stateModal, id, onSuccess, onE
       {stateModal === "update" ? (
         <BookingDeleteModal
           open={openDel}
-          onClose={handleCloseModalDelete}
+          onClose={onCloseDeleteModal}
           id={id}
-          onSuccess={(response) => {
-            setOpenDel(false);
-            onSuccess(response);
-          }}
-          onError={(error) => {
-            onError(error);
-          }}
+          onSuccess={onSuccessDelete}
+          onError={onErrorDelete}
         />
       ) : null}
     </>

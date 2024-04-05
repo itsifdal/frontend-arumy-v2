@@ -1,92 +1,107 @@
-import { useQuery } from "react-query";
+import React, { useEffect, useState, useMemo } from "react";
 import { format, parse } from "date-fns";
-import axios from "axios";
-import PropTypes from "prop-types";
-import { downloadExcel } from "react-export-table-to-excel";
+import { Link, useSearchParams } from "react-router-dom";
 import { Button, Typography, Box, Stack, Pagination, PaginationItem } from "@mui/material";
-import { Link } from "react-router-dom";
 
 import useResponsive from "../../hooks/useResponsive";
 import { queryToString } from "../../utils/queryToString";
-import { queryKey } from "../../constants/queryKey";
 import { cleanQuery } from "../../utils/cleanQuery";
 import CollapsibleTable from "../../components/CollapsibleTable";
-import { fetchHeader } from "../../constants/fetchHeader";
 import Iconify from "../../components/Iconify";
-import { hourModel, studentModel, generateStatus } from "./utils";
 import BasicTable from "../../components/BasicTable";
+import { urlSearchParamsToQuery } from "../../utils/urlSearchParamsToQuery";
+import ConfirmBooking from "../../components/modal/confirmBooking";
 
-export function BookingData({
-  bookings,
-  queryParam,
-  isLoadingBookings,
-  setSearchParams,
-  isUserAdmin,
-  isUserGuru,
-  buttonAction,
-  user,
-}) {
+import { useGetBookings } from "./query";
+import { hourModel, studentModel, generateStatus } from "./utils";
+import { BookingFormModal } from "./formModal";
+import { onSuccessToast, onErrorToast } from "./callback";
+import { BookingDownloadButton } from "./downloadButton";
+
+export function BookingDataList() {
+  const [bookingId, setBookingId] = useState();
+  const [isOpenUpdateModal, setIsOpenUpdateModal] = useState(false);
+  const [isOpenConfirmModal, setIsOpenComfirmModal] = useState(false);
+  const [user, setUser] = useState({});
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  const queryParam = urlSearchParamsToQuery(searchParams);
+
   const isDesktop = useResponsive("up", "lg");
 
-  // DOWNLOAD ALL BOOKING DATA
-  const downloadQueryBookings = {
-    ...queryParam,
-    ...(isUserGuru && { teacherId: user?.teacherId }),
-    sort: "desc",
-    sort_by: "tgl_kelas",
-    perPage: 9999,
-    page: 1,
-  };
-  const { refetch: refetchDownloadBookings } = useQuery(
-    [
-      queryKey.downloadBooking,
-      cleanQuery({
-        ...downloadQueryBookings,
-      }),
-    ],
-    () =>
-      axios
-        .get(
-          `${process.env.REACT_APP_BASE_URL}/api/booking${queryToString({
-            ...downloadQueryBookings,
-          })}`,
-          {
-            headers: fetchHeader,
-          }
-        )
-        .then((res) => res.data),
-    {
-      enabled: false,
-      onSuccess: (bookings) => {
-        if (bookings?.data?.length) {
-          const exportedTeacherSummary = bookings.data.map((booking) => ({
-            "Tanggal kelas": booking.tgl_kelas,
-            "Jam mulai": booking.jam_booking,
-            "Jam selesai": booking.selesai,
-            "Ruang kelas": booking.room?.nama_ruang,
-            "Nama murid": JSON.parse(booking.user_group)
-              .map((student) => student.nama_murid)
-              .join(", "),
-            "Nama pengajar": booking.teacher?.nama_pengajar,
-            "Durasi (menit)": booking.durasi,
-            Status: booking.status,
-            Notes: booking.notes || "-",
-          }));
-          downloadExcel({
-            fileName: `Booking-${Date.now()}`,
-            sheet: queryParam ? JSON.stringify(queryParam).replace('"', "").replace(",", " ").replace(":", "-") : "All",
-            tablePayload: {
-              header: Object.keys(exportedTeacherSummary[0]),
-              body: exportedTeacherSummary,
-            },
-          });
-        }
-      },
-    }
-  );
+  const isUserAdmin = useMemo(() => user.role === "Admin" || user.role === "Super Admin", [user]);
+  const isUserGuru = useMemo(() => user.role === "Guru", [user]);
 
-  const handleDownloadExcel = () => {
-    refetchDownloadBookings();
+  // localStorage
+  useEffect(() => {
+    const loggedInUser = localStorage.getItem("user");
+    if (loggedInUser) {
+      const foundUser = JSON.parse(loggedInUser);
+      setUser(foundUser);
+    }
+  }, []);
+
+  // GET DATA BOOKING ALL
+  const {
+    data: bookings,
+    isLoading: isLoadingBookings,
+    refetch: refetchBookings,
+  } = useGetBookings({
+    queryParam: cleanQuery({
+      ...queryParam,
+      ...(user.role === "Guru" && { teacherId: user?.teacherId }),
+    }),
+  });
+
+  const onClickEdit = ({ updateId }) => {
+    setBookingId(updateId);
+    setIsOpenUpdateModal(true);
+  };
+
+  const onCloseModalUpdate = () => setIsOpenUpdateModal(false);
+
+  const onClickConfirm = ({ confirmId }) => {
+    setBookingId(confirmId);
+    setIsOpenComfirmModal(true);
+  };
+
+  const onCloseModalConfirm = () => setIsOpenComfirmModal(false);
+
+  const onSuccessUpdate = () => {
+    refetchBookings();
+    setIsOpenUpdateModal(false);
+    setIsOpenComfirmModal(false);
+  };
+
+  const buttonAction = (book) => {
+    if (isUserAdmin) {
+      return (
+        <Stack direction={"row"} spacing={1}>
+          <Button variant="contained" color="success" size="small" onClick={() => onClickEdit({ updateId: book.id })}>
+            Update
+          </Button>
+        </Stack>
+      );
+    }
+    if (isUserGuru && (book.status === "pending" || book.status === "ijin")) {
+      return (
+        <Button
+          variant="contained"
+          color="primary"
+          size="small"
+          margin="normal"
+          onClick={() => onClickConfirm({ confirmId: book.id })}
+          {...(!isDesktop && {
+            sx: {
+              fontSize: "12px",
+            },
+          })}
+        >
+          Confirm
+        </Button>
+      );
+    }
+    return <></>;
   };
 
   const tableHeader = [
@@ -132,9 +147,7 @@ export function BookingData({
     "MURID",
     "PENGAJAR",
     "STATUS",
-    <Button key={"action"} onClick={handleDownloadExcel} variant="contained" sx={{ whiteSpace: "nowrap" }}>
-      Export Excel
-    </Button>,
+    <BookingDownloadButton key={"action"} />,
   ];
 
   const tableBody = bookings?.data
@@ -159,35 +172,45 @@ export function BookingData({
   if (!bookings.data?.length) return <Typography>No data</Typography>;
 
   return (
-    <Box marginBottom={3}>
-      {isDesktop ? (
-        <BasicTable header={tableHeader} body={tableBody} />
-      ) : (
-        <CollapsibleTable header={tableHeader} body={tableBody} />
-      )}
-      <Pagination
-        page={bookings.pagination.current_page}
-        count={bookings.pagination.total_pages}
-        shape="rounded"
-        sx={[{ ul: { justifyContent: "center" } }]}
-        renderItem={(item) => (
-          <PaginationItem
-            component={Link}
-            to={`/app/booking${queryToString({ ...queryParam, page: item.page === 1 ? null : item.page })}`}
-            {...item}
-          />
+    <>
+      <Box marginBottom={3}>
+        {isDesktop ? (
+          <BasicTable header={tableHeader} body={tableBody} />
+        ) : (
+          <CollapsibleTable header={tableHeader} body={tableBody} />
         )}
+        <Pagination
+          page={bookings.pagination.current_page}
+          count={bookings.pagination.total_pages}
+          shape="rounded"
+          sx={[{ ul: { justifyContent: "center" } }]}
+          renderItem={(item) => (
+            <PaginationItem
+              component={Link}
+              to={`/app/booking${queryToString({ ...queryParam, page: item.page === 1 ? null : item.page })}`}
+              {...item}
+            />
+          )}
+        />
+      </Box>
+
+      <BookingFormModal
+        open={isOpenUpdateModal}
+        onClose={onCloseModalUpdate}
+        onError={(error) => onErrorToast(error)}
+        onSuccess={(response) => onSuccessToast(response, onSuccessUpdate)}
+        id={Number(bookingId)}
+        stateModal={"update"}
       />
-    </Box>
+
+      <ConfirmBooking
+        open={isOpenConfirmModal}
+        onClose={onCloseModalConfirm}
+        id={Number(bookingId)}
+        callbackSuccess={(response) => onSuccessToast(response)}
+        callbackError={(error) => onErrorToast(error)}
+        userId={user.id}
+      />
+    </>
   );
 }
-BookingData.propTypes = {
-  bookings: PropTypes.object,
-  queryParam: PropTypes.object.isRequired,
-  isLoadingBookings: PropTypes.bool.isRequired,
-  setSearchParams: PropTypes.func.isRequired,
-  buttonAction: PropTypes.func.isRequired,
-  isUserAdmin: PropTypes.bool.isRequired,
-  isUserGuru: PropTypes.bool.isRequired,
-  user: PropTypes.object,
-};

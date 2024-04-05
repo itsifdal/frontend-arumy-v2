@@ -28,7 +28,7 @@ export default function PaymentList() {
     data: payments,
     isLoading,
     isError,
-    refetch: packetsRefetch,
+    refetch: paymentsRefetch,
   } = useGetPayments({
     options: {
       select: (res) => ({
@@ -62,12 +62,12 @@ export default function PaymentList() {
   };
 
   const onSuccessUpdate = () => {
-    packetsRefetch();
+    paymentsRefetch();
     setIsOpenUpdateModal(false);
   };
 
   const onSuccessDelete = () => {
-    packetsRefetch();
+    paymentsRefetch();
     setIsOpenDeleteModal(false);
   };
 
