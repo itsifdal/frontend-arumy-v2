@@ -15,6 +15,7 @@ export default function DashboardStudentsFilter() {
   setDefaultOptions({ locale: id });
   const [searchParams, setSearchParams] = useSearchParams();
   const queryParam = urlSearchParamsToQuery(searchParams);
+  delete queryParam.studentId;
 
   const defaultFilter = { ...initQuery, ...queryParam };
 

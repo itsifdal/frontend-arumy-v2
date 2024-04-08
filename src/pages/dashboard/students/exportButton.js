@@ -12,6 +12,7 @@ export default function ExportButton() {
 
   const [searchParams] = useSearchParams();
   const queryParam = { ...initQuery, ...urlSearchParamsToQuery(searchParams), page: 1, perPage: 9999 };
+  delete queryParam.studentId;
 
   const { isLoading } = useGetQuotaStudents({
     queryParam,
