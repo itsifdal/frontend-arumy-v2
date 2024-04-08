@@ -200,9 +200,7 @@ export default function DashboardStudentsData() {
         />
       </Box>
 
-      {studentId ? (
-        <DashboardStudentModal open={isOpenStudentModal} onClose={onCloseStudentModal} studentId={studentId} />
-      ) : null}
+      {studentId ? <DashboardStudentModal open={isOpenStudentModal} onClose={onCloseStudentModal} /> : null}
     </>
   );
 }

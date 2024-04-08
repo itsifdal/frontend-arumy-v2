@@ -1,63 +1,45 @@
 import React from "react";
-import { Modal, Box } from "@mui/material";
+import { Modal, Box, Typography } from "@mui/material";
 import PropTypes from "prop-types";
 import { useSearchParams } from "react-router-dom";
-import { format, parse } from "date-fns";
 
-import { modalStyle } from "../../../constants/modalStyle";
 import { urlSearchParamsToQuery } from "../../../utils/urlSearchParamsToQuery";
-import { useGetBookings } from "../../bookings/query";
-import BasicTable from "../../../components/BasicTable";
-import { hourModel, studentModel, generateStatus } from "../../bookings/utils";
+import { modalStyle } from "../../../constants/modalStyle";
+import { DashboardStudentBooking } from "./studentModalBooking";
+import { DashboardStudentPayment } from "./studentModalPayment";
+import { useGetStudent } from "../../students/query";
 
-export const DashboardStudentModal = ({ open, onClose, studentId }) => {
+export const DashboardStudentModal = ({ open, onClose }) => {
   const [searchParams] = useSearchParams();
   const queryParam = urlSearchParamsToQuery(searchParams);
+  const studentId = Number(queryParam?.studentId) || null;
 
-  // GET DATA BOOKING ALL
-  const {
-    data: bookings,
-    isLoading: isLoadingBookings,
-    refetch: refetchBookings,
-  } = useGetBookings({
-    queryParam: { dateFrom: queryParam.dateFrom, dateTo: queryParam.dateTo, studentId },
-    options: {
-      enable: open,
-    },
-  });
-  console.log("bookings", bookings);
+  const { data: student, isLoading: isLoadingStudent } = useGetStudent({ id: studentId });
 
-  const tableHeader = ["TGL KELAS", "JAM BOOKING", "RUANG KELAS", "MURID", "PENGAJAR", "STATUS"];
-  const tableBody = bookings?.data
-    ? bookings.data?.map((booking) => [
-        format(parse(booking.tgl_kelas, "yyyy-MM-dd", new Date()), "dd-MM-yyyy"),
-        hourModel({ timeStart: booking.jam_booking, timeEnd: booking.selesai, duration: booking.durasi }),
-        booking.room.nama_ruang,
-        studentModel({ students: booking.user_group }),
-        booking.teacher.nama_pengajar,
-        generateStatus({ status: booking.status }),
-      ])
-    : [];
+  if (!studentId) return false;
+  if (isLoadingStudent) return <Typography>Loading data...</Typography>;
+  if (!student) return <Typography>Error load data</Typography>;
 
   return (
-    <>
-      <Modal
-        open={open}
-        onClose={onClose}
-        aria-labelledby="modal-create-booking"
-        aria-describedby="modal-for-create-booking"
-        disableEnforceFocus
-      >
-        <Box sx={{ ...modalStyle, maxWidth: 800 }}>Student Modal {studentId}</Box>
-
-        {/* <BasicTable header={tableHeader} body={tableBody} /> */}
-      </Modal>
-    </>
+    <Modal
+      open={open}
+      onClose={onClose}
+      aria-labelledby="modal-create-booking"
+      aria-describedby="modal-for-create-booking"
+      disableEnforceFocus
+    >
+      <Box sx={{ ...modalStyle, maxWidth: 1000 }}>
+        <Typography sx={{ fontWeight: "bold", marginBottom: "10px" }}>Booking Murid: {student.nama_murid}</Typography>
+        <DashboardStudentBooking enable={open} />
+        <Box paddingBottom={5} />
+        <Typography sx={{ fontWeight: "bold", marginBottom: "10px" }}>Payment Murid: {student.nama_murid} </Typography>
+        <DashboardStudentPayment enable={open} />
+      </Box>
+    </Modal>
   );
 };
 
 DashboardStudentModal.propTypes = {
   open: PropTypes.bool,
   onClose: PropTypes.func,
-  studentId: PropTypes.number,
 };
