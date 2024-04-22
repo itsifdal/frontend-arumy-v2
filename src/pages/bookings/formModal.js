@@ -11,6 +11,7 @@ import { CustomTextField } from "../../components/input/inputBasic";
 import { modalStyle } from "../../constants/modalStyle";
 import { classType } from "../../constants/classType";
 import { queryKey } from "../../constants/queryKey";
+import { termDate } from "../../constants/termDate";
 import TimeInputReactHook from "../../components/input/timeInputReactHook";
 import SelectReactHook from "../../components/input/selectReactHook";
 import DateInputReactHook from "../../components/input/dateInputReactHook";
@@ -22,7 +23,7 @@ import { useGetRooms } from "../rooms/query";
 import { useGetInstruments } from "../instruments/query";
 import { useAddBooking, useUpdateBooking, useGetBooking } from "./query";
 import { BookingDeleteModal } from "./deleteModal";
-import { generateDuration, modelBooking } from "./utils";
+import { generateDuration, modelBooking, getTerm } from "./utils";
 import { onSuccessToast } from "./callback";
 
 export const BookingFormModal = ({ open, onClose, stateModal, id, onSuccess, onError }) => {
@@ -39,6 +40,7 @@ export const BookingFormModal = ({ open, onClose, stateModal, id, onSuccess, onE
     defaultValues: {
       jenis_kelas: classType[0].value,
       status: "pending",
+      term: termDate[getTerm(new Date())].value,
     },
   });
   const watchClassType = watch("jenis_kelas");
@@ -108,6 +110,7 @@ export const BookingFormModal = ({ open, onClose, stateModal, id, onSuccess, onE
             durasi: Number(data.durasi),
             notes: data.notes,
             status: data.status,
+            term: data.term,
           };
           const entries = Object.entries(modelData);
           entries.forEach((packet) => {
@@ -337,8 +340,43 @@ export const BookingFormModal = ({ open, onClose, stateModal, id, onSuccess, onE
                 </FormControl>
               </Grid>
 
-              {/* Jam Booking */}
+              {/* Instrument */}
               <Grid item xs={6} paddingBottom={2}>
+                <FormControl fullWidth error={!!errors.instrumentId}>
+                  <CustomInputLabel htmlFor="instrumentId">Instrument*</CustomInputLabel>
+                  <AutoCompleteReactHook
+                    name="instrumentId"
+                    rules={{
+                      required: "Instrument wajib diisi",
+                    }}
+                    control={control}
+                    options={instruments}
+                    loading={isLoadingInstruments}
+                    isError={!!errors.instrumentId}
+                    helperText={errors.instrumentId?.message}
+                  />
+                </FormControl>
+              </Grid>
+
+              {/* Term Kelas */}
+              <Grid item xs={6}>
+                <FormControl fullWidth error={!!errors.term}>
+                  <CustomInputLabel htmlFor="term">Term Kelas*</CustomInputLabel>
+                  <SelectReactHook
+                    name="term"
+                    rules={{
+                      required: "Term kelas wajib diisi",
+                    }}
+                    control={control}
+                    helperText={errors.term?.message}
+                    isError={!!errors.term}
+                    options={termDate}
+                  />
+                </FormControl>
+              </Grid>
+
+              {/* Jam Booking */}
+              <Grid item xs={4} paddingBottom={2}>
                 <FormControl fullWidth error={!!errors.jam_booking}>
                   <CustomInputLabel htmlFor="jam_booking">Jam booking*</CustomInputLabel>
                   <TimeInputReactHook
@@ -362,7 +400,7 @@ export const BookingFormModal = ({ open, onClose, stateModal, id, onSuccess, onE
               </Grid>
 
               {/* Jam Selesai */}
-              <Grid item xs={6} paddingBottom={2}>
+              <Grid item xs={4} paddingBottom={2}>
                 <FormControl fullWidth error={!!errors.jam_selesai_booking}>
                   <CustomInputLabel htmlFor="jam_selesai_booking">Jam selesai*</CustomInputLabel>
                   <TimeInputReactHook
@@ -383,26 +421,8 @@ export const BookingFormModal = ({ open, onClose, stateModal, id, onSuccess, onE
                 </FormControl>
               </Grid>
 
-              {/* Instrument */}
-              <Grid item xs={6} paddingBottom={2}>
-                <FormControl fullWidth error={!!errors.instrumentId}>
-                  <CustomInputLabel htmlFor="instrumentId">Instrument*</CustomInputLabel>
-                  <AutoCompleteReactHook
-                    name="instrumentId"
-                    rules={{
-                      required: "Instrument wajib diisi",
-                    }}
-                    control={control}
-                    options={instruments}
-                    loading={isLoadingInstruments}
-                    isError={!!errors.instrumentId}
-                    helperText={errors.instrumentId?.message}
-                  />
-                </FormControl>
-              </Grid>
-
               {/* Durasi */}
-              <Grid item xs={6} paddingBottom={2}>
+              <Grid item xs={4} paddingBottom={2}>
                 <FormControl fullWidth error={!!errors.durasi}>
                   <CustomInputLabel htmlFor="durasi">Durasi</CustomInputLabel>
                   <Controller
