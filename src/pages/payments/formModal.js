@@ -3,7 +3,6 @@ import { Typography, Modal, FormControl, Box, Grid } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { useForm, Controller } from "react-hook-form";
 import PropTypes from "prop-types";
-import { format } from "date-fns";
 
 import { modalStyle } from "../../constants/modalStyle";
 import { CustomTextField } from "../../components/input/inputBasic";
@@ -16,6 +15,7 @@ import CheckBoxReactHook from "../../components/input/checkBoxReactHook";
 import { useGetPayment, useAddPayment, useUpdatePayment } from "./query";
 import { useGetPackets } from "../packets/query";
 import { useGetStudents } from "../students/query";
+import { modelPayment } from "./utils";
 
 const paymentVia = [
   { value: "VA", label: "Virtual Account" },
@@ -121,7 +121,7 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
 
   const onSubmit = (data) => {
     // console.log("onSubmit", data);
-    const modelData = { ...data, tgl_bayar: format(data.tgl_bayar, "yyyy-MM-dd") };
+    const modelData = modelPayment(data);
     if (stateModal === "update") {
       submitUpdatePayment.mutate(modelData, {
         onSuccess: (response) => {
