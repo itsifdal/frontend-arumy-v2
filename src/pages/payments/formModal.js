@@ -87,9 +87,15 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
         const { data } = res;
         if (data) {
           const modelData = {
-            paketId: data.paketId,
-            studentId: data.studentId,
-            tgl_bayar: data.tgl_bayar,
+            paketId: {
+              value: data.paketId ?? "",
+              label: packets.find((packet) => packet.value === data.paketId)?.label ?? "",
+            },
+            studentId: {
+              value: data.studentId ?? "",
+              label: students.find((student) => student.value === data.students)?.label ?? "",
+            },
+            tgl_bayar: new Date(data.tgl_bayar),
             jumlah_bayar: data.jumlah_bayar,
             bayar_via: data.bayar_via,
             quota_privat: data.quota_privat || 0,
@@ -145,7 +151,7 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
     }
   };
 
-  if (isLoadingPayment) {
+  if (isLoadingPayment || isLoadingStudents || isLoadingPackets) {
     return (
       <Modal
         open={open}
