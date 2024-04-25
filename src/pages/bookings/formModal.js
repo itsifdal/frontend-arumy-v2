@@ -23,8 +23,9 @@ import { useGetRooms } from "../rooms/query";
 import { useGetInstruments } from "../instruments/query";
 import { useAddBooking, useUpdateBooking, useGetBooking } from "./query";
 import { BookingDeleteModal } from "./deleteModal";
-import { generateDuration, modelBooking, getTerm } from "./utils";
+import { generateDuration, modelBooking } from "./utils";
 import { onSuccessToast } from "./callback";
+import { getTerm } from "../../utils/getTerm";
 
 export const BookingFormModal = ({ open, onClose, stateModal, id, onSuccess, onError }) => {
   const {

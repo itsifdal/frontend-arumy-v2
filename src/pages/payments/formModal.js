@@ -16,6 +16,8 @@ import { useGetPayment, useAddPayment, useUpdatePayment } from "./query";
 import { useGetPackets } from "../packets/query";
 import { useGetStudents } from "../students/query";
 import { modelPayment } from "./utils";
+import { termDate } from "../../constants/termDate";
+import { getTerm } from "../../utils/getTerm";
 
 const paymentVia = [
   { value: "VA", label: "Virtual Account" },
@@ -37,6 +39,7 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
   } = useForm({
     defaultValues: {
       bayar_via: paymentVia[0].value,
+      term: termDate[getTerm(new Date())].value,
     },
   });
 
@@ -102,6 +105,7 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
             quota_group: data.quota_group || 0,
             receipt_number: data.receipt_number,
             confirmed_status: data.confirmed_status,
+            term: data.term,
           };
           const entries = Object.entries(modelData);
           entries.forEach((packet) => {
@@ -184,7 +188,7 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
               {stateModal === "update" ? `Update Payment #${id}` : "Create Payment"}
             </Typography>
           </Box>
-          <Grid container spacing={2} marginBottom={2}>
+          <Grid container spacing={2} marginBottom={2} alignItems={"center"}>
             <Grid item xs={6}>
               <FormControl fullWidth error={!!errors.paketId}>
                 <CustomInputLabel htmlFor="paketId">Nama Paket*</CustomInputLabel>
@@ -251,7 +255,7 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
                 />
               </FormControl>
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={4}>
               <FormControl fullWidth error={!!errors.quota_privat}>
                 <CustomInputLabel htmlFor="quota_privat">Quota Private*</CustomInputLabel>
                 <Controller
@@ -270,7 +274,7 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
                 />
               </FormControl>
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={4}>
               <FormControl fullWidth error={!!errors.quota_group}>
                 <CustomInputLabel htmlFor="quota_group">Quota Group*</CustomInputLabel>
                 <Controller
@@ -289,7 +293,23 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
                 />
               </FormControl>
             </Grid>
-            <Grid item xs={6}>
+            {/* Term Kelas */}
+            <Grid item xs={4}>
+              <FormControl fullWidth error={!!errors.term}>
+                <CustomInputLabel htmlFor="term">Term Kelas*</CustomInputLabel>
+                <SelectReactHook
+                  name="term"
+                  rules={{
+                    required: "Term kelas wajib diisi",
+                  }}
+                  control={control}
+                  helperText={errors.term?.message}
+                  isError={!!errors.term}
+                  options={termDate}
+                />
+              </FormControl>
+            </Grid>
+            <Grid item xs={4}>
               <FormControl fullWidth error={!!errors.bayar_via}>
                 <CustomInputLabel htmlFor="bayar_via">Pembayaran Via*</CustomInputLabel>
                 <SelectReactHook
@@ -306,7 +326,7 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
             </Grid>
             {user.role === "Super Admin" ? (
               <>
-                <Grid item xs={6}>
+                <Grid item xs={4}>
                   <FormControl fullWidth error={!!errors.receipt_number}>
                     <CustomInputLabel htmlFor="receipt_number">Receipt Number</CustomInputLabel>
                     <CustomTextField
@@ -316,7 +336,7 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
                     />
                   </FormControl>
                 </Grid>
-                <Grid item xs={6}>
+                <Grid item xs={4}>
                   <FormControl fullWidth error={!!errors.confirmed_status}>
                     <CheckBoxReactHook name="confirmed_status" control={control} label={"Confirmed"} />
                   </FormControl>
