@@ -6,6 +6,7 @@ import setDefaultOptions from "date-fns/setDefaultOptions";
 import id from "date-fns/locale/id";
 
 import DateInputBasic from "../../../components/input/dateInputBasic";
+import InputBasic from "../../../components/input/inputBasic";
 import { useGetQuotaStudents } from "../../students/query";
 import { fNumber } from "../../../utils/formatNumber";
 import { urlSearchParamsToQuery } from "../../../utils/urlSearchParamsToQuery";
@@ -33,6 +34,12 @@ export default function DashboardStudentsFilter() {
     setSearchParams({ ...defaultFilter, ...filter });
   };
 
+  function updateSearchQuery(e) {
+    if (e.key === "Enter") {
+      setSearchParams({ ...defaultFilter, [e.target.name]: e.target.value });
+    }
+  }
+
   return (
     <Box
       sx={{
@@ -49,7 +56,15 @@ export default function DashboardStudentsFilter() {
           <Grid item xs={6}>
             <Typography fontSize={"14px"}>{pageInfo}</Typography>
           </Grid>
-          <Grid item xs={3}>
+          <Grid item xs={2}>
+            <InputBasic
+              label="Nama Murid"
+              name="q"
+              onKeyDown={(e) => updateSearchQuery(e)}
+              defaultValue={queryParam.q || ""}
+            />
+          </Grid>
+          <Grid item xs={2}>
             <DateInputBasic
               disableValidation
               id="dateFrom"
@@ -63,7 +78,7 @@ export default function DashboardStudentsFilter() {
               maxDate={parse(defaultFilter.dateTo, "yyyy-MM-dd", new Date())}
             />
           </Grid>
-          <Grid item xs={3}>
+          <Grid item xs={2}>
             <DateInputBasic
               disableValidation
               id="dateTo"
