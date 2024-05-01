@@ -11,6 +11,9 @@ import { useGetQuotaStudents } from "../../students/query";
 import { fNumber } from "../../../utils/formatNumber";
 import { urlSearchParamsToQuery } from "../../../utils/urlSearchParamsToQuery";
 import { initQuery } from "./constant";
+import SelectBasic from "../../../components/input/selectBasic";
+import { termDate } from "../../../constants/termDate";
+import { cleanQuery } from "../../../utils/cleanQuery";
 
 export default function DashboardStudentsFilter() {
   setDefaultOptions({ locale: id });
@@ -18,7 +21,7 @@ export default function DashboardStudentsFilter() {
   const queryParam = urlSearchParamsToQuery(searchParams);
   delete queryParam.studentId;
 
-  const defaultFilter = { ...initQuery, ...queryParam };
+  const defaultFilter = cleanQuery({ ...initQuery, ...queryParam });
 
   const { data: students = [] } = useGetQuotaStudents({
     queryParam: defaultFilter,
@@ -31,6 +34,10 @@ export default function DashboardStudentsFilter() {
     : "";
 
   const SubmitFilter = (filter) => {
+    if (filter.term) {
+      delete defaultFilter.dateFrom;
+      delete defaultFilter.dateTo;
+    }
     setSearchParams({ ...defaultFilter, ...filter });
   };
 
@@ -53,7 +60,7 @@ export default function DashboardStudentsFilter() {
     >
       <Container maxWidth="xl">
         <Grid container spacing={1} flexGrow={1} alignItems={"center"}>
-          <Grid item xs={6}>
+          <Grid item xs={4}>
             <Typography fontSize={"14px"}>{pageInfo}</Typography>
           </Grid>
           <Grid item xs={2}>
@@ -76,6 +83,7 @@ export default function DashboardStudentsFilter() {
                 return SubmitFilter({ dateFrom: format(e.target.value, "yyyy-MM-dd") });
               }}
               maxDate={parse(defaultFilter.dateTo, "yyyy-MM-dd", new Date())}
+              disabled={!!defaultFilter.term}
             />
           </Grid>
           <Grid item xs={2}>
@@ -90,6 +98,22 @@ export default function DashboardStudentsFilter() {
                 return SubmitFilter({ dateTo: format(e.target.value, "yyyy-MM-dd") });
               }}
               minDate={parse(defaultFilter.tglAwal, "yyyy-MM-dd", new Date())}
+              disabled={!!defaultFilter.term}
+            />
+          </Grid>
+          <Grid item xs={2}>
+            <SelectBasic
+              fullWidth
+              id="role"
+              name="role"
+              defaultValue="Reguler"
+              value={defaultFilter.term || ""}
+              onChange={(e) => {
+                SubmitFilter({ term: e.target.value });
+              }}
+              select
+              label="term"
+              options={[{ value: "", label: "Pilih Term" }, ...termDate]}
             />
           </Grid>
         </Grid>
