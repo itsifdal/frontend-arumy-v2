@@ -121,8 +121,8 @@ export default function DashboardTeachersFilterBar() {
             <Grid item xs={2}>
               <SelectBasic
                 fullWidth
-                id="role"
-                name="role"
+                id="term"
+                name="term"
                 defaultValue="Reguler"
                 value={defaultQueryBooking.term || ""}
                 onChange={(e) => {

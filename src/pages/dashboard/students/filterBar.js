@@ -104,8 +104,8 @@ export default function DashboardStudentsFilter() {
           <Grid item xs={2}>
             <SelectBasic
               fullWidth
-              id="role"
-              name="role"
+              id="term"
+              name="term"
               defaultValue="Reguler"
               value={defaultFilter.term || ""}
               onChange={(e) => {

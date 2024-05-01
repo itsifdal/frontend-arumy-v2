@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { format, parse, isValid } from "date-fns";
 import PropTypes from "prop-types";
-import { Button, Stack, Drawer, IconButton, Box, Checkbox, FormGroup, FormControlLabel } from "@mui/material";
+import { Button, Stack, Drawer, IconButton, Box } from "@mui/material";
 
 import useResponsive from "../../hooks/useResponsive";
 import AutoCompleteBasic from "../../components/input/autoCompleteBasic";
@@ -11,6 +11,7 @@ import { urlSearchParamsToQuery } from "../../utils/urlSearchParamsToQuery";
 import Iconify from "../../components/Iconify";
 import { useGetStudents } from "../students/query";
 import { useGetPackets } from "../packets/query";
+import SelectBasic from "../../components/input/selectBasic";
 
 const initFilter = {
   confirmed_status: "",
@@ -216,21 +217,23 @@ function BookingFilterForm({ toggleDrawer }) {
           minDate={parse(filters.dateFrom, "yyyy-MM-dd", new Date())}
         />
       </Stack>
-      <FormGroup>
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={!!filters.confirmed_status}
-              onChange={(e) => {
-                console.log(e.target.checked);
-                setFilters((prevState) => ({ ...prevState, confirmed_status: e.target.checked }));
-              }}
-              inputProps={{ "aria-label": "controlled" }}
-            />
-          }
-          label={"Terkonfirmasi"}
-        />
-      </FormGroup>
+      <SelectBasic
+        fullWidth
+        id="confirmed_status"
+        name="confirmed_status"
+        defaultValue="Reguler"
+        value={filters.confirmed_status || ""}
+        onChange={(e) => {
+          setFilters((prevState) => ({ ...prevState, confirmed_status: e.target.value }));
+        }}
+        select
+        label="Status Konfirmasi"
+        options={[
+          { value: "", label: "Pilih Status Konfirmasi" },
+          { value: "true", label: "Terkonfirmasi" },
+          { value: "false", label: "Belum Terkonfirmasi" },
+        ]}
+      />
       <Stack spacing={1} direction={"row"} flexShrink={0} alignItems="flex-end" width={"100%"}>
         <Button
           variant="contained"
