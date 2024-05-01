@@ -256,6 +256,7 @@ export default function DashboardTeachers() {
                     setOpenTeacher(false);
                   }}
                   onChange={(_, newValue) => {
+                    if (!newValue?.value) return;
                     SubmitFilter({
                       teacherId: newValue?.value || initFilter.teacherId,
                       teacherLabel: newValue?.label || initFilter.teacherLabel,

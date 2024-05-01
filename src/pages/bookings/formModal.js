@@ -111,7 +111,7 @@ export const BookingFormModal = ({ open, onClose, stateModal, id, onSuccess, onE
             durasi: Number(data.durasi),
             notes: data.notes,
             status: data.status,
-            term: data.term,
+            term: data.term || termDate[getTerm(new Date())].value,
           };
           const entries = Object.entries(modelData);
           entries.forEach((packet) => {

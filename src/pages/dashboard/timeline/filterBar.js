@@ -10,6 +10,7 @@ import DateInputBasic from "../../../components/input/dateInputBasic";
 import AutoCompleteBasic from "../../../components/input/autoCompleteBasic";
 import { useGetRooms, invalidateRooms } from "../../rooms/query";
 import { urlSearchParamsToQuery } from "../../../utils/urlSearchParamsToQuery";
+import { cleanQuery } from "../../../utils/cleanQuery";
 
 const initFilter = {
   tgl_kelas: format(new Date(), "yyyy-MM-dd"),
@@ -24,10 +25,10 @@ export default function DashboardTimelineFilter() {
   const queryParam = urlSearchParamsToQuery(searchParams);
   setDefaultOptions({ locale: id });
 
-  const defaultQueryBooking = {
+  const defaultQueryBooking = cleanQuery({
     ...initFilter,
     ...queryParam,
-  };
+  });
 
   const { data: rooms = [], isLoading: isLoadingRooms } = useGetRooms({
     options: {
@@ -37,7 +38,7 @@ export default function DashboardTimelineFilter() {
   });
 
   const SubmitFilter = (filter) => {
-    setSearchParams({ ...searchParams, ...filter });
+    setSearchParams({ ...defaultQueryBooking, ...filter });
     invalidateRooms(queryClient);
   };
 
@@ -67,16 +68,17 @@ export default function DashboardTimelineFilter() {
                   setOpenRoom(false);
                 }}
                 onChange={(_, newValue) => {
+                  if (!newValue?.value) return;
                   SubmitFilter({
-                    roomId: newValue?.value || defaultQueryBooking.roomId,
-                    roomLabel: newValue?.label || defaultQueryBooking.roomLabel,
+                    roomId: newValue?.value || "",
+                    roomLabel: newValue?.label || "",
                   });
                 }}
                 options={rooms}
                 loading={isLoadingRooms}
                 value={{
-                  value: searchParams.roomId || defaultQueryBooking.roomId,
-                  label: searchParams.roomLabel || defaultQueryBooking.roomLabel,
+                  value: defaultQueryBooking.roomId || "",
+                  label: defaultQueryBooking.roomLabel || "",
                 }}
               />
             </Grid>
@@ -86,7 +88,7 @@ export default function DashboardTimelineFilter() {
                 id="tgl_kelas"
                 name="tgl_kelas"
                 label="Date"
-                value={parse(searchParams.tgl_kelas, "yyyy-MM-dd", new Date())}
+                value={parse(defaultQueryBooking.tgl_kelas, "yyyy-MM-dd", new Date())}
                 onChange={(e) => {
                   if (!isValid(e.target.value)) return false;
                   return SubmitFilter({ tgl_kelas: format(e.target.value, "yyyy-MM-dd") });

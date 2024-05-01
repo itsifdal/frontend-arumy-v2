@@ -105,7 +105,7 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
             quota_group: data.quota_group || 0,
             receipt_number: data.receipt_number,
             confirmed_status: data.confirmed_status,
-            term: data.term,
+            term: data.term || termDate[getTerm(new Date())].value,
           };
           const entries = Object.entries(modelData);
           entries.forEach((packet) => {
