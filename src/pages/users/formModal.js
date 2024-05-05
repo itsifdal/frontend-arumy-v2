@@ -11,6 +11,7 @@ import SelectReactHook from "../../components/input/selectReactHook";
 import AutoCompleteReactHook from "../../components/input/autoCompleteReactHook";
 import { useGetTeachers } from "../teachers/query";
 import { useAddUser, useUpdateUser, useGetUser } from "./query";
+import { modelUser } from "./utils";
 
 const roleOptions = [
   { value: "Super Admin", label: "Super Admin" },
@@ -45,7 +46,12 @@ export default function UserFormModal({ open, onClose, stateModal, id, onSuccess
     options: {
       enabled: Boolean(id),
       onSuccess: (res) => {
-        const entries = Object.entries(res);
+        const entries = Object.entries({
+          ...res,
+          teacherId: {
+            value: res.teacherId ?? "",
+          },
+        });
         entries.forEach((user) => {
           setValue(user[0], user[1]);
         });
@@ -67,10 +73,11 @@ export default function UserFormModal({ open, onClose, stateModal, id, onSuccess
   }, [open, id, userRefetch, stateModal]);
 
   const onSubmit = (data) => {
+    const modelData = modelUser(data);
     if (stateModal === "update") {
-      delete data.password;
-      delete data.token;
-      submitUpdateUser.mutate(data, {
+      delete modelData.password;
+      delete modelData.token;
+      submitUpdateUser.mutate(modelData, {
         onSuccess: (response) => {
           resetForm();
           onSuccess(response);
@@ -80,7 +87,7 @@ export default function UserFormModal({ open, onClose, stateModal, id, onSuccess
         },
       });
     } else {
-      submitAddUser.mutate(data, {
+      submitAddUser.mutate(modelData, {
         onSuccess: (response) => {
           resetForm();
           onSuccess(response);

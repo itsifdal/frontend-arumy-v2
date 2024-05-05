@@ -3,7 +3,6 @@ import { Typography, Modal, FormControl, Box, Grid } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { useForm, Controller } from "react-hook-form";
 import PropTypes from "prop-types";
-import { format } from "date-fns";
 
 import { modalStyle } from "../../constants/modalStyle";
 import { CustomTextField } from "../../components/input/inputBasic";
@@ -14,6 +13,7 @@ import DateInputReactHook from "../../components/input/dateInputReactHook";
 import { useGetRefund, useAddRefund, useUpdateRefund } from "./query";
 import { useGetPackets } from "../packets/query";
 import { useGetStudents } from "../students/query";
+import { modelRefund } from "./utils";
 
 export default function RefundFormModal({ open, onClose, stateModal, id, onSuccess, onError }) {
   const [user, setUser] = useState({ id: undefined, role: undefined });
@@ -74,12 +74,12 @@ export default function RefundFormModal({ open, onClose, stateModal, id, onSucce
         const { data } = res;
         if (data) {
           const modelData = {
-            paketId: data.paketId,
-            studentId: data.studentId,
+            paketId: { value: data.paketId },
+            studentId: { value: data.studentId },
             refund_amount: data.refund_amount,
             quota_privat: data.quota_privat || 0,
             quota_group: data.quota_group || 0,
-            transfer_date: data.transfer_date,
+            transfer_date: new Date(data.transfer_date),
             notes: data.notes,
           };
           const entries = Object.entries(modelData);
@@ -106,7 +106,7 @@ export default function RefundFormModal({ open, onClose, stateModal, id, onSucce
 
   const onSubmit = (data) => {
     // console.log("onSubmit", data);
-    const modelData = { ...data, transfer_date: format(data.transfer_date, "yyyy-MM-dd") };
+    const modelData = modelRefund(data);
     if (stateModal === "update") {
       submitUpdateRefund.mutate(modelData, {
         onSuccess: (response) => {
