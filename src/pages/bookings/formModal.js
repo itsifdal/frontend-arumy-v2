@@ -41,7 +41,9 @@ export const BookingFormModal = ({ open, onClose, stateModal, id, onSuccess, onE
     defaultValues: {
       jenis_kelas: classType[0].value,
       status: "pending",
-      term: termDate[getTerm(new Date())].value,
+      term: termDate[getTerm(new Date()) + 4].termValue,
+      termYear: termDate[getTerm(new Date()) + 4].termYear,
+      termPlaceholder: termDate[getTerm(new Date()) + 4].value,
     },
   });
   const watchClassType = watch("jenis_kelas");
@@ -111,7 +113,10 @@ export const BookingFormModal = ({ open, onClose, stateModal, id, onSuccess, onE
             durasi: Number(data.durasi),
             notes: data.notes,
             status: data.status,
-            term: data.term || termDate[getTerm(new Date())].value,
+            term: data.term || termDate[getTerm(new Date()) + 4].termValue,
+            termYear: data.termYear || termDate[getTerm(new Date()) + 4].termYear,
+            termPlaceholder:
+              data.term && data.termYear ? `${data.term}-${data.termYear}` : termDate[getTerm(new Date()) + 4].value,
           };
           const entries = Object.entries(modelData);
           entries.forEach((packet) => {
@@ -161,12 +166,14 @@ export const BookingFormModal = ({ open, onClose, stateModal, id, onSuccess, onE
   };
 
   const onSubmit = (data) => {
+    delete data.termPlaceholder;
     delete data.jam_selesai_booking;
     const modelData = modelBooking(data);
     handleSubmitCreate({ data: modelData, addAnother: false });
   };
 
   const onSubmitAnother = (data) => {
+    delete data.termPlaceholder;
     delete data.jam_selesai_booking;
     const modelData = modelBooking(data);
     handleSubmitCreate({ data: modelData, addAnother: true });
@@ -361,18 +368,27 @@ export const BookingFormModal = ({ open, onClose, stateModal, id, onSuccess, onE
 
               {/* Term Kelas */}
               <Grid item xs={6}>
-                <FormControl fullWidth error={!!errors.term}>
-                  <CustomInputLabel htmlFor="term">Term Kelas*</CustomInputLabel>
+                <FormControl fullWidth error={!!errors.termPlaceholder}>
+                  <CustomInputLabel htmlFor="termPlaceholder">Term Kelas*</CustomInputLabel>
                   <SelectReactHook
-                    name="term"
+                    name="termPlaceholder"
                     rules={{
                       required: "Term kelas wajib diisi",
                     }}
                     control={control}
-                    helperText={errors.term?.message}
-                    isError={!!errors.term}
+                    helperText={errors.termPlaceholder?.message}
+                    isError={!!errors.termPlaceholder}
                     options={termDate}
+                    onChangeCallback={(e) => {
+                      if (e) {
+                        const arrVal = e.split("-");
+                        setValue("term", arrVal[0]);
+                        setValue("termYear", arrVal[1]);
+                      }
+                    }}
                   />
+                  <input type="hidden" {...register("term")} />
+                  <input type="hidden" {...register("termYear")} />
                 </FormControl>
               </Grid>
 

@@ -2,6 +2,7 @@ import { format } from "date-fns";
 
 export const modelPayment = (data) => {
   if (data) {
+    delete data.termPlaceholder;
     return {
       ...data,
       tgl_bayar: format(data.tgl_bayar, "yyyy-MM-dd"),

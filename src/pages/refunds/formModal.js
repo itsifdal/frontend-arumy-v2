@@ -10,10 +10,13 @@ import CustomInputLabel from "../../components/input/inputLabel";
 import AutoCompleteReactHook from "../../components/input/autoCompleteReactHook";
 import CurrencyInputReactHook from "../../components/input/currencyInputReactHook";
 import DateInputReactHook from "../../components/input/dateInputReactHook";
+import SelectReactHook from "../../components/input/selectReactHook";
 import { useGetRefund, useAddRefund, useUpdateRefund } from "./query";
 import { useGetPackets } from "../packets/query";
 import { useGetStudents } from "../students/query";
 import { modelRefund } from "./utils";
+import { termDate } from "../../constants/termDate";
+import { getTerm } from "../../utils/getTerm";
 
 export default function RefundFormModal({ open, onClose, stateModal, id, onSuccess, onError }) {
   const [user, setUser] = useState({ id: undefined, role: undefined });
@@ -25,7 +28,13 @@ export default function RefundFormModal({ open, onClose, stateModal, id, onSucce
     reset: resetForm,
     formState: { errors },
     control,
-  } = useForm();
+  } = useForm({
+    defaultValues: {
+      term: termDate[getTerm(new Date()) + 4].termValue,
+      termYear: termDate[getTerm(new Date()) + 4].termYear,
+      termPlaceholder: termDate[getTerm(new Date()) + 4].value,
+    },
+  });
 
   // localStorage
   useEffect(() => {
@@ -81,6 +90,10 @@ export default function RefundFormModal({ open, onClose, stateModal, id, onSucce
             quota_group: data.quota_group || 0,
             transfer_date: new Date(data.transfer_date),
             notes: data.notes,
+            term: data.term || termDate[getTerm(new Date()) + 4].termValue,
+            termYear: data.termYear || termDate[getTerm(new Date()) + 4].termYear,
+            termPlaceholder:
+              data.term && data.termYear ? `${data.term}-${data.termYear}` : termDate[getTerm(new Date()) + 4].value,
           };
           const entries = Object.entries(modelData);
           entries.forEach((packet) => {
@@ -215,7 +228,7 @@ export default function RefundFormModal({ open, onClose, stateModal, id, onSucce
                 />
               </FormControl>
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={3}>
               <FormControl fullWidth error={!!errors.quota_privat}>
                 <CustomInputLabel htmlFor="quota_privat">Quota Private*</CustomInputLabel>
                 <Controller
@@ -233,7 +246,7 @@ export default function RefundFormModal({ open, onClose, stateModal, id, onSucce
                 />
               </FormControl>
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={3}>
               <FormControl fullWidth error={!!errors.quota_group}>
                 <CustomInputLabel htmlFor="quota_group">Quota Group*</CustomInputLabel>
                 <Controller
@@ -251,7 +264,7 @@ export default function RefundFormModal({ open, onClose, stateModal, id, onSucce
                 />
               </FormControl>
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={3}>
               <FormControl fullWidth error={!!errors.transfer_date}>
                 <CustomInputLabel htmlFor="transfer_date">Tanggal Refund*</CustomInputLabel>
                 <DateInputReactHook
@@ -264,6 +277,30 @@ export default function RefundFormModal({ open, onClose, stateModal, id, onSucce
                   isError={!!errors.transfer_date}
                   helperText={errors.transfer_date?.message}
                 />
+              </FormControl>
+            </Grid>
+            <Grid item xs={3}>
+              <FormControl fullWidth error={!!errors.termPlaceholder}>
+                <CustomInputLabel htmlFor="termPlaceholder">Term Kelas*</CustomInputLabel>
+                <SelectReactHook
+                  name="termPlaceholder"
+                  rules={{
+                    required: "Term kelas wajib diisi",
+                  }}
+                  control={control}
+                  helperText={errors.termPlaceholder?.message}
+                  isError={!!errors.termPlaceholder}
+                  options={termDate}
+                  onChangeCallback={(e) => {
+                    if (e) {
+                      const arrVal = e.split("-");
+                      setValue("term", arrVal[0]);
+                      setValue("termYear", arrVal[1]);
+                    }
+                  }}
+                />
+                <input type="hidden" {...register("term")} />
+                <input type="hidden" {...register("termYear")} />
               </FormControl>
             </Grid>
             <Grid item xs={6}>

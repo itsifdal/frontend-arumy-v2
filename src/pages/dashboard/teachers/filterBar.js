@@ -121,12 +121,19 @@ export default function DashboardTeachersFilterBar() {
             <Grid item xs={2}>
               <SelectBasic
                 fullWidth
-                id="term"
-                name="term"
-                defaultValue="Reguler"
-                value={defaultQueryBooking.term || ""}
+                id="termPlaceHolder"
+                name="termPlaceHolder"
+                defaultValue=""
+                value={
+                  defaultQueryBooking.term && defaultQueryBooking.termYear
+                    ? `${defaultQueryBooking.term}-${defaultQueryBooking.termYear}`
+                    : ""
+                }
                 onChange={(e) => {
-                  SubmitFilter({ term: e.target.value });
+                  if (e.target.value) {
+                    const arrVal = e.target.value.split("-");
+                    SubmitFilter({ term: arrVal[0], termYear: arrVal[1] });
+                  }
                 }}
                 select
                 label="term"

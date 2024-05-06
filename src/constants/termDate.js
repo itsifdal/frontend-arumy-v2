@@ -1,18 +1,29 @@
-export const termDate = [
+const getYear = () => new Date().getFullYear();
+
+const termDateModel = (year) => [
   {
-    value: 1,
-    label: "Term 1",
+    termYear: year,
+    termValue: 1,
+    value: `1-${year}`,
+    label: `Term 1 - ${year}`,
   },
   {
-    value: 2,
-    label: "Term 2",
+    termYear: year,
+    termValue: 2,
+    value: `2-${year}`,
+    label: `Term 2 - ${year}`,
   },
   {
-    value: 3,
-    label: "Term 3",
+    termYear: year,
+    termValue: 3,
+    value: `3-${year}`,
+    label: `Term 3 - ${year}`,
   },
   {
-    value: 4,
-    label: "Term 4",
+    termYear: year,
+    termValue: 4,
+    value: `4-${year}`,
+    label: `Term 4 - ${year}`,
   },
 ];
+export const termDate = [...termDateModel(getYear() - 1), ...termDateModel(getYear()), ...termDateModel(getYear() + 1)];

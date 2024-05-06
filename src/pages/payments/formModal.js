@@ -39,7 +39,9 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
   } = useForm({
     defaultValues: {
       bayar_via: paymentVia[0].value,
-      term: termDate[getTerm(new Date())].value,
+      term: termDate[getTerm(new Date()) + 4].termValue,
+      termYear: termDate[getTerm(new Date()) + 4].termYear,
+      termPlaceholder: termDate[getTerm(new Date()) + 4].value,
     },
   });
 
@@ -105,7 +107,10 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
             quota_group: data.quota_group || 0,
             receipt_number: data.receipt_number,
             confirmed_status: data.confirmed_status,
-            term: data.term || termDate[getTerm(new Date())].value,
+            term: data.term || termDate[getTerm(new Date()) + 4].termValue,
+            termYear: data.termYear || termDate[getTerm(new Date()) + 4].termYear,
+            termPlaceholder:
+              data.term && data.termYear ? `${data.term}-${data.termYear}` : termDate[getTerm(new Date()) + 4].value,
           };
           const entries = Object.entries(modelData);
           entries.forEach((packet) => {
@@ -295,18 +300,27 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
             </Grid>
             {/* Term Kelas */}
             <Grid item xs={4}>
-              <FormControl fullWidth error={!!errors.term}>
-                <CustomInputLabel htmlFor="term">Term Kelas*</CustomInputLabel>
+              <FormControl fullWidth error={!!errors.termPlaceholder}>
+                <CustomInputLabel htmlFor="termPlaceholder">Term Kelas*</CustomInputLabel>
                 <SelectReactHook
-                  name="term"
+                  name="termPlaceholder"
                   rules={{
                     required: "Term kelas wajib diisi",
                   }}
                   control={control}
-                  helperText={errors.term?.message}
-                  isError={!!errors.term}
+                  helperText={errors.termPlaceholder?.message}
+                  isError={!!errors.termPlaceholder}
                   options={termDate}
+                  onChangeCallback={(e) => {
+                    if (e) {
+                      const arrVal = e.split("-");
+                      setValue("term", arrVal[0]);
+                      setValue("termYear", arrVal[1]);
+                    }
+                  }}
                 />
+                <input type="hidden" {...register("term")} />
+                <input type="hidden" {...register("termYear")} />
               </FormControl>
             </Grid>
             <Grid item xs={4}>
