@@ -115,8 +115,9 @@ export const BookingFormModal = ({ open, onClose, stateModal, id, onSuccess, onE
             status: data.status,
             term: data.term || termDate[getTerm(new Date()) + 4].termValue,
             termYear: data.termYear || termDate[getTerm(new Date()) + 4].termYear,
-            termPlaceholder:
-              data.term && data.termYear ? `${data.term}-${data.termYear}` : termDate[getTerm(new Date()) + 4].value,
+            termPlaceholder: `${data.term ? data.term : getTerm(new Date())}-${
+              data.termYear ? data.termYear : new Date().getFullYear()
+            }`,
           };
           const entries = Object.entries(modelData);
           entries.forEach((packet) => {
