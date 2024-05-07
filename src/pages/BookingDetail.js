@@ -85,6 +85,10 @@ function BookingData() {
   if (isLoading) return <Typography>Loading data...</Typography>;
   if (isError) return <Typography>Error data</Typography>;
 
+  const { jam_booking: jamBooking, tgl_kelas: tglKelas } = booking;
+  const completeDate = parse(`${tglKelas} ${jamBooking}`, "yyyy-MM-dd HH:mm:ss", new Date());
+  const isPassed = new Date() > completeDate;
+
   const bookingDetail = [
     {
       label: "DATE",
@@ -174,7 +178,14 @@ function BookingData() {
             borderRadius: "7px",
             background: "#19A551",
             color: "#FFF",
+            ":hover": {
+              background: "#19A551",
+            },
+            ":disabled": {
+              background: "rgba(56, 53, 161, 0.08)",
+            },
           }}
+          disabled={!isPassed}
         >
           Masuk
         </Button>
