@@ -1,9 +1,11 @@
+import { cleanQuery } from "../../utils/cleanQuery";
+
 export const modelUser = (data) => {
   if (data) {
-    return {
+    return cleanQuery({
       ...data,
-      teacherId: data.teacherId.value,
-    };
+      teacherId: data.teacherId?.value || null,
+    });
   }
   return {};
 };

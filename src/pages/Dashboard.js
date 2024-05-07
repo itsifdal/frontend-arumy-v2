@@ -243,7 +243,7 @@ export default function Dashboard() {
       <Container maxWidth="xl" sx={{ paddingTop: 4 }}>
         <ToastContainer pauseOnFocusLoss={false} />
         {!isLoadingBookings && bookings.length && !isTeacher ? (
-          <Chart chartType="Timeline" data={data} width="100%" height="900px" />
+          <Chart chartType="Timeline" data={data} width="100%" height="930px" />
         ) : null}
         {renderContent({
           isErrorDashboard,

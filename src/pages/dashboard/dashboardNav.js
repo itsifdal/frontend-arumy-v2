@@ -25,7 +25,7 @@ export default function DashboardNav({ active }) {
   return (
     <Stack direction={"row"} spacing={2}>
       {navItem.map((menu) => {
-        const isMenuForAdmin = !menu.isAdminOnly || user.role !== "Guru";
+        const isMenuForAdmin = !menu.isAdminOnly || (user.role !== "Guru" && user.role !== "Reguler");
         if (isMenuForAdmin) {
           return (
             <Button
