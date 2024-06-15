@@ -66,7 +66,7 @@ export function useGetBookingDownload(props) {
     [queryKey.downloadBooking, queryParam],
     () =>
       axios
-        .get(`${process.env.REACT_APP_BASE_URL}/api/booking${queryToString({ queryParam })}`, {
+        .get(`${process.env.REACT_APP_BASE_URL}/api/booking${queryToString({ ...queryParam })}`, {
           headers: fetchHeader,
         })
         .then((res) => res.data),
