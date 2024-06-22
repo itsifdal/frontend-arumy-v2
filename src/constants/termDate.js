@@ -28,8 +28,8 @@ const termDateModel = (year) => [
 ];
 export const termDate = [
   {
-    termYear: null,
-    termValue: null,
+    termYear: "",
+    termValue: "",
     value: "",
     label: "-- Silahkan pilih term --",
   },

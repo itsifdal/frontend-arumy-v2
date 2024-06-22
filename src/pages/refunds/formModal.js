@@ -83,8 +83,8 @@ export default function RefundFormModal({ open, onClose, stateModal, id, onSucce
             quota_group: data.quota_group || 0,
             transfer_date: new Date(data.transfer_date),
             notes: data.notes,
-            term: data.term ?? null,
-            termYear: data.termYear ?? null,
+            term: data.term ?? "",
+            termYear: data.termYear ?? "",
             termPlaceholder: data.term && data.termYear ? `${data.term}-${data.termYear}` : "",
           };
           const entries = Object.entries(modelData);

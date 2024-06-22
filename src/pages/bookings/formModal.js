@@ -109,8 +109,8 @@ export const BookingFormModal = ({ open, onClose, stateModal, id, onSuccess, onE
             durasi: Number(data.durasi),
             notes: data.notes,
             status: data.status,
-            term: data.term ?? null,
-            termYear: data.termYear ?? null,
+            term: data.term ?? "",
+            termYear: data.termYear ?? "",
             termPlaceholder: data.term && data.termYear ? `${data.term}-${data.termYear}` : "",
           };
           const entries = Object.entries(modelData);

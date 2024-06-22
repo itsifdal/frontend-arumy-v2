@@ -14,6 +14,7 @@ import { bookingStatus } from "../../constants/bookingStatus";
 import { bookingType } from "../../constants/bookingType";
 import { urlSearchParamsToQuery } from "../../utils/urlSearchParamsToQuery";
 import { fetchHeader } from "../../constants/fetchHeader";
+import { termDate } from "../../constants/termDate";
 
 const initFilter = {
   status: "",
@@ -224,6 +225,22 @@ export function BookingFilterForm({ toggleDrawer }) {
           setFilters((prevState) => ({ ...prevState, class_type: e.target.value }));
         }}
         options={bookingType}
+      />
+      <NativeSelectBasic
+        id="termPlaceholder"
+        name="termPlaceholder"
+        label="Term Booking"
+        value={filters.termPlaceholder}
+        onChange={(e) => {
+          const arrValue = e.target.value.split("-");
+          setFilters((prevState) => ({
+            ...prevState,
+            termPlaceholder: e.target.value,
+            term: arrValue[0] ?? "",
+            termYear: arrValue[1] ?? "",
+          }));
+        }}
+        options={termDate}
       />
       <Stack spacing={1} direction={"row"} flexShrink={0} alignItems="flex-end" width={"100%"}>
         <Button
