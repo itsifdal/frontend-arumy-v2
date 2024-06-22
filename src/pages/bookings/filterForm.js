@@ -240,7 +240,15 @@ export function BookingFilterForm({ toggleDrawer }) {
             termYear: arrValue[1] ?? "",
           }));
         }}
-        options={termDate}
+        options={[
+          {
+            termYear: "",
+            termValue: "",
+            value: "",
+            label: "-- Silahkan pilih term --",
+          },
+          ...termDate,
+        ]}
       />
       <Stack spacing={1} direction={"row"} flexShrink={0} alignItems="flex-end" width={"100%"}>
         <Button

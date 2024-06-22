@@ -373,7 +373,15 @@ export const BookingFormModal = ({ open, onClose, stateModal, id, onSuccess, onE
                     control={control}
                     helperText={errors.termPlaceholder?.message}
                     isError={!!errors.termPlaceholder}
-                    options={termDate}
+                    options={[
+                      {
+                        termYear: "",
+                        termValue: "",
+                        value: "",
+                        label: "-- Silahkan pilih term --",
+                      },
+                      ...termDate,
+                    ]}
                     onChangeCallback={(e) => {
                       if (e) {
                         const arrVal = e.split("-");

@@ -282,7 +282,15 @@ export default function RefundFormModal({ open, onClose, stateModal, id, onSucce
                   control={control}
                   helperText={errors.termPlaceholder?.message}
                   isError={!!errors.termPlaceholder}
-                  options={termDate}
+                  options={[
+                    {
+                      termYear: "",
+                      termValue: "",
+                      value: "",
+                      label: "-- Silahkan pilih term --",
+                    },
+                    ...termDate,
+                  ]}
                   onChangeCallback={(e) => {
                     if (e) {
                       const arrVal = e.split("-");
