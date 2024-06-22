@@ -5,6 +5,7 @@ import { Button, Stack, Drawer, IconButton, Box } from "@mui/material";
 
 import useResponsive from "../../hooks/useResponsive";
 import { bookingStatusObj } from "../../constants/bookingStatus";
+import { bookingTypeObj } from "../../constants/bookingType";
 import { urlSearchParamsToQuery } from "../../utils/urlSearchParamsToQuery";
 import Iconify from "../../components/Iconify";
 import { BookingFilterForm } from "./filterForm";
@@ -33,6 +34,7 @@ export function BookingFilters() {
       filters.dateFrom && format(parse(filters.dateFrom, "yyyy-MM-dd", new Date()), "d MMM yyyy"),
       filters.dateTo && format(parse(filters.dateTo, "yyyy-MM-dd", new Date()), "d MMM yyyy"),
       filters.status && `Status ${bookingStatusObj[filters.status].label}`,
+      filters.class_type && `Kelas ${bookingTypeObj[filters.class_type].label}`,
     ],
     [filters]
   );

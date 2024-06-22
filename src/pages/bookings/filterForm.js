@@ -11,6 +11,7 @@ import DateInputBasic from "../../components/input/dateInputBasic";
 import NativeSelectBasic from "../../components/input/nativeSelectBasic";
 import { queryKey } from "../../constants/queryKey";
 import { bookingStatus } from "../../constants/bookingStatus";
+import { bookingType } from "../../constants/bookingType";
 import { urlSearchParamsToQuery } from "../../utils/urlSearchParamsToQuery";
 import { fetchHeader } from "../../constants/fetchHeader";
 
@@ -24,6 +25,7 @@ const initFilter = {
   studentLabel: "",
   teacherId: "",
   teacherLabel: "",
+  class_type: "",
 };
 
 export function BookingFilterForm({ toggleDrawer }) {
@@ -172,7 +174,7 @@ export function BookingFilterForm({ toggleDrawer }) {
           disableValidation
           id="dateFrom"
           name="dateFrom"
-          label="From Date"
+          label="Mulai Tanggal"
           value={parse(filters.dateFrom, "yyyy-MM-dd", new Date())}
           onChange={(e) => {
             if (e.target.value === null)
@@ -189,7 +191,7 @@ export function BookingFilterForm({ toggleDrawer }) {
           disableValidation
           id="dateTo"
           name="dateTo"
-          label="To Date"
+          label="Sampai Tanggal"
           value={parse(filters.dateTo, "yyyy-MM-dd", new Date())}
           onChange={(e) => {
             if (e.target.value === null)
@@ -206,12 +208,22 @@ export function BookingFilterForm({ toggleDrawer }) {
       <NativeSelectBasic
         id="status"
         name="status"
-        label="Class Status"
+        label="Status Booking"
         value={filters.status}
         onChange={(e) => {
           setFilters((prevState) => ({ ...prevState, status: e.target.value }));
         }}
         options={bookingStatus}
+      />
+      <NativeSelectBasic
+        id="class_type"
+        name="class_type"
+        label="Jenis Booking"
+        value={filters.class_type}
+        onChange={(e) => {
+          setFilters((prevState) => ({ ...prevState, class_type: e.target.value }));
+        }}
+        options={bookingType}
       />
       <Stack spacing={1} direction={"row"} flexShrink={0} alignItems="flex-end" width={"100%"}>
         <Button
