@@ -16,7 +16,6 @@ import { useGetPackets } from "../packets/query";
 import { useGetStudents } from "../students/query";
 import { modelRefund } from "./utils";
 import { termDate } from "../../constants/termDate";
-import { getTerm } from "../../utils/getTerm";
 
 export default function RefundFormModal({ open, onClose, stateModal, id, onSuccess, onError }) {
   const [user, setUser] = useState({ id: undefined, role: undefined });
@@ -28,13 +27,7 @@ export default function RefundFormModal({ open, onClose, stateModal, id, onSucce
     reset: resetForm,
     formState: { errors },
     control,
-  } = useForm({
-    defaultValues: {
-      term: termDate[getTerm(new Date()) + 4].termValue,
-      termYear: termDate[getTerm(new Date()) + 4].termYear,
-      termPlaceholder: termDate[getTerm(new Date()) + 4].value,
-    },
-  });
+  } = useForm();
 
   // localStorage
   useEffect(() => {
@@ -78,7 +71,7 @@ export default function RefundFormModal({ open, onClose, stateModal, id, onSucce
   const { refetch: refundRefetch, isLoading: isLoadingRefund } = useGetRefund({
     id,
     options: {
-      enabled: Boolean(id),
+      enabled: open && stateModal === "update" && Boolean(id),
       onSuccess: (res) => {
         const { data } = res;
         if (data) {
@@ -90,11 +83,9 @@ export default function RefundFormModal({ open, onClose, stateModal, id, onSucce
             quota_group: data.quota_group || 0,
             transfer_date: new Date(data.transfer_date),
             notes: data.notes,
-            term: data.term || termDate[getTerm(new Date()) + 4].termValue,
-            termYear: data.termYear || termDate[getTerm(new Date()) + 4].termYear,
-            termPlaceholder: `${data.term ? data.term : getTerm(new Date())}-${
-              data.termYear ? data.termYear : new Date().getFullYear()
-            }`,
+            term: data.term ?? null,
+            termYear: data.termYear ?? null,
+            termPlaceholder: data.term && data.termYear ? `${data.term}-${data.termYear}` : "",
           };
           const entries = Object.entries(modelData);
           entries.forEach((packet) => {

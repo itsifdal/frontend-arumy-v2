@@ -26,4 +26,14 @@ const termDateModel = (year) => [
     label: `Term 4 - ${year}`,
   },
 ];
-export const termDate = [...termDateModel(getYear() - 1), ...termDateModel(getYear()), ...termDateModel(getYear() + 1)];
+export const termDate = [
+  {
+    termYear: null,
+    termValue: null,
+    value: "",
+    label: "-- Silahkan pilih term --",
+  },
+  ...termDateModel(getYear() - 1),
+  ...termDateModel(getYear()),
+  ...termDateModel(getYear() + 1),
+];

@@ -52,7 +52,7 @@ export default function SelectReactHook(props) {
             }}
           >
             {options.map((option) => (
-              <option key={option.value} value={option.value}>
+              <option key={`${option.value}-${option.label}`} value={option.value}>
                 {option.label}
               </option>
             ))}

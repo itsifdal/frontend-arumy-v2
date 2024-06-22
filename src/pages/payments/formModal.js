@@ -17,7 +17,6 @@ import { useGetPackets } from "../packets/query";
 import { useGetStudents } from "../students/query";
 import { modelPayment } from "./utils";
 import { termDate } from "../../constants/termDate";
-import { getTerm } from "../../utils/getTerm";
 
 const paymentVia = [
   { value: "VA", label: "Virtual Account" },
@@ -39,9 +38,6 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
   } = useForm({
     defaultValues: {
       bayar_via: paymentVia[0].value,
-      term: termDate[getTerm(new Date()) + 4].termValue,
-      termYear: termDate[getTerm(new Date()) + 4].termYear,
-      termPlaceholder: termDate[getTerm(new Date()) + 4].value,
     },
   });
 
@@ -87,7 +83,7 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
   const { refetch: paymentRefetch, isLoading: isLoadingPayment } = useGetPayment({
     id,
     options: {
-      enabled: Boolean(id),
+      enabled: open && stateModal === "update" && Boolean(id),
       onSuccess: (res) => {
         const { data } = res;
         if (data) {
@@ -107,11 +103,9 @@ export default function PaymentFormModal({ open, onClose, stateModal, id, onSucc
             quota_group: data.quota_group || 0,
             receipt_number: data.receipt_number,
             confirmed_status: data.confirmed_status,
-            term: data.term || termDate[getTerm(new Date()) + 4].termValue,
-            termYear: data.termYear || termDate[getTerm(new Date()) + 4].termYear,
-            termPlaceholder: `${data.term ? data.term : getTerm(new Date())}-${
-              data.termYear ? data.termYear : new Date().getFullYear()
-            }`,
+            term: data.term ?? null,
+            termYear: data.termYear ?? null,
+            termPlaceholder: data.term && data.termYear ? `${data.term}-${data.termYear}` : "",
           };
           const entries = Object.entries(modelData);
           entries.forEach((packet) => {

@@ -25,7 +25,6 @@ import { useAddBooking, useUpdateBooking, useGetBooking } from "./query";
 import { BookingDeleteModal } from "./deleteModal";
 import { generateDuration, modelBooking } from "./utils";
 import { onSuccessToast } from "./callback";
-import { getTerm } from "../../utils/getTerm";
 
 export const BookingFormModal = ({ open, onClose, stateModal, id, onSuccess, onError }) => {
   const {
@@ -41,9 +40,6 @@ export const BookingFormModal = ({ open, onClose, stateModal, id, onSuccess, onE
     defaultValues: {
       jenis_kelas: classType[0].value,
       status: "pending",
-      term: termDate[getTerm(new Date()) + 4].termValue,
-      termYear: termDate[getTerm(new Date()) + 4].termYear,
-      termPlaceholder: termDate[getTerm(new Date()) + 4].value,
     },
   });
   const watchClassType = watch("jenis_kelas");
@@ -86,7 +82,7 @@ export const BookingFormModal = ({ open, onClose, stateModal, id, onSuccess, onE
   const { refetch: bookingRefetch, isLoading: isLoadingBookingRefetch } = useGetBooking({
     id,
     options: {
-      enabled: Boolean(id),
+      enabled: open && stateModal === "update" && Boolean(id),
       onSuccess: (res) => {
         const { data } = res;
         if (data) {
@@ -113,11 +109,9 @@ export const BookingFormModal = ({ open, onClose, stateModal, id, onSuccess, onE
             durasi: Number(data.durasi),
             notes: data.notes,
             status: data.status,
-            term: data.term || termDate[getTerm(new Date()) + 4].termValue,
-            termYear: data.termYear || termDate[getTerm(new Date()) + 4].termYear,
-            termPlaceholder: `${data.term ? data.term : getTerm(new Date())}-${
-              data.termYear ? data.termYear : new Date().getFullYear()
-            }`,
+            term: data.term ?? null,
+            termYear: data.termYear ?? null,
+            termPlaceholder: data.term && data.termYear ? `${data.term}-${data.termYear}` : "",
           };
           const entries = Object.entries(modelData);
           entries.forEach((packet) => {
