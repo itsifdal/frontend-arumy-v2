@@ -94,6 +94,7 @@ function BookingData() {
       label: "DATE",
       value: <strong>{format(parse(booking.tgl_kelas, "yyyy-MM-dd", new Date()), "MMMM dd, yyyy")}</strong>,
     },
+    { label: "TERM", value: `${booking.term} - ${booking.termYear}` },
     { label: "BRANCH", value: booking.cabang },
     { label: "START", value: format(parse(booking.jam_booking, "HH:mm:ss", new Date()), "HH:mm") },
     { label: "END", value: format(parse(booking.selesai, "HH:mm:ss", new Date()), "HH:mm") },
