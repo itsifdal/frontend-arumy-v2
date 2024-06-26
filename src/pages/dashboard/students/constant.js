@@ -1,8 +1,8 @@
-import { format, sub } from "date-fns";
+import { getTerm } from "../../../utils/getTerm";
 
 export const initQuery = {
   sort: "DESC",
   sort_by: "privateQuotaLeft",
-  dateFrom: format(sub(new Date(), { months: 1 }), "yyyy-MM-dd"),
-  dateTo: format(new Date(), "yyyy-MM-dd"),
+  term: getTerm(new Date()) + 1,
+  termYear: new Date().getFullYear(),
 };

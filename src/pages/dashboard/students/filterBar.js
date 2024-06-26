@@ -1,7 +1,7 @@
 import React from "react";
 import { Container, Box, Typography, Grid } from "@mui/material";
 import { useSearchParams } from "react-router-dom";
-import { format, parse, isValid } from "date-fns";
+import { format, parse, isValid, sub } from "date-fns";
 import setDefaultOptions from "date-fns/setDefaultOptions";
 import id from "date-fns/locale/id";
 
@@ -113,7 +113,14 @@ export default function DashboardStudentsFilter() {
               onChange={(e) => {
                 if (e.target.value) {
                   const arrVal = e.target.value.split("-");
-                  SubmitFilter({ term: arrVal[0], termYear: arrVal[1] });
+                  SubmitFilter({ term: arrVal[0], termYear: arrVal[1], dateFrom: "", dateTo: "" });
+                } else {
+                  SubmitFilter({
+                    term: "",
+                    termYear: "",
+                    dateFrom: format(sub(new Date(), { months: 1 }), "yyyy-MM-dd"),
+                    dateTo: format(new Date(), "yyyy-MM-dd"),
+                  });
                 }
               }}
               select

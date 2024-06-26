@@ -12,12 +12,13 @@ import { urlSearchParamsToQuery } from "../../../utils/urlSearchParamsToQuery";
 import { cleanQuery } from "../../../utils/cleanQuery";
 import { useGetTeachers } from "../../teachers/query";
 import { termDate } from "../../../constants/termDate";
+import { getTerm } from "../../../utils/getTerm";
 
 const initFilter = {
   teacherId: 1,
   teacherLabel: "Adi Nugroho",
-  tglAwal: format(sub(new Date(), { months: 1 }), "yyyy-MM-dd"),
-  tglAkhir: format(new Date(), "yyyy-MM-dd"),
+  term: getTerm(new Date()) + 1,
+  termYear: new Date().getFullYear(),
 };
 
 export default function DashboardTeachersFilterBar() {
@@ -132,7 +133,14 @@ export default function DashboardTeachersFilterBar() {
                 onChange={(e) => {
                   if (e.target.value) {
                     const arrVal = e.target.value.split("-");
-                    SubmitFilter({ term: arrVal[0], termYear: arrVal[1] });
+                    SubmitFilter({ term: arrVal[0], termYear: arrVal[1], dateFrom: "", dateTo: "" });
+                  } else {
+                    SubmitFilter({
+                      term: "",
+                      termYear: "",
+                      dateFrom: format(sub(new Date(), { months: 1 }), "yyyy-MM-dd"),
+                      dateTo: format(new Date(), "yyyy-MM-dd"),
+                    });
                   }
                 }}
                 select

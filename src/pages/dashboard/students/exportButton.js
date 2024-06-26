@@ -28,9 +28,14 @@ export default function ExportButton() {
           "Remaining Private": summary.privateQuotaLeft || 0,
           "Remaining Group": summary.groupQuotaLeft || 0,
         }));
+        const sheet =
+          queryParam.term && queryParam.termYear
+            ? `${queryParam.term}-${queryParam.termYear}`
+            : `${queryParam.dateFrom}-${queryParam.dateTo}`;
+        const fileName = `Quota-${sheet}`;
         downloadExcel({
-          fileName: `Quota-${queryParam.dateFrom}-${queryParam.dateTo}`,
-          sheet: `${queryParam.dateFrom}-${queryParam.dateTo}`,
+          fileName,
+          sheet,
           tablePayload: {
             header: Object.keys(exportedQuotaSummary[0]),
             body: exportedQuotaSummary,

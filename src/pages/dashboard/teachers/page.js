@@ -1,7 +1,6 @@
 import { useSearchParams } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import { useQuery } from "react-query";
-import { format, sub } from "date-fns";
 import setDefaultOptions from "date-fns/setDefaultOptions";
 import axios from "axios";
 import id from "date-fns/locale/id";
@@ -36,12 +35,13 @@ import { queryToString } from "../../../utils/queryToString";
 import { fetchHeader } from "../../../constants/fetchHeader";
 import DashboardNav from "../dashboardNav";
 import DashboardTeachersFilterBarDas from "./filterBar";
+import { getTerm } from "../../../utils/getTerm";
 
 const initFilter = {
   teacherId: 1,
   teacherLabel: "Adi Nugroho",
-  tglAwal: format(sub(new Date(), { months: 1 }), "yyyy-MM-dd"),
-  tglAkhir: format(new Date(), "yyyy-MM-dd"),
+  term: getTerm(new Date()) + 1,
+  termYear: new Date().getFullYear(),
 };
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
@@ -76,8 +76,8 @@ export default function DashboardTeachers() {
 
   const defaultQueryDashboard = {
     teacherId: initFilter.teacherId,
-    tglAwal: initFilter.tglAwal,
-    tglAkhir: initFilter.tglAkhir,
+    term: initFilter.term,
+    termYear: initFilter.termYear,
     ...queryParam,
   };
 
@@ -191,9 +191,14 @@ export default function DashboardTeachers() {
       "Booking Group Pending": summary.groupPendingCount,
       "Booking Group Kadaluarsa": summary.groupExpiredCount,
     }));
+    const sheet =
+      filters.term && filters.termYear
+        ? `${filters.term}-${filters.termYear}`
+        : `${filters.tglAwal}-${filters.tglAkhir}`;
+    const fileName = `${filters.teacherLabel}-${sheet}`;
     downloadExcel({
-      fileName: `${filters.teacherLabel}-${filters.tglAwal}-${filters.tglAkhir}`,
-      sheet: `${filters.tglAwal}-${filters.tglAkhir}`,
+      fileName,
+      sheet,
       tablePayload: {
         header: Object.keys(exportedTeacherSummary[0]),
         body: exportedTeacherSummary,
