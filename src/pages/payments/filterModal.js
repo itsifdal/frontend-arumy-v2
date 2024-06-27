@@ -40,6 +40,7 @@ export default function PaymentFilters() {
       filters.dateTo && format(parse(filters.dateTo, "yyyy-MM-dd", new Date()), "d MMM yyyy"),
       filters.confirmed_status && `Status ${filters.confirmed_status ? "Terkonfirmasi" : "Belum Terkonfirmasi"}`,
       filters.receipt_number && `Invoice ${filters.receipt_number}`,
+      filters.term && filters.termYear && `Term ${filters.term}, ${filters.termYear}`,
     ],
     [filters]
   );

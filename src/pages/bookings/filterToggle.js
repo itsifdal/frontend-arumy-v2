@@ -37,7 +37,7 @@ export function BookingFilters() {
       filters.dateTo && format(parse(filters.dateTo, "yyyy-MM-dd", new Date()), "d MMM yyyy"),
       filters.status && `Status ${bookingStatusObj[filters.status].label}`,
       filters.class_type && `Kelas ${bookingTypeObj[filters.class_type].label}`,
-      filters.term && filters.termYear && `Term ${filters.term}-${filters.termYear}`,
+      filters.term && filters.termYear && `Term ${filters.term}, ${filters.termYear}`,
     ],
     [filters]
   );
