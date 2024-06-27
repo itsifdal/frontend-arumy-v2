@@ -27,6 +27,8 @@ const initFilter = {
   teacherId: "",
   teacherLabel: "",
   class_type: "",
+  term: "",
+  termYear: "",
 };
 
 export function BookingFilterForm({ toggleDrawer }) {

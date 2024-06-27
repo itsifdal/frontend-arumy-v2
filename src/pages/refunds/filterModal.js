@@ -11,6 +11,8 @@ import Iconify from "../../components/Iconify";
 import { useGetStudents } from "../students/query";
 import { useGetPackets } from "../packets/query";
 import DateInputBasic from "../../components/input/dateInputBasic";
+import NativeSelectBasic from "../../components/input/nativeSelectBasic";
+import { termDate } from "../../constants/termDate";
 
 const initFilter = {
   paketId: "",
@@ -19,6 +21,8 @@ const initFilter = {
   studentLabel: "",
   dateFrom: "",
   dateTo: "",
+  term: "",
+  termYear: "",
 };
 
 export default function RefundFilters() {
@@ -212,6 +216,30 @@ function BookingFilterForm({ toggleDrawer }) {
           minDate={parse(filters.dateFrom, "yyyy-MM-dd", new Date())}
         />
       </Stack>
+      <NativeSelectBasic
+        id="termPlaceholder"
+        name="termPlaceholder"
+        label="Term Booking"
+        value={filters.termPlaceholder}
+        onChange={(e) => {
+          const arrValue = e.target.value.split("-");
+          setFilters((prevState) => ({
+            ...prevState,
+            termPlaceholder: e.target.value,
+            term: arrValue[0] ?? "",
+            termYear: arrValue[1] ?? "",
+          }));
+        }}
+        options={[
+          {
+            termYear: "",
+            termValue: "",
+            value: "",
+            label: "-- Silahkan pilih term --",
+          },
+          ...termDate,
+        ]}
+      />
       <Stack spacing={1} direction={"row"} flexShrink={0} alignItems="flex-end" width={"100%"}>
         <Button
           variant="contained"

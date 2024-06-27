@@ -12,6 +12,8 @@ import Iconify from "../../components/Iconify";
 import { useGetStudents } from "../students/query";
 import { useGetPackets } from "../packets/query";
 import SelectBasic from "../../components/input/selectBasic";
+import NativeSelectBasic from "../../components/input/nativeSelectBasic";
+import { termDate } from "../../constants/termDate";
 
 const initFilter = {
   confirmed_status: "",
@@ -22,6 +24,8 @@ const initFilter = {
   studentLabel: "",
   paketId: "",
   paketLabel: "",
+  term: "",
+  termYear: "",
 };
 
 export default function PaymentFilters() {
@@ -217,6 +221,30 @@ function BookingFilterForm({ toggleDrawer }) {
           minDate={parse(filters.dateFrom, "yyyy-MM-dd", new Date())}
         />
       </Stack>
+      <NativeSelectBasic
+        id="termPlaceholder"
+        name="termPlaceholder"
+        label="Term Booking"
+        value={filters.termPlaceholder}
+        onChange={(e) => {
+          const arrValue = e.target.value.split("-");
+          setFilters((prevState) => ({
+            ...prevState,
+            termPlaceholder: e.target.value,
+            term: arrValue[0] ?? "",
+            termYear: arrValue[1] ?? "",
+          }));
+        }}
+        options={[
+          {
+            termYear: "",
+            termValue: "",
+            value: "",
+            label: "-- Silahkan pilih term --",
+          },
+          ...termDate,
+        ]}
+      />
       <SelectBasic
         fullWidth
         id="confirmed_status"
