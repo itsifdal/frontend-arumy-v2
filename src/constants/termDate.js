@@ -26,4 +26,8 @@ const termDateModel = (year) => [
     label: `Term 4 - ${year}`,
   },
 ];
-export const termDate = [...termDateModel(getYear() - 1), ...termDateModel(getYear()), ...termDateModel(getYear() + 1)];
+export const termDate = [
+  ...termDateModel(getYear() - 1),
+  ...termDateModel(getYear()),
+  ...termDateModel(getYear() + 1),
+].slice(2, 10);
