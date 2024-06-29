@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Stack, Container, Box, Grid } from "@mui/material";
-import { format, parse, sub, isValid } from "date-fns";
+import { format, parse, isValid, lastDayOfMonth } from "date-fns";
 import setDefaultOptions from "date-fns/setDefaultOptions";
 import id from "date-fns/locale/id";
 import { useSearchParams } from "react-router-dom";
@@ -12,13 +12,12 @@ import { urlSearchParamsToQuery } from "../../../utils/urlSearchParamsToQuery";
 import { cleanQuery } from "../../../utils/cleanQuery";
 import { useGetTeachers } from "../../teachers/query";
 import { termDate } from "../../../constants/termDate";
-import { getTerm } from "../../../utils/getTerm";
 
 const initFilter = {
   teacherId: 1,
   teacherLabel: "Adi Nugroho",
-  term: getTerm(new Date()) + 1,
-  termYear: new Date().getFullYear(),
+  tglAwal: format(new Date(), "yyyy-MM-01"),
+  tglAkhir: format(lastDayOfMonth(new Date()), "yyyy-MM-dd"),
 };
 
 export default function DashboardTeachersFilterBar() {
@@ -133,13 +132,13 @@ export default function DashboardTeachersFilterBar() {
                 onChange={(e) => {
                   if (e.target.value) {
                     const arrVal = e.target.value.split("-");
-                    SubmitFilter({ term: arrVal[0], termYear: arrVal[1], dateFrom: "", dateTo: "" });
+                    SubmitFilter({ term: arrVal[0], termYear: arrVal[1], tglAwal: "", tglAkhir: "" });
                   } else {
                     SubmitFilter({
                       term: "",
                       termYear: "",
-                      dateFrom: format(sub(new Date(), { months: 1 }), "yyyy-MM-dd"),
-                      dateTo: format(new Date(), "yyyy-MM-dd"),
+                      tglAwal: format(new Date(), "yyyy-MM-01"),
+                      tglAkhir: format(lastDayOfMonth(new Date()), "yyyy-MM-dd"),
                     });
                   }
                 }}
