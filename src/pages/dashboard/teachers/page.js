@@ -40,8 +40,8 @@ import DashboardTeachersFilterBarDas from "./filterBar";
 const initFilter = {
   teacherId: 1,
   teacherLabel: "Adi Nugroho",
-  tglAwal: format(new Date(), "yyyy-MM-01"),
-  tglAkhir: format(lastDayOfMonth(new Date()), "yyyy-MM-dd"),
+  dateFrom: format(new Date(), "yyyy-MM-01"),
+  dateTo: format(lastDayOfMonth(new Date()), "yyyy-MM-dd"),
 };
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
@@ -118,8 +118,8 @@ export default function DashboardTeachers() {
   // GET DATA BOOKING ALL
   const defaultQueryBookings = {
     ...defaultQueryDashboard,
-    dateFrom: defaultQueryDashboard.tglAwal,
-    dateTo: defaultQueryDashboard.tglAkhir,
+    dateFrom: defaultQueryDashboard.dateFrom,
+    dateTo: defaultQueryDashboard.dateTo,
     sort: "asc",
     sort_by: "tgl_kelas",
     perPage: 9999,
@@ -194,7 +194,7 @@ export default function DashboardTeachers() {
     const sheet =
       filters.term && filters.termYear
         ? `${filters.term}-${filters.termYear}`
-        : `${filters.tglAwal}-${filters.tglAkhir}`;
+        : `${filters.dateFrom}-${filters.dateTo}`;
     const fileName = `${filters.teacherLabel}-${sheet}`;
     downloadExcel({
       fileName,

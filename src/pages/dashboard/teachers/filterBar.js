@@ -16,8 +16,8 @@ import { termDate } from "../../../constants/termDate";
 const initFilter = {
   teacherId: 1,
   teacherLabel: "Adi Nugroho",
-  tglAwal: format(new Date(), "yyyy-MM-01"),
-  tglAkhir: format(lastDayOfMonth(new Date()), "yyyy-MM-dd"),
+  dateFrom: format(new Date(), "yyyy-MM-01"),
+  dateTo: format(lastDayOfMonth(new Date()), "yyyy-MM-dd"),
 };
 
 export default function DashboardTeachersFilterBar() {
@@ -41,8 +41,8 @@ export default function DashboardTeachersFilterBar() {
 
   const SubmitFilter = (filter) => {
     if (filter.term) {
-      delete defaultQueryBooking.tglAwal;
-      delete defaultQueryBooking.tglAkhir;
+      delete defaultQueryBooking.dateFrom;
+      delete defaultQueryBooking.dateTo;
     }
     setSearchParams({ ...defaultQueryBooking, ...filter });
   };
@@ -91,30 +91,30 @@ export default function DashboardTeachersFilterBar() {
             <Grid item xs={2}>
               <DateInputBasic
                 disableValidation
-                id="tglAwal"
-                name="tglAwal"
+                id="dateFrom"
+                name="dateFrom"
                 label="Tanggal Awal"
-                value={parse(defaultQueryBooking.tglAwal, "yyyy-MM-dd", new Date())}
+                value={parse(defaultQueryBooking.dateFrom, "yyyy-MM-dd", new Date())}
                 onChange={(e) => {
                   if (!isValid(e.target.value)) return;
-                  SubmitFilter({ tglAwal: format(e.target.value, "yyyy-MM-dd") });
+                  SubmitFilter({ dateFrom: format(e.target.value, "yyyy-MM-dd") });
                 }}
-                maxDate={parse(defaultQueryBooking.tglAkhir, "yyyy-MM-dd", new Date())}
+                maxDate={parse(defaultQueryBooking.dateTo, "yyyy-MM-dd", new Date())}
                 disabled={!!defaultQueryBooking.term}
               />
             </Grid>
             <Grid item xs={2}>
               <DateInputBasic
                 disableValidation
-                id="tglAkhir"
-                name="tglAkhir"
+                id="dateTo"
+                name="dateTo"
                 label="Tanggal Akhir"
-                value={parse(defaultQueryBooking.tglAkhir, "yyyy-MM-dd", new Date())}
+                value={parse(defaultQueryBooking.dateTo, "yyyy-MM-dd", new Date())}
                 onChange={(e) => {
                   if (!isValid(e.target.value)) return;
-                  SubmitFilter({ tglAkhir: format(e.target.value, "yyyy-MM-dd") });
+                  SubmitFilter({ dateTo: format(e.target.value, "yyyy-MM-dd") });
                 }}
-                minDate={parse(defaultQueryBooking.tglAwal, "yyyy-MM-dd", new Date())}
+                minDate={parse(defaultQueryBooking.dateFrom, "yyyy-MM-dd", new Date())}
                 disabled={!!defaultQueryBooking.term}
               />
             </Grid>
@@ -132,13 +132,13 @@ export default function DashboardTeachersFilterBar() {
                 onChange={(e) => {
                   if (e.target.value) {
                     const arrVal = e.target.value.split("-");
-                    SubmitFilter({ term: arrVal[0], termYear: arrVal[1], tglAwal: "", tglAkhir: "" });
+                    SubmitFilter({ term: arrVal[0], termYear: arrVal[1], dateFrom: "", dateTo: "" });
                   } else {
                     SubmitFilter({
                       term: "",
                       termYear: "",
-                      tglAwal: format(new Date(), "yyyy-MM-01"),
-                      tglAkhir: format(lastDayOfMonth(new Date()), "yyyy-MM-dd"),
+                      dateFrom: format(new Date(), "yyyy-MM-01"),
+                      dateTo: format(lastDayOfMonth(new Date()), "yyyy-MM-dd"),
                     });
                   }
                 }}
