@@ -22,6 +22,7 @@ import InputBasic from "../components/input/inputBasic";
 import { modalStyle } from "../constants/modalStyle";
 import { queryKey } from "../constants/queryKey";
 import SelectBasic from "../components/input/selectBasic";
+import { fetchHeader } from "../constants/fetchHeader";
 
 // ----------------------------------------------------------------------
 export default function Room() {
@@ -38,15 +39,38 @@ export default function Room() {
     data: rooms,
     refetch: roomsRefetch,
     isLoading: isLoadingRooms,
-  } = useQuery([queryKey.rooms], () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/room`).then((res) => res.data));
+  } = useQuery([queryKey.rooms], () =>
+    axios
+      .get(`${process.env.REACT_APP_BASE_URL}/api/room`, {
+        headers: fetchHeader,
+      })
+      .then((res) => res.data)
+  );
 
-  const submitAddRoom = useMutation((data) => axios.post(`${process.env.REACT_APP_BASE_URL}/api/room`, data));
-  const submitUpdateRoom = useMutation((data) => axios.put(`${process.env.REACT_APP_BASE_URL}/api/room/${id}`, data));
-  const submitDeleteRoom = useMutation(() => axios.delete(`${process.env.REACT_APP_BASE_URL}/api/room/${id}`));
+  const submitAddRoom = useMutation((data) =>
+    axios.post(`${process.env.REACT_APP_BASE_URL}/api/room`, data, {
+      headers: fetchHeader,
+    })
+  );
+  const submitUpdateRoom = useMutation((data) =>
+    axios.put(`${process.env.REACT_APP_BASE_URL}/api/room/${id}`, data, {
+      headers: fetchHeader,
+    })
+  );
+  const submitDeleteRoom = useMutation(() =>
+    axios.delete(`${process.env.REACT_APP_BASE_URL}/api/room/${id}`, {
+      headers: fetchHeader,
+    })
+  );
 
   const { data: branches = [{ value: "", label: "" }] } = useQuery(
     [queryKey.branches],
-    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/cabang`).then((res) => res.data),
+    () =>
+      axios
+        .get(`${process.env.REACT_APP_BASE_URL}/api/cabang`, {
+          headers: fetchHeader,
+        })
+        .then((res) => res.data),
     {
       select: (branches) => branches.data.map((branch) => ({ value: branch.id, label: branch.nama_cabang })),
     }
@@ -138,7 +162,7 @@ export default function Room() {
     setStateModal("create");
     toast.success(response.data.message, {
       position: "top-center",
-      autoClose: 1000,
+      autoClose: 5000,
       theme: "colored",
     });
     dispatchStateForm({
@@ -147,10 +171,10 @@ export default function Room() {
   }
 
   function onErrorMutateRoom(error) {
-    if (error.response) {
+    if (error) {
       toast.error(error.response?.data?.message || "Terjadi kesalahan pada sistem.", {
         position: "top-center",
-        autoClose: 1000,
+        autoClose: 5000,
         theme: "colored",
       });
     }
@@ -222,8 +246,8 @@ export default function Room() {
         >
           <Box sx={{ ...modalStyle, maxWidth: 400 }}>
             <Box marginBottom={2}>
-              <Typography id="modal-modal-title" variant="h6" component="h2">
-                {stateModal === "update" ? "Update Room" : "Create Room"}
+              <Typography id="modal-modal-title" variant="h4" component="h2" fontWeight={700} color={"#172560"}>
+                {stateModal === "update" ? `Update Room #${id}` : "Create Room"}
               </Typography>
             </Box>
             <Box paddingBottom={2}>

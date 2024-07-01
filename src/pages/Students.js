@@ -24,6 +24,7 @@ import {
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 
+import useResponsive from "../hooks/useResponsive";
 // components
 import { studentFormReducer, initialStudentFormState, validateStudentForm } from "../utils/reducer/studentReducer";
 import Page from "../components/Page";
@@ -38,6 +39,8 @@ import { urlSearchParamsToQuery } from "../utils/urlSearchParamsToQuery";
 import { cleanQuery } from "../utils/cleanQuery";
 import { queryToString } from "../utils/queryToString";
 import DateInputBasic from "../components/input/dateInputBasic";
+import { fetchHeader } from "../constants/fetchHeader";
+import { fNumber } from "../utils/formatNumber";
 
 // ----------------------------------------------------------------------
 export default function Students() {
@@ -50,8 +53,9 @@ export default function Students() {
 
   const [stateForm, dispatchStateForm] = useReducer(studentFormReducer, initialStudentFormState);
 
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const queryParam = urlSearchParamsToQuery(searchParams);
+  const isDesktop = useResponsive("up", "lg");
 
   // query
   const {
@@ -59,12 +63,21 @@ export default function Students() {
     refetch: studentsRefetch,
     isLoading: isLoadingStudents,
   } = useQuery([queryKey.students, cleanQuery(queryParam)], () =>
-    axios.get(`${process.env.REACT_APP_BASE_URL}/api/student${queryToString(queryParam)}`).then((res) => res.data)
+    axios
+      .get(`${process.env.REACT_APP_BASE_URL}/api/student${queryToString(queryParam)}`, {
+        headers: fetchHeader,
+      })
+      .then((res) => res.data)
   );
 
   const { refetch: studentRefetch, isLoading: isLoadingStudentDetail } = useQuery(
     [queryKey.students, "DETAIL"],
-    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/student/${id}`).then((res) => res.data),
+    () =>
+      axios
+        .get(`${process.env.REACT_APP_BASE_URL}/api/student/${id}`, {
+          headers: fetchHeader,
+        })
+        .then((res) => res.data),
     {
       enabled: Boolean(id),
       onSuccess: (res) => {
@@ -81,17 +94,33 @@ export default function Students() {
     }
   );
 
+  const pageInfo = students?.pagination
+    ? `Halaman ${fNumber(students.pagination.current_page)} dari ${fNumber(
+        students.pagination.total_pages
+      )}; Ditemukan ${fNumber(students.pagination.total_records)} data`
+    : "";
+
   useEffect(() => {
     if (id) {
       studentRefetch();
     }
   }, [id, studentRefetch]);
 
-  const submitAddStudent = useMutation((data) => axios.post(`${process.env.REACT_APP_BASE_URL}/api/student`, data));
-  const submitUpdateStudent = useMutation((data) =>
-    axios.put(`${process.env.REACT_APP_BASE_URL}/api/student/${id}`, data)
+  const submitAddStudent = useMutation((data) =>
+    axios.post(`${process.env.REACT_APP_BASE_URL}/api/student`, data, {
+      headers: fetchHeader,
+    })
   );
-  const submitDeleteStudent = useMutation(() => axios.delete(`${process.env.REACT_APP_BASE_URL}/api/student/${id}`));
+  const submitUpdateStudent = useMutation((data) =>
+    axios.put(`${process.env.REACT_APP_BASE_URL}/api/student/${id}`, data, {
+      headers: fetchHeader,
+    })
+  );
+  const submitDeleteStudent = useMutation(() =>
+    axios.delete(`${process.env.REACT_APP_BASE_URL}/api/student/${id}`, {
+      headers: fetchHeader,
+    })
+  );
 
   //----
   const handleOpenModalCreate = () => setOpen(true);
@@ -168,7 +197,7 @@ export default function Students() {
     setOpenDel(false);
     toast.success(response.data.message, {
       position: "top-center",
-      autoClose: 1000,
+      autoClose: 5000,
       theme: "colored",
     });
     dispatchStateForm({
@@ -177,10 +206,10 @@ export default function Students() {
   }
 
   function onErrorMutateStudent(error) {
-    if (error.response) {
+    if (error) {
       toast.error(error.response?.data?.message || "Terjadi kesalahan pada sistem.", {
         position: "top-center",
-        autoClose: 1000,
+        autoClose: 5000,
         theme: "colored",
       });
     }
@@ -195,6 +224,12 @@ export default function Students() {
     });
   }
 
+  function updateSearchQuery(e) {
+    if (e.key === "Enter") {
+      setSearchParams({ [e.target.name]: e.target.value });
+    }
+  }
+
   return (
     <Page title="Student">
       <PageHeader
@@ -205,6 +240,32 @@ export default function Students() {
           </Button>
         }
       />
+      <Box
+        sx={{
+          background: "#FFF",
+          boxShadow: "0px 4px 20px 0px rgba(0, 0, 0, 0.05)",
+          paddingY: isDesktop ? "20px" : "5px",
+          zIndex: 2,
+          position: "relative",
+          borderTop: "1px solid #c3c3e1",
+        }}
+      >
+        <Container maxWidth="xl">
+          <Grid container alignItems={"center"} width={"100%"}>
+            <Grid item xs={6} sm={9}>
+              <Typography fontSize={"14px"}>{pageInfo}</Typography>
+            </Grid>
+            <Grid item xs={6} sm={3} paddingBottom={2}>
+              <InputBasic
+                label="Nama Murid"
+                name="q"
+                onKeyDown={(e) => updateSearchQuery(e)}
+                defaultValue={queryParam.q || ""}
+              />
+            </Grid>
+          </Grid>
+        </Container>
+      </Box>
       <Container maxWidth="xl" sx={{ paddingTop: 4 }}>
         <ToastContainer pauseOnFocusLoss={false} />
         {!isLoadingStudents ? (
@@ -270,8 +331,8 @@ export default function Students() {
         >
           <Box sx={{ ...modalStyle, maxWidth: 800 }}>
             <Box marginBottom={2}>
-              <Typography id="modal-modal-title" variant="h6" component="h2">
-                {stateModal === "update" ? "Update Student" : "Create Student"}
+              <Typography id="modal-modal-title" variant="h4" component="h2" fontWeight={700} color={"#172560"}>
+                {stateModal === "update" ? `Update Student #${id}` : "Create Student"}
               </Typography>
             </Box>
             <Grid container spacing={2}>

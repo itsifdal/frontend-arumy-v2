@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Stack, Button, Typography, Box, Grid, Avatar, Chip, IconButton } from "@mui/material";
 import { format, parse } from "date-fns";
@@ -14,6 +14,7 @@ import Iconify from "../components/Iconify";
 import { bookingStatusObj } from "../constants/bookingStatus";
 import { queryKey } from "../constants/queryKey";
 import ConfirmBooking from "../components/modal/confirmBooking";
+import { fetchHeader } from "../constants/fetchHeader";
 
 // ----------------------------------------------------------------------
 const generateStatus = (status) => {
@@ -52,6 +53,7 @@ export default function BookingDetail() {
 
 function BookingData() {
   const { id } = useParams();
+  const [user, setUser] = useState("");
   const queryClient = useQueryClient();
   const [openUpdStatus, setOpenUpdStatus] = useState(false);
   const {
@@ -61,26 +63,45 @@ function BookingData() {
     refetch: refetchBooking,
   } = useQuery(
     [queryKey.bookings, "DETAIL", id],
-    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/booking/${id}`).then((res) => res.data),
+    () =>
+      axios
+        .get(`${process.env.REACT_APP_BASE_URL}/api/booking/${id}`, {
+          headers: fetchHeader,
+        })
+        .then((res) => res.data?.data),
     {
       enabled: Boolean(id),
     }
   );
 
+  useEffect(() => {
+    const loggedInUser = localStorage.getItem("user");
+    if (loggedInUser) {
+      const foundUser = JSON.parse(loggedInUser);
+      setUser(foundUser);
+    }
+  }, []);
+
   if (isLoading) return <Typography>Loading data...</Typography>;
   if (isError) return <Typography>Error data</Typography>;
+
+  const { jam_booking: jamBooking, tgl_kelas: tglKelas } = booking;
+  const completeDate = parse(`${tglKelas} ${jamBooking}`, "yyyy-MM-dd HH:mm:ss", new Date());
+  const isPassed = new Date() > completeDate;
 
   const bookingDetail = [
     {
       label: "DATE",
       value: <strong>{format(parse(booking.tgl_kelas, "yyyy-MM-dd", new Date()), "MMMM dd, yyyy")}</strong>,
     },
+    { label: "TERM", value: `${booking.term} - ${booking.termYear}` },
     { label: "BRANCH", value: booking.cabang },
     { label: "START", value: format(parse(booking.jam_booking, "HH:mm:ss", new Date()), "HH:mm") },
     { label: "END", value: format(parse(booking.selesai, "HH:mm:ss", new Date()), "HH:mm") },
     { label: "DURATION", value: <strong>{booking.durasi} Minutes</strong> },
     { label: "CLASS TYPE", value: booking.jenis_kelas },
     { label: "STATUS", value: generateStatus(booking.status) },
+    { label: "NOTES", value: booking.notes },
   ];
 
   const onClickConfirm = () => {
@@ -93,15 +114,15 @@ function BookingData() {
     queryClient.invalidateQueries({ queryKey: [queryKey.bookings] });
     toast.success(response.data.message, {
       position: "top-center",
-      autoClose: 1000,
+      autoClose: 5000,
       theme: "colored",
     });
   };
   const onErrorMutateBooking = (error) => {
     if (error) {
-      toast.error("Booking Error", {
+      toast.error(error.response?.data?.message || "Booking Error", {
         position: "top-center",
-        autoClose: 1000,
+        autoClose: 5000,
         theme: "colored",
       });
     }
@@ -122,7 +143,9 @@ function BookingData() {
           <Avatar {...stringAvatar("Privat")} sx={{ width: 48, height: 48 }} />
           <Stack gap={"2px"} width={"100%"}>
             <Typography fontWeight={"bold"} fontSize={"14px"} color={"#0D1B34"}>
-              {booking.user_group.map((student) => student.nama_murid).join(", ")}
+              {JSON.parse(booking.user_group)
+                ?.map((student) => student.nama_murid)
+                .join(", ")}
             </Typography>
             <Typography fontSize={"14px"} color={"#8696BB"}>
               {booking.room.nama_ruang}
@@ -156,7 +179,14 @@ function BookingData() {
             borderRadius: "7px",
             background: "#19A551",
             color: "#FFF",
+            ":hover": {
+              background: "#19A551",
+            },
+            ":disabled": {
+              background: "rgba(56, 53, 161, 0.08)",
+            },
           }}
+          disabled={!isPassed}
         >
           Masuk
         </Button>
@@ -171,6 +201,7 @@ function BookingData() {
         callbackError={(error) => {
           onErrorMutateBooking(error);
         }}
+        userId={user.id}
       />
     </Stack>
   );

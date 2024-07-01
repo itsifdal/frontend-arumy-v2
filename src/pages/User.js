@@ -25,6 +25,7 @@ import SelectBasic from "../components/input/selectBasic";
 import { queryKey } from "../constants/queryKey";
 import { modalStyle } from "../constants/modalStyle";
 import AutoCompleteBasic from "../components/input/autoCompleteBasic";
+import { fetchHeader } from "../constants/fetchHeader";
 
 // ----------------------------------------------------------------------
 export default function User() {
@@ -53,7 +54,12 @@ export default function User() {
     isLoading: isLoadingUsers,
   } = useQuery(
     [queryKey.users],
-    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/user`).then((res) => res.data),
+    () =>
+      axios
+        .get(`${process.env.REACT_APP_BASE_URL}/api/user`, {
+          headers: fetchHeader,
+        })
+        .then((res) => res.data),
     {
       select: (userList) =>
         userList.map((user) => ({
@@ -67,7 +73,12 @@ export default function User() {
 
   const { data: teachers = [], isLoading: isLoadingTeachers } = useQuery(
     [queryKey.teachers],
-    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/teacher?perPage=9999`).then((res) => res.data),
+    () =>
+      axios
+        .get(`${process.env.REACT_APP_BASE_URL}/api/teacher?perPage=9999`, {
+          headers: fetchHeader,
+        })
+        .then((res) => res.data),
     {
       select: (teachers) => teachers.data.map((teacher) => ({ value: teacher.id, label: teacher.nama_pengajar })),
     }
@@ -75,7 +86,12 @@ export default function User() {
 
   const { refetch: userRefetch } = useQuery(
     [queryKey.users, "DETAIL"],
-    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/user/${userId}`).then((res) => res.data),
+    () =>
+      axios
+        .get(`${process.env.REACT_APP_BASE_URL}/api/user/${userId}`, {
+          headers: fetchHeader,
+        })
+        .then((res) => res.data),
     {
       enabled: Boolean(userId),
       onSuccess: (res) => {
@@ -104,12 +120,20 @@ export default function User() {
     if (!userId) {
       return false;
     }
-    return axios.delete(`${process.env.REACT_APP_BASE_URL}/api/user/${userId}`);
+    return axios.delete(`${process.env.REACT_APP_BASE_URL}/api/user/${userId}`, {
+      headers: fetchHeader,
+    });
   });
 
-  const submitAddUser = useMutation((data) => axios.post(`${process.env.REACT_APP_BASE_URL}/api/user`, data));
+  const submitAddUser = useMutation((data) =>
+    axios.post(`${process.env.REACT_APP_BASE_URL}/api/user`, data, {
+      headers: fetchHeader,
+    })
+  );
   const submitUpdateUser = useMutation((data) =>
-    axios.put(`${process.env.REACT_APP_BASE_URL}/api/user/${userId}`, data)
+    axios.put(`${process.env.REACT_APP_BASE_URL}/api/user/${userId}`, data, {
+      headers: fetchHeader,
+    })
   );
 
   // Create
@@ -180,7 +204,7 @@ export default function User() {
     setOpenDel(false);
     toast.success(response.data.message, {
       position: "top-center",
-      autoClose: 1000,
+      autoClose: 5000,
       theme: "colored",
     });
     dispatchStateForm({
@@ -189,10 +213,10 @@ export default function User() {
   }
 
   function onErrorMutateUser(error) {
-    if (error.response) {
+    if (error) {
       toast.error(error.response?.data?.message || "Terjadi kesalahan pada sistem.", {
         position: "top-center",
-        autoClose: 1000,
+        autoClose: 5000,
         theme: "colored",
       });
     }
@@ -270,8 +294,8 @@ export default function User() {
         >
           <Box sx={{ ...modalStyle, maxWidth: 900 }}>
             <Box width={"100%"} marginBottom={2}>
-              <Typography id="modal-modal-title" variant="h3" component="h2" fontWeight={700} color={"#172560"}>
-                {stateModal === "update" ? "Update user" : "Invite new user"}
+              <Typography id="modal-modal-title" variant="h4" component="h2" fontWeight={700} color={"#172560"}>
+                {stateModal === "update" ? `Update user #${userId}` : "Invite new user"}
               </Typography>
               <Typography color={"#737DAA"} fontSize={18}>
                 Enter details below

@@ -7,4 +7,10 @@ export const queryKey = {
   bookings: "BOOKINGS",
   branches: "BRANCHES",
   users: "USERS",
+  downloadBooking: "DOWNLOAD_BOOKING",
+  packets: "PACKETS",
+  payments: "PAYMENTS",
+  studentPackets: "STUDENT_PACKETS",
+  refunds: "REFUNDS",
+  quotaDetails: "QUOTA_DETAILS",
 };

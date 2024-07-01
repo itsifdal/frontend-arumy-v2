@@ -1,31 +1,19 @@
 /* eslint-disable camelcase */
 import React, { useEffect, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { useQuery, useMutation } from "react-query";
+import { useQuery } from "react-query";
 import { format, parse, addMinutes } from "date-fns";
 // React Toasts
 import { ToastContainer, toast } from "react-toastify";
 import axios from "axios";
-import { LoadingButton } from "@mui/lab";
 import PropTypes from "prop-types";
+import { downloadExcel } from "react-export-table-to-excel";
 
 // Toastify
 import "react-toastify/dist/ReactToastify.css";
 
 // material
-import {
-  Chip,
-  Tooltip,
-  Button,
-  Container,
-  Typography,
-  Modal,
-  FormControl,
-  Box,
-  Stack,
-  Pagination,
-  PaginationItem,
-} from "@mui/material";
+import { Chip, Tooltip, Button, Container, Typography, Box, Stack, Pagination, PaginationItem } from "@mui/material";
 import { InfoRounded } from "@mui/icons-material";
 
 // hooks
@@ -44,20 +32,8 @@ import { queryKey } from "../constants/queryKey";
 import BookingFilters from "../components/filter/bookingFilters";
 import CollapsibleTable from "../components/CollapsibleTable";
 import { bookingStatusObj } from "../constants/bookingStatus";
-
-// Style box
-const style = {
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  width: "100%",
-  maxWidth: "400px",
-  bgcolor: "background.paper",
-  border: "2px solid #000",
-  boxShadow: 24,
-  p: 4,
-};
+import { fetchHeader } from "../constants/fetchHeader";
+import { fNumber } from "../utils/formatNumber";
 
 const hourModel = ({ timeStart, timeEnd, duration }) => {
   const formatTimeStart = format(parse(timeStart, "HH:mm:ss", new Date()), "HH:mm");
@@ -102,7 +78,7 @@ const generateStatus = ({ status, isMobile }) => {
 // ----------------------------------------------------------------------
 export default function Booking() {
   const [bookingId, setBookingId] = useState();
-  const [user, setUser] = useState("");
+  const [user, setUser] = useState({});
   const [openModalCreate, setOpenModalCreate] = useState(false);
   const [stateModalCreate, setStateModalCreate] = useState("create");
 
@@ -119,7 +95,6 @@ export default function Booking() {
     }
   }, []);
 
-  const [openDel, setOpenDel] = useState(false);
   const [openUpdStatus, setOpenUpdStatus] = useState(false);
 
   // GET DATA BOOKING ALL
@@ -141,56 +116,37 @@ export default function Booking() {
           `${process.env.REACT_APP_BASE_URL}/api/booking${queryToString({
             ...queryParam,
             ...(user.role === "Guru" && { teacherId: user?.teacherId }),
-          })}`
+          })}`,
+          {
+            headers: fetchHeader,
+          }
         )
         .then((res) => res.data)
   );
 
-  // Open Modal Delete
-  const handleOpenModalDelete = (e) => {
-    e.preventDefault();
-    setBookingId(e.target.getAttribute("data-id"));
-    setOpenDel(true);
-  };
-  const handleCloseModalDelete = () => setOpenDel(false);
-
-  const submitDeleteBooking = useMutation(() =>
-    axios.delete(`${process.env.REACT_APP_BASE_URL}/api/booking/${bookingId}`)
-  );
-
-  const handleSubmitDelete = (e) => {
-    e.preventDefault();
-    submitDeleteBooking.mutate(
-      {},
-      {
-        onSuccess: (response) => {
-          setBookingId();
-          onSuccessMutateBooking(response);
-        },
-        onError: (error) => {
-          onErrorMutateBooking(error);
-        },
-      }
-    );
-  };
+  const pageInfo = bookings?.pagination
+    ? `Halaman ${fNumber(bookings.pagination.current_page)} dari ${fNumber(
+        bookings.pagination.total_pages
+      )}; Ditemukan ${fNumber(bookings.pagination.total_records)} data`
+    : "";
 
   const onSuccessMutateBooking = (response) => {
+    setBookingId();
     bookingsRefetch();
-    setOpenDel(false);
     setOpenModalCreate(false);
     setOpenUpdStatus(false);
     toast.success(response.data.message, {
       position: "top-center",
-      autoClose: 1000,
+      autoClose: 5000,
       theme: "colored",
     });
   };
 
   const onErrorMutateBooking = (error) => {
     if (error) {
-      toast.error("Booking Error", {
+      toast.error(error.response?.data?.message || "Booking Error", {
         position: "top-center",
-        autoClose: 1000,
+        autoClose: 5000,
         theme: "colored",
       });
     }
@@ -217,7 +173,7 @@ export default function Booking() {
   };
 
   // Cek loggedin user admin
-  const isUserAdmin = user.role === "Admin";
+  const isUserAdmin = user.role === "Admin" || user.role === "Super Admin";
   const isUserGuru = user.role === "Guru";
 
   const generateButtonAction = (book) => {
@@ -233,9 +189,6 @@ export default function Booking() {
             onClick={handleOpenModalCreate}
           >
             Update
-          </Button>
-          <Button variant="contained" color="error" size="small" data-id={book.id} onClick={handleOpenModalDelete}>
-            Delete
           </Button>
         </Stack>
       );
@@ -287,7 +240,7 @@ export default function Booking() {
         }}
       >
         <Container maxWidth="xl">
-          <BookingFilters />
+          <BookingFilters pageInfo={pageInfo} />
         </Container>
       </Box>
       <Container maxWidth="xl" sx={{ paddingTop: 4 }}>
@@ -300,7 +253,9 @@ export default function Booking() {
           buttonAction={generateButtonAction}
           isUserAdmin={isUserAdmin}
           isUserGuru={isUserGuru}
+          user={user}
         />
+
         <CreateBooking
           open={openModalCreate}
           onClose={() => setOpenModalCreate(false)}
@@ -315,24 +270,6 @@ export default function Booking() {
           userId={user.id}
         />
 
-        <Modal
-          open={openDel}
-          onClose={handleCloseModalDelete}
-          aria-labelledby="modal-modal-title"
-          aria-describedby="modal-modal-description"
-        >
-          <Box sx={style}>
-            <Typography id="modal-modal-title" variant="h6" component="h2" marginBottom={5}>
-              Delete booking ?
-            </Typography>
-            <FormControl fullWidth>
-              <LoadingButton variant="contained" type="submit" onClick={handleSubmitDelete}>
-                Delete
-              </LoadingButton>
-            </FormControl>
-          </Box>
-        </Modal>
-
         <ConfirmBooking
           open={openUpdStatus}
           onClose={handleCloseModalUpdateStatus}
@@ -343,6 +280,7 @@ export default function Booking() {
           callbackError={(error) => {
             onErrorMutateBooking(error);
           }}
+          userId={user.id}
         />
       </Container>
     </Page>
@@ -357,8 +295,70 @@ function BookingData({
   isUserAdmin,
   isUserGuru,
   buttonAction,
+  user,
 }) {
   const isDesktop = useResponsive("up", "lg");
+
+  // DOWNLOAD ALL BOOKING DATA
+  const downloadQueryBookings = {
+    ...queryParam,
+    ...(isUserGuru && { teacherId: user?.teacherId }),
+    sort: "desc",
+    sort_by: "tgl_kelas",
+    perPage: 9999,
+    page: 1,
+  };
+  const { refetch: refetchDownloadBookings } = useQuery(
+    [
+      queryKey.downloadBooking,
+      cleanQuery({
+        ...downloadQueryBookings,
+      }),
+    ],
+    () =>
+      axios
+        .get(
+          `${process.env.REACT_APP_BASE_URL}/api/booking${queryToString({
+            ...downloadQueryBookings,
+          })}`,
+          {
+            headers: fetchHeader,
+          }
+        )
+        .then((res) => res.data),
+    {
+      enabled: false,
+      onSuccess: (bookings) => {
+        if (bookings?.data?.length) {
+          const exportedTeacherSummary = bookings.data.map((booking) => ({
+            "Tanggal kelas": booking.tgl_kelas,
+            "Jam mulai": booking.jam_booking,
+            "Jam selesai": booking.selesai,
+            "Ruang kelas": booking.room?.nama_ruang,
+            "Nama murid": JSON.parse(booking.user_group)
+              .map((student) => student.nama_murid)
+              .join(", "),
+            "Nama pengajar": booking.teacher?.nama_pengajar,
+            "Durasi (menit)": booking.durasi,
+            Status: booking.status,
+            Notes: booking.notes || "-",
+          }));
+          downloadExcel({
+            fileName: `Booking-${Date.now()}`,
+            sheet: queryParam ? JSON.stringify(queryParam).replace('"', "").replace(",", " ").replace(":", "-") : "All",
+            tablePayload: {
+              header: Object.keys(exportedTeacherSummary[0]),
+              body: exportedTeacherSummary,
+            },
+          });
+        }
+      },
+    }
+  );
+
+  const handleDownloadExcel = () => {
+    refetchDownloadBookings();
+  };
 
   const tableHeader = [
     <Stack key={"tgl_kelas"} gap={1} direction={"row"} alignItems={"center"}>
@@ -403,7 +403,9 @@ function BookingData({
     "MURID",
     "PENGAJAR",
     "STATUS",
-    "",
+    <Button key={"action"} onClick={handleDownloadExcel} variant="contained" sx={{ whiteSpace: "nowrap" }}>
+      Export Excel
+    </Button>,
   ];
 
   const tableBody = bookings?.data
@@ -458,4 +460,5 @@ BookingData.propTypes = {
   buttonAction: PropTypes.func.isRequired,
   isUserAdmin: PropTypes.bool.isRequired,
   isUserGuru: PropTypes.bool.isRequired,
+  user: PropTypes.object,
 };

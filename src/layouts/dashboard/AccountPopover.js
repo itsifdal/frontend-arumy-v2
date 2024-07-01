@@ -5,6 +5,7 @@ import { Typography, MenuItem, Avatar, Button, Stack } from "@mui/material";
 // components
 import axios from "axios";
 import MenuPopover from "../../components/MenuPopover";
+import { fetchHeader } from "../../constants/fetchHeader";
 // mocks_
 import account from "../../_mock/account";
 
@@ -36,10 +37,14 @@ export default function AccountPopover() {
   const navigate = useNavigate();
 
   const onLogout = () => {
-    axios.get(`${process.env.REACT_APP_BASE_URL}/api/login/logout`).then(() => {
-      localStorage.clear();
-      navigate("/login", { replace: true });
-    });
+    axios
+      .get(`${process.env.REACT_APP_BASE_URL}/api/login/logout`, {
+        headers: fetchHeader,
+      })
+      .then(() => {
+        localStorage.clear();
+        navigate("/login", { replace: true });
+      });
   };
 
   return (

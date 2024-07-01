@@ -1,4 +1,4 @@
-import { Link as RouterLink, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import React, { useEffect, useState, useMemo } from "react";
 import { useQuery } from "react-query";
 import { format, parse, isValid } from "date-fns";
@@ -10,7 +10,6 @@ import {
   Link,
   Table,
   Stack,
-  Button,
   TableRow,
   TableHead,
   TableBody,
@@ -29,16 +28,20 @@ import { queryKey } from "../constants/queryKey";
 import Page from "../components/Page";
 // sections
 import PageHeader from "../components/PageHeader";
-import CardBooking from "../components/CardBooking";
+import CardsBooking from "../components/CardBooking";
 import DateInputBasic from "../components/input/dateInputBasic";
 import ConfirmBooking from "../components/modal/confirmBooking";
 import { urlSearchParamsToQuery } from "../utils/urlSearchParamsToQuery";
 import { queryToString } from "../utils/queryToString";
 import { cleanQuery } from "../utils/cleanQuery";
 import { mapRoomChart } from "../utils/map/roomChart";
+import { fetchHeader } from "../constants/fetchHeader";
+import DashboardNav from "./dashboard/dashboardNav";
 
 const initFilter = {
   tgl_kelas: format(new Date(), "yyyy-MM-dd"),
+  sort: "asc",
+  sort_by: "tgl_kelas",
 };
 
 // ----------------------------------------------------------------------
@@ -68,10 +71,12 @@ export default function Dashboard() {
     refetch: refetchBooking,
     isError: isErrorDashboard,
   } = useQuery(
-    [queryKey.dashboard],
+    [queryKey.dashboard, cleanQuery(queryParam)],
     () =>
       axios
-        .get(`${process.env.REACT_APP_BASE_URL}/api/dashboard/booking${queryToString(queryParam)}`)
+        .get(`${process.env.REACT_APP_BASE_URL}/api/dashboard/booking${queryToString(queryParam)}`, {
+          headers: fetchHeader,
+        })
         .then((res) => res.data),
     {
       select: (dashboards) =>
@@ -97,7 +102,12 @@ export default function Dashboard() {
 
   const { data: rooms = [] } = useQuery(
     [queryKey.rooms],
-    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/room`).then((res) => res.data),
+    () =>
+      axios
+        .get(`${process.env.REACT_APP_BASE_URL}/api/room`, {
+          headers: fetchHeader,
+        })
+        .then((res) => res.data),
     {
       select: (roomList) => roomList.map((room) => ({ label: room.nama_ruang })),
     }
@@ -118,7 +128,9 @@ export default function Dashboard() {
     [queryKey.bookings, cleanQuery(defaultQueryBooking)],
     () =>
       axios
-        .get(`${process.env.REACT_APP_BASE_URL}/api/booking${queryToString(defaultQueryBooking)}`)
+        .get(`${process.env.REACT_APP_BASE_URL}/api/booking${queryToString(defaultQueryBooking)}`, {
+          headers: fetchHeader,
+        })
         .then((res) => res.data),
     {
       select: (bookingList) => bookingList.data,
@@ -180,16 +192,16 @@ export default function Dashboard() {
     refetchBookings();
     toast.success(response.data.message, {
       position: "top-center",
-      autoClose: 1000,
+      autoClose: 5000,
       theme: "colored",
     });
   };
 
   const onErrorMutateBooking = (error) => {
     if (error) {
-      toast.error("Booking Error", {
+      toast.error(error.response?.data?.message || "Booking Error", {
         position: "top-center",
-        autoClose: 1000,
+        autoClose: 5000,
         theme: "colored",
       });
     }
@@ -197,22 +209,7 @@ export default function Dashboard() {
 
   return (
     <Page title="Dashboard">
-      <PageHeader
-        title="Dashboard"
-        rightContent={
-          <Stack direction={"row"} spacing={2}>
-            {!isTeacher ? (
-              <Button variant="outlined" component={RouterLink} to="/app/dashboard/teachers">
-                TEACHERS
-              </Button>
-            ) : null}
-            <Button variant="outlined" component={RouterLink} to="/app/dashboard/timeline">
-              ROOM
-            </Button>
-            <Button variant="contained">BOOKING</Button>
-          </Stack>
-        }
-      />
+      <PageHeader title="Dashboard" rightContent={<DashboardNav active="bookings" />} />
       <Box
         sx={{
           background: "#FFF",
@@ -246,7 +243,7 @@ export default function Dashboard() {
       <Container maxWidth="xl" sx={{ paddingTop: 4 }}>
         <ToastContainer pauseOnFocusLoss={false} />
         {!isLoadingBookings && bookings.length && !isTeacher ? (
-          <Chart chartType="Timeline" data={data} width="100%" height="850px" />
+          <Chart chartType="Timeline" data={data} width="100%" height="930px" />
         ) : null}
         {renderContent({
           isErrorDashboard,
@@ -267,6 +264,7 @@ export default function Dashboard() {
         callbackError={(error) => {
           onErrorMutateBooking(error);
         }}
+        userId={user.id}
       />
     </Page>
   );
@@ -305,12 +303,13 @@ function renderContent({
 
   if (isLoadingDashboard) return <Typography>Loading Data</Typography>;
   if (isErrorDashboard) return <Typography>Error Data</Typography>;
-  if (!dashboard.length) return <Typography>No Data Found</Typography>;
+  if ((isTeacher && !bookings.length) || (!isTeacher && !dashboard.length))
+    return <Typography>No Data Found</Typography>;
 
   if (isTeacher) {
     return (
       <Grid container spacing="11px">
-        <CardBooking bookings={bookings} onClickConfirm={handleOpenModalUpdateStatus} />
+        <CardsBooking bookings={bookings} onClickConfirm={handleOpenModalUpdateStatus} />
       </Grid>
     );
   }

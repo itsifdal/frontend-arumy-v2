@@ -44,6 +44,7 @@ import { queryKey } from "../constants/queryKey";
 import BookingFilters from "../components/filter/bookingFilters";
 import CollapsibleTable from "../components/CollapsibleTable";
 import { bookingStatusObj } from "../constants/bookingStatus";
+import { fetchHeader } from "../constants/fetchHeader";
 
 // Style box
 const style = {
@@ -141,7 +142,10 @@ export default function BookingPast() {
           `${process.env.REACT_APP_BASE_URL}/api/booking${queryToString({
             ...queryParam,
             ...(user.role === "Guru" && { teacherId: user?.teacherId }),
-          })}`
+          })}`,
+          {
+            headers: fetchHeader,
+          }
         )
         .then((res) => res.data)
   );
@@ -155,7 +159,9 @@ export default function BookingPast() {
   const handleCloseModalDelete = () => setOpenDel(false);
 
   const submitDeleteBooking = useMutation(() =>
-    axios.delete(`${process.env.REACT_APP_BASE_URL}/api/booking/${bookingId}`)
+    axios.delete(`${process.env.REACT_APP_BASE_URL}/api/booking/${bookingId}`, {
+      headers: fetchHeader,
+    })
   );
 
   const handleSubmitDelete = (e) => {
@@ -181,16 +187,16 @@ export default function BookingPast() {
     setOpenUpdStatus(false);
     toast.success(response.data.message, {
       position: "top-center",
-      autoClose: 1000,
+      autoClose: 5000,
       theme: "colored",
     });
   };
 
   const onErrorMutateBooking = (error) => {
     if (error) {
-      toast.error("Booking Error", {
+      toast.error(error.response?.data?.message || "Booking Error", {
         position: "top-center",
-        autoClose: 1000,
+        autoClose: 5000,
         theme: "colored",
       });
     }
@@ -217,7 +223,7 @@ export default function BookingPast() {
   };
 
   // Cek loggedin user admin
-  const isUserAdmin = user.role === "Admin";
+  const isUserAdmin = user.role === "Admin" || user.role === "Super Admin";
   const isUserGuru = user.role === "Guru";
 
   const generateButtonAction = (book) => {

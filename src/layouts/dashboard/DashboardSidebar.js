@@ -13,6 +13,7 @@ import NavSection from "../../components/NavSection";
 import AccountPopover from "./AccountPopover";
 import IMAGES from "../../constants/images";
 import { MENU } from "../../constants/menu";
+import { fetchHeader } from "../../constants/fetchHeader";
 
 // ----------------------------------------------------------------------
 
@@ -41,10 +42,23 @@ const navConfigAdmin = [
   MENU.students,
   MENU.teachers,
   MENU.instruments,
+  MENU.packet,
+  MENU.payment,
+  MENU.refund,
 ];
 
 const navConfigAdminMobile = [MENU.dashboard, MENU.bookings, MENU.users, MENU.students, MENU.more];
-const navConfigAdminMore = [MENU.rooms, MENU.branches, MENU.bookings, MENU.teachers, MENU.instruments, MENU.logout];
+const navConfigAdminMore = [
+  MENU.rooms,
+  MENU.branches,
+  MENU.bookings,
+  MENU.teachers,
+  MENU.instruments,
+  MENU.packet,
+  MENU.payment,
+  MENU.refund,
+  MENU.logout,
+];
 
 const navConfigNonAdmin = [MENU.dashboard, MENU.bookings];
 const navConfigNonAdminMobile = [...navConfigNonAdmin, MENU.logout];
@@ -74,10 +88,14 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
   }, [pathname]);
 
   const onLogout = () => {
-    axios.get(`${process.env.REACT_APP_BASE_URL}/api/login/logout`).then(() => {
-      localStorage.clear();
-      navigate("/login", { replace: true });
-    });
+    axios
+      .get(`${process.env.REACT_APP_BASE_URL}/api/login/logout`, {
+        headers: fetchHeader,
+      })
+      .then(() => {
+        localStorage.clear();
+        navigate("/login", { replace: true });
+      });
   };
 
   const toggleDrawer = (open) => (event) => {
@@ -110,10 +128,10 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
 
   let nav;
   let activeNav;
-  if (user && user?.role === "Admin" && isDesktop) {
+  if (user && (user?.role === "Admin" || user?.role === "Super Admin") && isDesktop) {
     nav = <NavSection navConfig={navConfigAdmin} />;
     activeNav = navConfigAdmin;
-  } else if (user && user?.role === "Admin" && !isDesktop) {
+  } else if (user && (user?.role === "Admin" || user?.role === "Super Admin") && !isDesktop) {
     nav = renderBottomNavigation(navConfigAdminMobile);
     activeNav = navConfigAdminMobile;
   } else if (user && isDesktop) {

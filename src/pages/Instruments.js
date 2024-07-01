@@ -25,6 +25,7 @@ import BasicTable from "../components/BasicTable";
 import InputBasic from "../components/input/inputBasic";
 import { modalStyle } from "../constants/modalStyle";
 import { queryKey } from "../constants/queryKey";
+import { fetchHeader } from "../constants/fetchHeader";
 
 // ----------------------------------------------------------------------
 export default function Instruments() {
@@ -42,17 +43,27 @@ export default function Instruments() {
     refetch: instrumentsRefetch,
     isLoading: isLoadingInstruments,
   } = useQuery([queryKey.instruments], () =>
-    axios.get(`${process.env.REACT_APP_BASE_URL}/api/instrument`).then((res) => res.data)
+    axios
+      .get(`${process.env.REACT_APP_BASE_URL}/api/instrument`, {
+        headers: fetchHeader,
+      })
+      .then((res) => res.data)
   );
 
   const submitAddInstrument = useMutation((data) =>
-    axios.post(`${process.env.REACT_APP_BASE_URL}/api/instrument`, data)
+    axios.post(`${process.env.REACT_APP_BASE_URL}/api/instrument`, data, {
+      headers: fetchHeader,
+    })
   );
   const submitUpdateInstrument = useMutation((data) =>
-    axios.put(`${process.env.REACT_APP_BASE_URL}/api/instrument/${id}`, data)
+    axios.put(`${process.env.REACT_APP_BASE_URL}/api/instrument/${id}`, data, {
+      headers: fetchHeader,
+    })
   );
   const submitDeleteInstrument = useMutation(() =>
-    axios.delete(`${process.env.REACT_APP_BASE_URL}/api/instrument/${id}`)
+    axios.delete(`${process.env.REACT_APP_BASE_URL}/api/instrument/${id}`, {
+      headers: fetchHeader,
+    })
   );
 
   //----
@@ -135,7 +146,7 @@ export default function Instruments() {
     setOpenDel(false);
     toast.success(response.data.message, {
       position: "top-center",
-      autoClose: 1000,
+      autoClose: 5000,
       theme: "colored",
     });
     dispatchStateForm({
@@ -144,10 +155,10 @@ export default function Instruments() {
   }
 
   function onErrorMutateInstrument(error) {
-    if (error.response) {
+    if (error) {
       toast.error(error.response?.data?.message || "Terjadi kesalahan pada sistem.", {
         position: "top-center",
-        autoClose: 1000,
+        autoClose: 5000,
         theme: "colored",
       });
     }
@@ -217,8 +228,8 @@ export default function Instruments() {
         >
           <Box sx={{ ...modalStyle, maxWidth: 400 }}>
             <Box marginBottom={2}>
-              <Typography id="modal-modal-title" variant="h6" component="h2">
-                {stateModal === "update" ? "Update Instrument" : "Create Instrument"}
+              <Typography id="modal-modal-title" variant="h4" component="h2" fontWeight={700} color={"#172560"}>
+                {stateModal === "update" ? `Update Instrument #${id}` : "Create Instrument"}
               </Typography>
             </Box>
             <Box paddingBottom={2}>

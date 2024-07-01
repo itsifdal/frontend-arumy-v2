@@ -58,4 +58,19 @@ export const MENU = {
     path: "/more",
     icon: getIcon("ri:more-2-fill"),
   },
+  packet: {
+    title: "Paket",
+    path: "/app/packet",
+    icon: getIcon("mdi:package"),
+  },
+  payment: {
+    title: "Payment",
+    path: "/app/payment",
+    icon: getIcon("tdesign:money"),
+  },
+  refund: {
+    title: "Refund",
+    path: "/app/refund",
+    icon: getIcon("mdi:cash-refund"),
+  },
 };

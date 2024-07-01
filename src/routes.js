@@ -2,6 +2,7 @@ import { Navigate, useRoutes } from "react-router-dom";
 
 // layouts
 import Login from "./pages/Login";
+import Logout from "./pages/Logout";
 import Register from "./pages/Register";
 import DashboardLayout from "./layouts/dashboard";
 import LogoOnlyLayout from "./layouts/LogoOnlyLayout";
@@ -13,24 +14,29 @@ import AddPost from "./pages/AddPost";
 import AddBooking from "./pages/AddBooking";
 import UpdateBooking from "./pages/UpdateBooking";
 import UpdatePost from "./pages/UpdatePost";
-import Booking from "./pages/Booking";
+import Bookings from "./pages/bookings/page";
 import BookingDetail from "./pages/BookingDetail";
 import UpdateBookingPage from "./pages/UpdateBookingPage";
 import Students from "./pages/Students";
 
 import Rooms from "./pages/Rooms";
-import User from "./pages/User";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/Page404";
 import Dashboard from "./pages/Dashboard";
-import DashboardTimeline from "./pages/DashboardTimeline";
-import DashboardTeachers from "./pages/DashboardTeachers";
+import DashboardTimeline from "./pages/dashboard/timeline/page";
+import DashboardTeachers from "./pages/dashboard/teachers/page";
 import Teachers from "./pages/Teachers";
-import Branches from "./pages/Branches";
 import Instruments from "./pages/Instruments";
 import BookingUpcoming from "./pages/BookingUpcoming";
 import BookingPast from "./pages/BookingPast";
+
+import Branches from "./pages/branches/page";
+import Packets from "./pages/packets/page";
+import Payments from "./pages/payments/page";
+import Refunds from "./pages/refunds/page";
+import User from "./pages/users/page";
+import DashboardStudents from "./pages/dashboard/students/page";
 
 // ----------------------------------------------------------------------
 
@@ -51,9 +57,10 @@ export default function Router() {
         { path: "dashboard", element: <Dashboard /> },
         { path: "dashboard/timeline", element: <DashboardTimeline /> },
         { path: "dashboard/teachers", element: <DashboardTeachers /> },
+        { path: "dashboard/students", element: <DashboardStudents /> },
         { path: "user", element: <User /> },
         { path: "room", element: <Room /> },
-        { path: "booking", element: <Booking /> },
+        { path: "booking", element: <Bookings /> },
         { path: "booking/upcoming", element: <BookingUpcoming /> },
         { path: "booking/past", element: <BookingPast /> },
         { path: "booking/:id", element: <BookingDetail /> },
@@ -69,6 +76,9 @@ export default function Router() {
         { path: "updatebooking/:id", element: <UpdateBooking /> },
         { path: "branches", element: <Branches /> },
         { path: "instruments", element: <Instruments /> },
+        { path: "packet", element: <Packets /> },
+        { path: "payment", element: <Payments /> },
+        { path: "refund", element: <Refunds /> },
       ],
     },
     {
@@ -82,6 +92,10 @@ export default function Router() {
     {
       path: "/postdetail/:slug",
       element: <PostDetail />,
+    },
+    {
+      path: "/logout",
+      element: <Logout />,
     },
     {
       path: "/",

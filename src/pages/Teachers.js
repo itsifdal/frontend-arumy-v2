@@ -36,6 +36,9 @@ import { queryKey } from "../constants/queryKey";
 import { urlSearchParamsToQuery } from "../utils/urlSearchParamsToQuery";
 import { cleanQuery } from "../utils/cleanQuery";
 import { queryToString } from "../utils/queryToString";
+import { fetchHeader } from "../constants/fetchHeader";
+import useResponsive from "../hooks/useResponsive";
+import { fNumber } from "../utils/formatNumber";
 
 // ----------------------------------------------------------------------
 export default function Teachers() {
@@ -50,6 +53,7 @@ export default function Teachers() {
 
   const [searchParams] = useSearchParams();
   const queryParam = urlSearchParamsToQuery(searchParams);
+  const isDesktop = useResponsive("up", "lg");
 
   // query
   const {
@@ -57,12 +61,27 @@ export default function Teachers() {
     refetch: teachersRefetch,
     isLoading: isLoadingTeachers,
   } = useQuery([queryKey.teachers, cleanQuery(queryParam)], () =>
-    axios.get(`${process.env.REACT_APP_BASE_URL}/api/teacher${queryToString(queryParam)}`).then((res) => res.data)
+    axios
+      .get(`${process.env.REACT_APP_BASE_URL}/api/teacher${queryToString(queryParam)}`, {
+        headers: fetchHeader,
+      })
+      .then((res) => res.data)
   );
+
+  const pageInfo = teachers?.pagination
+    ? `Halaman ${fNumber(teachers.pagination.current_page)} dari ${fNumber(
+        teachers.pagination.total_pages
+      )}; Ditemukan ${fNumber(teachers.pagination.total_records)} data`
+    : "";
 
   const { refetch: teacherRefetch } = useQuery(
     [queryKey.teachers, "DETAIL"],
-    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/teacher/${id}`).then((res) => res.data),
+    () =>
+      axios
+        .get(`${process.env.REACT_APP_BASE_URL}/api/teacher/${id}`, {
+          headers: fetchHeader,
+        })
+        .then((res) => res.data),
     {
       enabled: Boolean(id),
       onSuccess: (res) => {
@@ -87,11 +106,21 @@ export default function Teachers() {
     }
   }, [id, teacherRefetch]);
 
-  const submitAddTeacher = useMutation((data) => axios.post(`${process.env.REACT_APP_BASE_URL}/api/teacher`, data));
-  const submitUpdateTeacher = useMutation((data) =>
-    axios.put(`${process.env.REACT_APP_BASE_URL}/api/teacher/${id}`, data)
+  const submitAddTeacher = useMutation((data) =>
+    axios.post(`${process.env.REACT_APP_BASE_URL}/api/teacher`, data, {
+      headers: fetchHeader,
+    })
   );
-  const submitDeleteTeacher = useMutation(() => axios.delete(`${process.env.REACT_APP_BASE_URL}/api/teacher/${id}`));
+  const submitUpdateTeacher = useMutation((data) =>
+    axios.put(`${process.env.REACT_APP_BASE_URL}/api/teacher/${id}`, data, {
+      headers: fetchHeader,
+    })
+  );
+  const submitDeleteTeacher = useMutation(() =>
+    axios.delete(`${process.env.REACT_APP_BASE_URL}/api/teacher/${id}`, {
+      headers: fetchHeader,
+    })
+  );
 
   //----
   const handleOpenModalCreate = () => setOpen(true);
@@ -168,7 +197,7 @@ export default function Teachers() {
     setOpenDel(false);
     toast.success(response.data.message, {
       position: "top-center",
-      autoClose: 1000,
+      autoClose: 5000,
       theme: "colored",
     });
     dispatchStateForm({
@@ -177,10 +206,10 @@ export default function Teachers() {
   }
 
   function onErrorMutateTeacher(error) {
-    if (error.response) {
+    if (error) {
       toast.error(error.response?.data?.message || "Terjadi kesalahan pada sistem.", {
         position: "top-center",
-        autoClose: 1000,
+        autoClose: 5000,
         theme: "colored",
       });
     }
@@ -205,6 +234,24 @@ export default function Teachers() {
           </Button>
         }
       />
+      <Box
+        sx={{
+          background: "#FFF",
+          boxShadow: "0px 4px 20px 0px rgba(0, 0, 0, 0.05)",
+          paddingY: isDesktop ? "20px" : "5px",
+          zIndex: 2,
+          position: "relative",
+          borderTop: "1px solid #c3c3e1",
+        }}
+      >
+        <Container maxWidth="xl">
+          <Grid container alignItems={"center"} width={"100%"}>
+            <Grid item xs={6} sm={9}>
+              <Typography fontSize={"14px"}>{pageInfo}</Typography>
+            </Grid>
+          </Grid>
+        </Container>
+      </Box>
       <Container maxWidth="xl" sx={{ paddingTop: 4 }}>
         <ToastContainer pauseOnFocusLoss={false} />
         {!isLoadingTeachers ? (
@@ -266,8 +313,8 @@ export default function Teachers() {
         >
           <Box sx={{ ...modalStyle, maxWidth: 800 }}>
             <Box marginBottom={2}>
-              <Typography id="modal-modal-title" variant="h6" component="h2">
-                {stateModal === "update" ? "Update Teacher" : "Create Teacher"}
+              <Typography id="modal-modal-title" variant="h4" component="h2" fontWeight={700} color={"#172560"}>
+                {stateModal === "update" ? `Update Teacher #${id}` : "Create Teacher"}
               </Typography>
             </Box>
             <Grid container spacing={2}>

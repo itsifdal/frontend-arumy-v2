@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import axios from "axios";
 import { useQuery } from "react-query";
 import { format, parse, isValid } from "date-fns";
 import PropTypes from "prop-types";
-import { Button, Stack, Grid, Drawer, IconButton, Box, ToggleButtonGroup, ToggleButton } from "@mui/material";
+import { Button, Stack, Drawer, IconButton, Box, ToggleButtonGroup, ToggleButton, Typography } from "@mui/material";
 
 import useResponsive from "../../hooks/useResponsive";
 import AutoCompleteBasic from "../input/autoCompleteBasic";
@@ -14,19 +14,21 @@ import { queryKey } from "../../constants/queryKey";
 import { bookingStatus, bookingStatusObj } from "../../constants/bookingStatus";
 import { urlSearchParamsToQuery } from "../../utils/urlSearchParamsToQuery";
 import Iconify from "../Iconify";
+import { fetchHeader } from "../../constants/fetchHeader";
 
 const initFilter = {
   status: "",
   roomId: "",
   roomLabel: "",
-  tgl_kelas: "",
+  dateFrom: "",
+  dateTo: "",
   studentId: "",
   studentLabel: "",
   teacherId: "",
   teacherLabel: "",
 };
 
-export default function BookingFilters({ toggleValue }) {
+export default function BookingFilters({ pageInfo }) {
   const [openDrawer, setOpenDrawer] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const [filters, setFilters] = useState(initFilter);
@@ -35,19 +37,34 @@ export default function BookingFilters({ toggleValue }) {
       filters.studentLabel,
       filters.teacherLabel,
       filters.roomLabel,
-      filters.tgl_kelas && format(parse(filters.tgl_kelas, "yyyy-MM-dd", new Date()), "d MMM yyyy"),
+      filters.dateFrom && format(parse(filters.dateFrom, "yyyy-MM-dd", new Date()), "d MMM yyyy"),
+      filters.dateTo && format(parse(filters.dateTo, "yyyy-MM-dd", new Date()), "d MMM yyyy"),
       filters.status && `Status ${bookingStatusObj[filters.status].label}`,
     ],
     [filters]
   );
-  const navigate = useNavigate();
   const isDesktop = useResponsive("up", "lg");
+  const queryParam = urlSearchParamsToQuery(searchParams);
 
   const handleChange = (event, newValue) => {
     if (!newValue) {
-      navigate(`/app/booking/`);
+      // remove filter when click again
+      const tempQueryParam = queryParam;
+      delete tempQueryParam.eventTime;
+      delete tempQueryParam.sort;
+      delete tempQueryParam.sort_by;
+      delete tempQueryParam.page;
+
+      setSearchParams({ ...tempQueryParam });
     } else {
-      navigate(`/app/booking/${newValue}`);
+      const query = {
+        ...queryParam,
+        eventTime: newValue,
+        ...(newValue === "upcoming" && { sort: "asc", sort_by: "tgl_kelas" }),
+        ...(newValue === "past" && { sort: "desc", sort_by: "tgl_kelas" }),
+        page: 1,
+      };
+      setSearchParams(query);
     }
   };
 
@@ -71,18 +88,43 @@ export default function BookingFilters({ toggleValue }) {
 
   return (
     <>
-      <Stack justifyContent={"flex-end"} direction={"row"} gap={isDesktop ? 2 : 1} flexWrap={"wrap"}>
+      <Stack
+        justifyContent={"flex-end"}
+        direction={"row"}
+        alignItems={"center"}
+        gap={isDesktop ? 2 : 1}
+        flexWrap={"wrap"}
+        width={"100%"}
+      >
+        <Typography fontSize={"14px"}>{pageInfo}</Typography>
+        <Box flexGrow={1} />
         <ToggleButtonGroup
-          value={toggleValue}
+          value={queryParam.eventTime || ""}
           exclusive
           onChange={handleChange}
           aria-label="Platform"
           {...(!isDesktop && { fullWidth: true })}
+          sx={{
+            ".MuiToggleButtonGroup-grouped": {
+              borderColor: "rgba(56, 53, 161, 0.5)",
+              color: "#3835A1",
+              ":hover": {
+                backgroundColor: "rgba(56, 53, 161, 0.2)",
+              },
+              "&.Mui-selected": {
+                color: "white",
+                backgroundColor: "#3835A1",
+                ":hover": {
+                  backgroundColor: "#3835A1",
+                },
+              },
+            },
+          }}
         >
           <ToggleButton value="upcoming">Upcoming</ToggleButton>
           <ToggleButton value="past">Past</ToggleButton>
         </ToggleButtonGroup>
-        <Stack direction={"row"} width={isDesktop ? "auto" : "100%"} justifyContent={"flex-end"}>
+        <Stack direction={"row"} width={isDesktop ? "auto" : "100%"} justifyContent={"flex-end"} alignSelf={"stretch"}>
           <Button
             variant="outlined"
             startIcon={<Iconify icon="mdi:filter-outline" />}
@@ -114,6 +156,7 @@ export default function BookingFilters({ toggleValue }) {
   );
 }
 BookingFilters.propTypes = {
+  pageInfo: PropTypes.string,
   toggleValue: PropTypes.string,
 };
 
@@ -123,10 +166,16 @@ function BookingFilterForm({ toggleDrawer }) {
   const [openTeacher, setOpenTeacher] = useState(false);
   const [filters, setFilters] = useState(initFilter);
   const [searchParams, setSearchParams] = useSearchParams();
+  const [isTeacher, setIsTeacher] = useState(false);
 
   const { data: students = [], isLoading: isLoadingStudents } = useQuery(
     [queryKey.students],
-    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/student?perPage=9999`).then((res) => res.data),
+    () =>
+      axios
+        .get(`${process.env.REACT_APP_BASE_URL}/api/student?perPage=9999`, {
+          headers: fetchHeader,
+        })
+        .then((res) => res.data),
     {
       select: (students) => students.data?.map((student) => ({ value: student.id, label: student.nama_murid })),
       enabled: openStudent,
@@ -135,7 +184,12 @@ function BookingFilterForm({ toggleDrawer }) {
 
   const { data: teachers = [], isLoading: isLoadingTeachers } = useQuery(
     [queryKey.teachers],
-    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/teacher?perPage=9999`).then((res) => res.data),
+    () =>
+      axios
+        .get(`${process.env.REACT_APP_BASE_URL}/api/teacher?perPage=9999`, {
+          headers: fetchHeader,
+        })
+        .then((res) => res.data),
     {
       select: (teachers) => teachers.data?.map((teacher) => ({ value: teacher.id, label: teacher.nama_pengajar })),
       enabled: openTeacher,
@@ -144,12 +198,26 @@ function BookingFilterForm({ toggleDrawer }) {
 
   const { data: rooms = [], isLoading: isLoadingRooms } = useQuery(
     [queryKey.rooms],
-    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/room`).then((res) => res.data),
+    () =>
+      axios
+        .get(`${process.env.REACT_APP_BASE_URL}/api/room`, {
+          headers: fetchHeader,
+        })
+        .then((res) => res.data),
     {
       select: (roomList) => roomList.map((room) => ({ value: room.id, label: room.nama_ruang })),
       enabled: openRoom,
     }
   );
+
+  // localStorage
+  useEffect(() => {
+    const loggedInUser = localStorage.getItem("user");
+    if (loggedInUser) {
+      const foundUser = JSON.parse(loggedInUser);
+      setIsTeacher(foundUser.role === "Guru");
+    }
+  }, []);
 
   useEffect(() => {
     // use this for escape infinite loop
@@ -158,7 +226,7 @@ function BookingFilterForm({ toggleDrawer }) {
 
   const SubmitFilter = () => {
     if (toggleDrawer) toggleDrawer(false);
-    setSearchParams(filters);
+    setSearchParams({ ...filters, page: 1 });
   };
 
   const ResetFilter = () => {
@@ -167,103 +235,118 @@ function BookingFilterForm({ toggleDrawer }) {
   };
 
   return (
-    <Stack width={"100%"} direction={"column"} spacing={2}>
-      <Grid container flexGrow={1} gap={2}>
-        <Grid item xs={12}>
-          <AutoCompleteBasic
-            label="Nama Murid"
-            name="studentId"
-            open={openStudent}
-            onOpen={() => {
-              setOpenStudent(true);
-            }}
-            onClose={() => {
-              setOpenStudent(false);
-            }}
-            onChange={(_, newValue) => {
-              setFilters((prevState) => ({
-                ...prevState,
-                studentId: newValue?.value || "",
-                studentLabel: newValue?.label || "",
-              }));
-            }}
-            options={students}
-            loading={isLoadingStudents}
-            value={{ value: filters.studentId || "", label: filters.studentLabel || "" }}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <AutoCompleteBasic
-            label="Nama Pengajar"
-            name="teacherId"
-            open={openTeacher}
-            onOpen={() => {
-              setOpenTeacher(true);
-            }}
-            onClose={() => {
-              setOpenTeacher(false);
-            }}
-            onChange={(_, newValue) => {
-              setFilters((prevState) => ({
-                ...prevState,
-                teacherId: newValue?.value || "",
-                teacherLabel: newValue?.label || "",
-              }));
-            }}
-            options={teachers}
-            loading={isLoadingTeachers}
-            value={{ value: filters.teacherId || "", label: filters.teacherLabel || "" }}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <AutoCompleteBasic
-            label="Ruang Kelas"
-            name="roomId"
-            open={openRoom}
-            onOpen={() => {
-              setOpenRoom(true);
-            }}
-            onClose={() => {
-              setOpenRoom(false);
-            }}
-            onChange={(_, newValue) => {
-              setFilters((prevState) => ({
-                ...prevState,
-                roomId: newValue?.value || "",
-                roomLabel: newValue?.label || "",
-              }));
-            }}
-            options={rooms}
-            loading={isLoadingRooms}
-            value={{ value: filters.roomId || "", label: filters.roomLabel || "" }}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <DateInputBasic
-            disableValidation
-            id="tgl_kelas"
-            name="tgl_kelas"
-            label="Date"
-            value={parse(filters.tgl_kelas, "yyyy-MM-dd", new Date())}
-            onChange={(e) => {
-              if (!isValid(e.target.value)) return false;
-              return setFilters((prevState) => ({ ...prevState, tgl_kelas: format(e.target.value, "yyyy-MM-dd") }));
-            }}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <NativeSelectBasic
-            id="status"
-            name="status"
-            label="Class Status"
-            value={filters.status}
-            onChange={(e) => {
-              setFilters((prevState) => ({ ...prevState, status: e.target.value }));
-            }}
-            options={bookingStatus}
-          />
-        </Grid>
-      </Grid>
+    <Stack width={"100%"} minWidth={["90vw", "50vw", "40vw"]} direction={"column"} gap={2}>
+      <AutoCompleteBasic
+        label="Nama Murid"
+        name="studentId"
+        open={openStudent}
+        onOpen={() => {
+          setOpenStudent(true);
+        }}
+        onClose={() => {
+          setOpenStudent(false);
+        }}
+        onChange={(_, newValue) => {
+          setFilters((prevState) => ({
+            ...prevState,
+            studentId: newValue?.value || "",
+            studentLabel: newValue?.label || "",
+          }));
+        }}
+        options={students}
+        loading={isLoadingStudents}
+        value={{ value: filters.studentId || "", label: filters.studentLabel || "" }}
+      />
+      {!isTeacher ? (
+        <AutoCompleteBasic
+          label="Nama Pengajar"
+          name="teacherId"
+          open={openTeacher}
+          onOpen={() => {
+            setOpenTeacher(true);
+          }}
+          onClose={() => {
+            setOpenTeacher(false);
+          }}
+          onChange={(_, newValue) => {
+            setFilters((prevState) => ({
+              ...prevState,
+              teacherId: newValue?.value || "",
+              teacherLabel: newValue?.label || "",
+            }));
+          }}
+          options={teachers}
+          loading={isLoadingTeachers}
+          value={{ value: filters.teacherId || "", label: filters.teacherLabel || "" }}
+        />
+      ) : null}
+      <AutoCompleteBasic
+        label="Ruang Kelas"
+        name="roomId"
+        open={openRoom}
+        onOpen={() => {
+          setOpenRoom(true);
+        }}
+        onClose={() => {
+          setOpenRoom(false);
+        }}
+        onChange={(_, newValue) => {
+          setFilters((prevState) => ({
+            ...prevState,
+            roomId: newValue?.value || "",
+            roomLabel: newValue?.label || "",
+          }));
+        }}
+        options={rooms}
+        loading={isLoadingRooms}
+        value={{ value: filters.roomId || "", label: filters.roomLabel || "" }}
+      />
+      <Stack direction={"row"} gap={2}>
+        <DateInputBasic
+          disableValidation
+          id="dateFrom"
+          name="dateFrom"
+          label="From Date"
+          value={parse(filters.dateFrom, "yyyy-MM-dd", new Date())}
+          onChange={(e) => {
+            if (e.target.value === null)
+              return setFilters((prevState) => {
+                delete prevState.dateFrom;
+                return { ...prevState };
+              });
+            if (!isValid(e.target.value)) return false;
+            return setFilters((prevState) => ({ ...prevState, dateFrom: format(e.target.value, "yyyy-MM-dd") }));
+          }}
+          maxDate={parse(filters.dateTo, "yyyy-MM-dd", new Date())}
+        />
+        <DateInputBasic
+          disableValidation
+          id="dateTo"
+          name="dateTo"
+          label="To Date"
+          value={parse(filters.dateTo, "yyyy-MM-dd", new Date())}
+          onChange={(e) => {
+            if (e.target.value === null)
+              return setFilters((prevState) => {
+                delete prevState.dateTo;
+                return { ...prevState };
+              });
+            if (!isValid(e.target.value)) return false;
+            return setFilters((prevState) => ({ ...prevState, dateTo: format(e.target.value, "yyyy-MM-dd") }));
+          }}
+          minDate={parse(filters.dateFrom, "yyyy-MM-dd", new Date())}
+        />
+      </Stack>
+      <NativeSelectBasic
+        id="status"
+        name="status"
+        label="Class Status"
+        value={filters.status}
+        onChange={(e) => {
+          setFilters((prevState) => ({ ...prevState, status: e.target.value }));
+        }}
+        options={bookingStatus}
+      />
       <Stack spacing={1} direction={"row"} flexShrink={0} alignItems="flex-end" width={"100%"}>
         <Button
           variant="contained"

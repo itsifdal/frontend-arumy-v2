@@ -20,6 +20,7 @@ import AutoCompleteBasic from "../components/input/autoCompleteBasic";
 import { urlSearchParamsToQuery } from "../utils/urlSearchParamsToQuery";
 import { queryToString } from "../utils/queryToString";
 import { cleanQuery } from "../utils/cleanQuery";
+import { fetchHeader } from "../constants/fetchHeader";
 
 const initFilter = {
   tgl_kelas: format(new Date(), "yyyy-MM-dd"),
@@ -41,7 +42,12 @@ export default function DashboardTimeline() {
 
   const { data: rooms = [], isLoading: isLoadingRooms } = useQuery(
     [queryKey.rooms],
-    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/room`).then((res) => res.data),
+    () =>
+      axios
+        .get(`${process.env.REACT_APP_BASE_URL}/api/room`, {
+          headers: fetchHeader,
+        })
+        .then((res) => res.data),
     {
       select: (roomList) => roomList.map((room) => ({ value: room.id, label: room.nama_ruang })),
       enabled: openRoom,
@@ -62,7 +68,9 @@ export default function DashboardTimeline() {
     [queryKey.bookings, cleanQuery(defaultQueryBooking)],
     () =>
       axios
-        .get(`${process.env.REACT_APP_BASE_URL}/api/booking${queryToString(defaultQueryBooking)}`)
+        .get(`${process.env.REACT_APP_BASE_URL}/api/booking${queryToString(defaultQueryBooking)}`, {
+          headers: fetchHeader,
+        })
         .then((res) => res.data),
     {
       select: (bookingList) =>

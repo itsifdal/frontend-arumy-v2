@@ -7,9 +7,9 @@ import { Link, Stack, IconButton, InputAdornment } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 // components
 import axios from "axios";
-import Button from "@mui/material/Button";
 import Iconify from "../../../components/Iconify";
 import { FormProvider, RHFTextField, RHFCheckbox } from "../../../components/hook-form";
+import { fetchHeader } from "../../../constants/fetchHeader";
 
 // ----------------------------------------------------------------------
 
@@ -21,10 +21,6 @@ export default function LoginForm() {
   const [password, setPassword] = useState("");
 
   const [open, setOpen] = useState(false);
-
-  const handleClose = () => {
-    setOpen(false);
-  };
 
   const defaultValues = {
     email: "",
@@ -47,17 +43,21 @@ export default function LoginForm() {
       email,
       password,
     };
-    axios.post("http://localhost:8080/api/login", data).then((res) => {
-      if (res.statusText === "OK") {
-        navigate("/app/room", { replace: true });
-        console.log(res.statusText);
-      } else {
-        setOpen(true);
-        console.log(open);
-        console.log(res);
-        console.log(res.data);
-      }
-    });
+    axios
+      .post("http://localhost:8080/api/login", data, {
+        headers: fetchHeader,
+      })
+      .then((res) => {
+        if (res.statusText === "OK") {
+          navigate("/app/room", { replace: true });
+          console.log(res.statusText);
+        } else {
+          setOpen(true);
+          console.log(open);
+          console.log(res);
+          console.log(res.data);
+        }
+      });
   };
 
   return (

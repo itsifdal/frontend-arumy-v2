@@ -13,46 +13,55 @@ import {
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import PropTypes from "prop-types";
-import { useQuery, useMutation } from "react-query";
+import { useQuery, useMutation, useQueryClient } from "react-query";
 import axios from "axios";
 import { differenceInMinutes, format, parse } from "date-fns";
 
 import { modalStyle } from "../../constants/modalStyle";
 import { queryKey } from "../../constants/queryKey";
 import InputBasic from "../input/inputBasic";
+import TextareaBasic from "../input/textareaBasic";
+import { fetchHeader } from "../../constants/fetchHeader";
 
 import { bookingFormReducer, initialBookingFormState, validateBookingForm } from "../../utils/reducer/bookingReducer";
 
-export default function ConfirmBooking({ open, onClose, id, callbackSuccess, callbackError }) {
+export default function ConfirmBooking({ open, onClose, id, callbackSuccess, callbackError, userId }) {
   const [stateForm, dispatchStateForm] = useReducer(bookingFormReducer, initialBookingFormState);
+  const queryClient = useQueryClient();
 
   const { refetch: bookingRefetch } = useQuery(
     [queryKey.bookings, "DETAIL"],
-    () => axios.get(`${process.env.REACT_APP_BASE_URL}/api/booking/${id}`).then((res) => res.data),
+    () =>
+      axios
+        .get(`${process.env.REACT_APP_BASE_URL}/api/booking/${id}`, {
+          headers: fetchHeader,
+        })
+        .then((res) => res.data),
     {
       enabled: Boolean(id),
       onSuccess: (res) => {
+        const { data } = res;
         const modelData = {
           roomId: {
-            value: res.roomId ?? "",
-            label: res.room.nama_ruang ?? "",
+            value: data.roomId ?? "",
+            label: data.room?.nama_ruang ?? "",
           },
           teacherId: {
-            value: res.teacherId ?? "",
-            label: res.teacher.nama_pengajar ?? "",
+            value: data.teacherId ?? "",
+            label: data.teacher?.nama_pengajar ?? "",
           },
-          user_group: res.user_group?.map((student) => ({ value: student.id, label: student.nama_murid })),
+          user_group: JSON.parse(data.user_group)?.map((student) => ({ value: student.id, label: student.nama_murid })),
           instrumentId: {
-            value: res.instrumentId ?? "",
-            label: res.instrument.nama_instrument ?? "",
+            value: data.instrumentId ?? "",
+            label: data.instrument?.nama_instrument ?? "",
           },
-          tgl_kelas: parse(res.tgl_kelas, "yyyy-MM-dd", new Date()),
-          cabang: res.cabang,
-          jam_booking: parse(res.jam_booking, "HH:mm:ss", new Date()),
-          jam_selesai_booking: parse(res.selesai, "HH:mm:ss", new Date()),
-          jenis_kelas: res.jenis_kelas,
-          durasi: Number(res.durasi),
-          status: res.status,
+          tgl_kelas: parse(data.tgl_kelas, "yyyy-MM-dd", new Date()),
+          cabang: data.cabang,
+          jam_booking: parse(data.jam_booking, "HH:mm:ss", new Date()),
+          jam_selesai_booking: parse(data.selesai, "HH:mm:ss", new Date()),
+          jenis_kelas: data.jenis_kelas,
+          durasi: Number(data.durasi),
+          status: data.status,
         };
         const entries = Object.entries(modelData);
         entries.forEach((booking) => {
@@ -81,11 +90,14 @@ export default function ConfirmBooking({ open, onClose, id, callbackSuccess, cal
   }, [stateForm.values.jam_booking, stateForm.values.jam_selesai_booking]);
 
   const submitUpdateBooking = useMutation((data) =>
-    axios.put(`${process.env.REACT_APP_BASE_URL}/api/booking/${id}`, data)
+    axios.put(`${process.env.REACT_APP_BASE_URL}/api/booking/${id}`, data, {
+      headers: fetchHeader,
+    })
   );
 
   const handleCallbackMutate = {
     onSuccess: (response) => {
+      queryClient.invalidateQueries({ queryKey: [queryKey.bookings] });
       callbackSuccess(response);
     },
     onError: (error) => {
@@ -108,6 +120,8 @@ export default function ConfirmBooking({ open, onClose, id, callbackSuccess, cal
         jenis_kelas: stateForm.values.jenis_kelas,
         durasi: stateForm.values.durasi,
         status: stateForm.values.status,
+        notes: stateForm.values.notes,
+        userId,
       };
 
       submitUpdateBooking.mutate(data, handleCallbackMutate);
@@ -132,7 +146,7 @@ export default function ConfirmBooking({ open, onClose, id, callbackSuccess, cal
     <Modal open={open} onClose={onClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
       <Box sx={{ ...modalStyle, maxWidth: 800 }}>
         <Typography id="modal-modal-title" variant="h4" component="h2" marginBottom={2}>
-          Confirm Class
+          Confirm Class #{id}
         </Typography>
         <Grid container marginBottom={3}>
           <Grid item xs={12} paddingBottom={2}>
@@ -173,6 +187,17 @@ export default function ConfirmBooking({ open, onClose, id, callbackSuccess, cal
               </RadioGroup>
             </FormControl>
           </Grid>
+          <Grid item xs={12}>
+            <TextareaBasic
+              label="Catatan"
+              name="notes"
+              id="notes"
+              value={stateForm.values.notes}
+              onChange={(e) => {
+                onChange(e);
+              }}
+            />
+          </Grid>
         </Grid>
         <Stack justifyContent={"flex-end"}>
           <LoadingButton
@@ -195,4 +220,5 @@ ConfirmBooking.propTypes = {
   id: PropTypes.number,
   callbackSuccess: PropTypes.func,
   callbackError: PropTypes.func,
+  userId: PropTypes.number,
 };
