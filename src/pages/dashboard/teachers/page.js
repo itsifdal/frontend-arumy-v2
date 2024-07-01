@@ -74,12 +74,7 @@ export default function DashboardTeachers() {
 
   setDefaultOptions({ locale: id });
 
-  const defaultQueryDashboard = {
-    teacherId: initFilter.teacherId,
-    term: initFilter.term,
-    termYear: initFilter.termYear,
-    ...queryParam,
-  };
+  const defaultQueryDashboard = { ...initFilter, ...queryParam };
 
   const {
     data: teacherSummary = [],
