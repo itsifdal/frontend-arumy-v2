@@ -5,6 +5,7 @@ import setDefaultOptions from "date-fns/setDefaultOptions";
 import axios from "axios";
 import id from "date-fns/locale/id";
 import { downloadExcel } from "react-export-table-to-excel";
+import { format, lastDayOfMonth } from "date-fns";
 // material
 import {
   Chip,
@@ -35,13 +36,12 @@ import { queryToString } from "../../../utils/queryToString";
 import { fetchHeader } from "../../../constants/fetchHeader";
 import DashboardNav from "../dashboardNav";
 import DashboardTeachersFilterBarDas from "./filterBar";
-import { getTerm } from "../../../utils/getTerm";
 
 const initFilter = {
   teacherId: 1,
   teacherLabel: "Adi Nugroho",
-  term: getTerm(new Date()) + 1,
-  termYear: new Date().getFullYear(),
+  dateFrom: format(new Date(), "yyyy-MM-01"),
+  dateTo: format(lastDayOfMonth(new Date()), "yyyy-MM-dd"),
 };
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
@@ -74,12 +74,7 @@ export default function DashboardTeachers() {
 
   setDefaultOptions({ locale: id });
 
-  const defaultQueryDashboard = {
-    teacherId: initFilter.teacherId,
-    term: initFilter.term,
-    termYear: initFilter.termYear,
-    ...queryParam,
-  };
+  const defaultQueryDashboard = { ...initFilter, ...queryParam };
 
   const {
     data: teacherSummary = [],
@@ -118,8 +113,8 @@ export default function DashboardTeachers() {
   // GET DATA BOOKING ALL
   const defaultQueryBookings = {
     ...defaultQueryDashboard,
-    dateFrom: defaultQueryDashboard.tglAwal,
-    dateTo: defaultQueryDashboard.tglAkhir,
+    dateFrom: defaultQueryDashboard.dateFrom,
+    dateTo: defaultQueryDashboard.dateTo,
     sort: "asc",
     sort_by: "tgl_kelas",
     perPage: 9999,
@@ -194,7 +189,7 @@ export default function DashboardTeachers() {
     const sheet =
       filters.term && filters.termYear
         ? `${filters.term}-${filters.termYear}`
-        : `${filters.tglAwal}-${filters.tglAkhir}`;
+        : `${filters.dateFrom}-${filters.dateTo}`;
     const fileName = `${filters.teacherLabel}-${sheet}`;
     downloadExcel({
       fileName,

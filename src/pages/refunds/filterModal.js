@@ -35,6 +35,7 @@ export default function RefundFilters() {
       filters.paketLabel,
       filters.dateFrom && format(parse(filters.dateFrom, "yyyy-MM-dd", new Date()), "d MMM yyyy"),
       filters.dateTo && format(parse(filters.dateTo, "yyyy-MM-dd", new Date()), "d MMM yyyy"),
+      filters.term && filters.termYear && `Term ${filters.term}, ${filters.termYear}`,
     ],
     [filters]
   );
