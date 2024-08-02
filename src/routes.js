@@ -17,7 +17,7 @@ import UpdatePost from "./pages/UpdatePost";
 import Bookings from "./pages/bookings/page";
 import BookingDetail from "./pages/BookingDetail";
 import UpdateBookingPage from "./pages/UpdateBookingPage";
-import Students from "./pages/Students";
+import Students from "./pages/students/page";
 
 import Rooms from "./pages/Rooms";
 import ForgotPassword from "./pages/ForgotPassword";
