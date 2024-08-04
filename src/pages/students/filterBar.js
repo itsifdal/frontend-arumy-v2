@@ -11,14 +11,14 @@ export function StudentsFilterBar() {
   const isDesktop = useResponsive("up", "lg");
   const [searchParams, setSearchParams] = useSearchParams();
   const queryParam = urlSearchParamsToQuery(searchParams);
-  const { data: packets } = useGetStudents({
+  const { data: students } = useGetStudents({
     queryParam: { ...queryParam },
   });
 
-  const pageInfo = packets?.pagination
-    ? `Halaman ${fNumber(packets.pagination.current_page)} dari ${fNumber(
-        packets.pagination.total_pages
-      )}; Ditemukan ${fNumber(packets.pagination.total_records)} data`
+  const pageInfo = students?.pagination
+    ? `Halaman ${fNumber(students.pagination.current_page)} dari ${fNumber(
+        students.pagination.total_pages
+      )}; Ditemukan ${fNumber(students.pagination.total_records)} data`
     : "";
 
   function updateSearchQuery(e) {

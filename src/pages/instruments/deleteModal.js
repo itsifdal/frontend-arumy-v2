@@ -4,9 +4,9 @@ import { LoadingButton } from "@mui/lab";
 import PropTypes from "prop-types";
 
 import { modalStyle } from "../../constants/modalStyle";
-import { useDeleteStudent } from "./query";
+import { useDeleteInstrument } from "./query";
 
-StudentDeleteModal.propTypes = {
+InstrumentDeleteModal.propTypes = {
   open: PropTypes.bool,
   onClose: PropTypes.func,
   dataName: PropTypes.string,
@@ -15,12 +15,12 @@ StudentDeleteModal.propTypes = {
   onError: PropTypes.func,
 };
 
-export function StudentDeleteModal({ open, onClose, dataName, id, onSuccess, onError }) {
-  const submitDeleteStudent = useDeleteStudent({ id });
+export function InstrumentDeleteModal({ open, onClose, dataName, id, onSuccess, onError }) {
+  const submitDeleteInstrument = useDeleteInstrument({ id });
 
   const handleSubmitDelete = (e) => {
     e.preventDefault();
-    submitDeleteStudent.mutate(
+    submitDeleteInstrument.mutate(
       {},
       {
         onSuccess: (response) => {
@@ -41,7 +41,7 @@ export function StudentDeleteModal({ open, onClose, dataName, id, onSuccess, onE
         </Typography>
         <FormControl fullWidth>
           <LoadingButton
-            loading={submitDeleteStudent.isLoading}
+            loading={submitDeleteInstrument.isLoading}
             variant="contained"
             type="submit"
             onClick={handleSubmitDelete}

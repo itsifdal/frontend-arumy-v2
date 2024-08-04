@@ -24,7 +24,7 @@ export function StudentsList() {
     data: students,
     isLoading,
     isError,
-    refetch: packetsRefetch,
+    refetch: studentsRefetch,
   } = useGetStudents({
     queryParam: { ...queryParam },
   });
@@ -45,12 +45,12 @@ export function StudentsList() {
   };
 
   const onSuccessUpdate = () => {
-    packetsRefetch();
+    studentsRefetch();
     setIsOpenUpdateModal(false);
   };
 
   const onSuccessDelete = () => {
-    packetsRefetch();
+    studentsRefetch();
     setIsOpenDeleteModal(false);
   };
 

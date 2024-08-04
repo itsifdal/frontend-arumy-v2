@@ -48,8 +48,8 @@ export function StudentFormModal({ open, onClose, stateModal, id, onSuccess, onE
             tgl_lahir: parse(res.tgl_lahir, "yyyy-MM-dd", new Date()),
           };
           const entries = Object.entries(modelData);
-          entries.forEach((packet) => {
-            setValue(packet[0], packet[1]);
+          entries.forEach((inputValue) => {
+            setValue(inputValue[0], inputValue[1]);
           });
         }
       },
