@@ -26,7 +26,7 @@ import NotFound from "./pages/Page404";
 import Dashboard from "./pages/Dashboard";
 import DashboardTimeline from "./pages/dashboard/timeline/page";
 import DashboardTeachers from "./pages/dashboard/teachers/page";
-import Teachers from "./pages/Teachers";
+import Teachers from "./pages/teachers/page";
 import Instruments from "./pages/instruments/page";
 import BookingUpcoming from "./pages/BookingUpcoming";
 import BookingPast from "./pages/BookingPast";
