@@ -7,7 +7,7 @@ import Register from "./pages/Register";
 import DashboardLayout from "./layouts/dashboard";
 import LogoOnlyLayout from "./layouts/LogoOnlyLayout";
 //
-import Room from "./pages/Room";
+import Room from "./pages/rooms/page";
 import Post from "./pages/Post";
 import PostDetail from "./pages/PostDetail";
 import AddPost from "./pages/AddPost";
