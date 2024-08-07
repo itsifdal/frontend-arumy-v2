@@ -109,7 +109,7 @@ export default function Dashboard() {
         })
         .then((res) => res.data),
     {
-      select: (roomList) => roomList.map((room) => ({ label: room.nama_ruang })),
+      select: (roomList) => roomList.map((room) => ({ label: room?.nama_ruang })),
     }
   );
 

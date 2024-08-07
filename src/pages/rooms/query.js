@@ -19,7 +19,21 @@ export function useGetRooms(props) {
   return { refetch, data, isLoading, isError };
 }
 
-export function useAddRooms() {
+export function useGetRoom({ id, options }) {
+  const { data, isLoading, isError, refetch } = useQuery(
+    [queryKey.rooms, "DETAIL", id],
+    () =>
+      axios
+        .get(`${process.env.REACT_APP_BASE_URL}/api/room/${id}`, {
+          headers: fetchHeader,
+        })
+        .then((res) => res.data),
+    options
+  );
+  return { refetch, data, isLoading, isError };
+}
+
+export function useAddRoom() {
   return useMutation((data) =>
     axios.post(`${process.env.REACT_APP_BASE_URL}/api/room`, data, {
       headers: fetchHeader,
@@ -27,7 +41,7 @@ export function useAddRooms() {
   );
 }
 
-export function useUpdateRooms({ id }) {
+export function useUpdateRoom({ id }) {
   return useMutation((data) =>
     axios.put(`${process.env.REACT_APP_BASE_URL}/api/room/${id}`, data, {
       headers: fetchHeader,
@@ -35,7 +49,7 @@ export function useUpdateRooms({ id }) {
   );
 }
 
-export function useDeleteRooms({ id }) {
+export function useDeleteRoom({ id }) {
   return useMutation(() =>
     axios.delete(`${process.env.REACT_APP_BASE_URL}/api/room/${id}`, {
       headers: fetchHeader,

@@ -1,42 +1,41 @@
 import { Navigate, useRoutes } from "react-router-dom";
 
 // layouts
-import Login from "./pages/Login";
-import Logout from "./pages/Logout";
-import Register from "./pages/Register";
 import DashboardLayout from "./layouts/dashboard";
 import LogoOnlyLayout from "./layouts/LogoOnlyLayout";
-//
-import Room from "./pages/Room";
+
+import AddBooking from "./pages/AddBooking";
+import AddPost from "./pages/AddPost";
+import BookingDetail from "./pages/BookingDetail";
+import BookingPast from "./pages/BookingPast";
+import BookingUpcoming from "./pages/BookingUpcoming";
+import Dashboard from "./pages/Dashboard";
+import ForgotPassword from "./pages/ForgotPassword";
+import Login from "./pages/Login";
+import Logout from "./pages/Logout";
+import NotFound from "./pages/Page404";
 import Post from "./pages/Post";
 import PostDetail from "./pages/PostDetail";
-import AddPost from "./pages/AddPost";
-import AddBooking from "./pages/AddBooking";
-import UpdateBooking from "./pages/UpdateBooking";
-import UpdatePost from "./pages/UpdatePost";
-import Bookings from "./pages/bookings/page";
-import BookingDetail from "./pages/BookingDetail";
-import UpdateBookingPage from "./pages/UpdateBookingPage";
-import Students from "./pages/Students";
-
-import Rooms from "./pages/Rooms";
-import ForgotPassword from "./pages/ForgotPassword";
+import Register from "./pages/Register";
 import ResetPassword from "./pages/ResetPassword";
-import NotFound from "./pages/Page404";
-import Dashboard from "./pages/Dashboard";
-import DashboardTimeline from "./pages/dashboard/timeline/page";
-import DashboardTeachers from "./pages/dashboard/teachers/page";
-import Teachers from "./pages/Teachers";
-import Instruments from "./pages/Instruments";
-import BookingUpcoming from "./pages/BookingUpcoming";
-import BookingPast from "./pages/BookingPast";
+import Rooms from "./pages/Rooms";
+import UpdateBooking from "./pages/UpdateBooking";
+import UpdateBookingPage from "./pages/UpdateBookingPage";
+import UpdatePost from "./pages/UpdatePost";
 
+import Bookings from "./pages/bookings/page";
 import Branches from "./pages/branches/page";
+import DashboardStudents from "./pages/dashboard/students/page";
+import DashboardTeachers from "./pages/dashboard/teachers/page";
+import DashboardTimeline from "./pages/dashboard/timeline/page";
+import Instruments from "./pages/instruments/page";
 import Packets from "./pages/packets/page";
 import Payments from "./pages/payments/page";
 import Refunds from "./pages/refunds/page";
+import Room from "./pages/rooms/page";
+import Students from "./pages/students/page";
+import Teachers from "./pages/teachers/page";
 import User from "./pages/users/page";
-import DashboardStudents from "./pages/dashboard/students/page";
 
 // ----------------------------------------------------------------------
 

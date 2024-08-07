@@ -3,14 +3,25 @@ import { useQuery, useMutation } from "react-query";
 
 import { queryKey } from "../../constants/queryKey";
 import { fetchHeader } from "../../constants/fetchHeader";
+import { cleanQuery } from "../../utils/cleanQuery";
 
-export function useGetBranchs() {
-  const { data, isLoading, isError, refetch } = useQuery([queryKey.branches], () =>
-    axios
-      .get(`${process.env.REACT_APP_BASE_URL}/api/cabang`, {
-        headers: fetchHeader,
-      })
-      .then((res) => res.data)
+export function useGetBranchs(props) {
+  const options = props?.options || {};
+  const queryParam = props?.queryParam || {};
+  const { data, isLoading, isError, refetch } = useQuery(
+    [
+      queryKey.branches,
+      cleanQuery({
+        ...queryParam,
+      }),
+    ],
+    () =>
+      axios
+        .get(`${process.env.REACT_APP_BASE_URL}/api/cabang`, {
+          headers: fetchHeader,
+        })
+        .then((res) => res.data),
+    options
   );
   return { refetch, data, isLoading, isError };
 }
