@@ -101,6 +101,7 @@ export const BookingFormModal = ({ open, onClose, stateModal, id, onSuccess, onE
               value: data.instrumentId ?? "",
               label: data.instrument?.nama_instrument ?? "",
             },
+            userId: data.userId || JSON.parse(localStorage.user).id,
             tgl_kelas: parse(data.tgl_kelas, "yyyy-MM-dd", new Date()),
             cabang: data.cabang,
             jam_booking: parse(data.jam_booking, "HH:mm:ss", new Date()),
