@@ -258,10 +258,10 @@ export default function Dashboard() {
         open={openUpdStatus}
         onClose={handleCloseModalUpdateStatus}
         id={Number(bookingId)}
-        callbackSuccess={(response) => {
+        onSuccess={(response) => {
           onSuccessMutateBooking(response);
         }}
-        callbackError={(error) => {
+        onError={(error) => {
           onErrorMutateBooking(error);
         }}
         userId={user.id}

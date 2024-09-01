@@ -207,8 +207,8 @@ export function BookingDataList() {
         open={isOpenConfirmModal}
         onClose={onCloseModalConfirm}
         id={Number(bookingId)}
-        callbackSuccess={(response) => onSuccessToast(response)}
-        callbackError={(error) => onErrorToast(error)}
+        onSuccess={(response) => onSuccessToast(response, onSuccessUpdate)}
+        onError={(error) => onErrorToast(error)}
         userId={user.id}
       />
     </>
