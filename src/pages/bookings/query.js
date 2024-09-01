@@ -74,3 +74,17 @@ export function useGetBookingDownload(props) {
   );
   return { refetch };
 }
+
+/* data {
+    "durasi": "<durasi>",
+    "status": "<status>",
+    "notes" : "<notes>",
+    "userId: "<userId>"
+  } */
+export function useConfirmBooking({ id }) {
+  return useMutation((data) =>
+    axios.put(`${process.env.REACT_APP_BASE_URL}/api/booking/confirmClass/${id}`, data, {
+      headers: fetchHeader,
+    })
+  );
+}
