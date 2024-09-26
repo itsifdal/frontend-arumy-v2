@@ -152,7 +152,7 @@ export function BookingDataList() {
 
   const tableBody = bookings?.data
     ? bookings.data?.map((booking) => [
-        format(parse(booking.tgl_kelas, "yyyy-MM-dd", new Date()), "dd-MM-yyyy"),
+        format(parse(booking.tgl_kelas, "yyyy-MM-dd", new Date()), "iii, dd-MM-yy"),
         hourModel({ timeStart: booking.jam_booking, timeEnd: booking.selesai, duration: booking.durasi }),
         booking.room.nama_ruang,
         studentModel({ students: booking.user_group }),
