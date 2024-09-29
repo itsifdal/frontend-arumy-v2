@@ -69,3 +69,32 @@ export function useDeleteTeacher({ id }) {
     })
   );
 }
+
+/* 
+  status=<status>&dateFrom=<>&dateTo=<>&term=2&termYear=2024
+*/
+export function useGetTeacherHour({ id, options, queryParam }) {
+  const { data, isLoading, isError, refetch } = useQuery(
+    [
+      queryKey.teachers,
+      "HOUR",
+      id,
+      cleanQuery({
+        ...queryParam,
+      }),
+    ],
+    () =>
+      axios
+        .get(
+          `${process.env.REACT_APP_BASE_URL}/api/teacher/teachHour/${id}${queryToString({
+            ...queryParam,
+          })}`,
+          {
+            headers: fetchHeader,
+          }
+        )
+        .then((res) => res.data),
+    options
+  );
+  return { refetch, data, isLoading, isError };
+}
