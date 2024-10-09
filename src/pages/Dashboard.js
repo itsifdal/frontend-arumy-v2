@@ -38,7 +38,7 @@ import { cleanQuery } from "../utils/cleanQuery";
 import { mapRoomChart } from "../utils/map/roomChart";
 import { fetchHeader } from "../constants/fetchHeader";
 import DashboardNav from "./dashboard/dashboardNav";
-import { DashboardTeachersSummarySection } from "./dashboard/teachers/summaryTeacher";
+/* import { DashboardTeachersSummarySection } from "./dashboard/teachers/summaryTeacher"; */
 
 const initFilter = {
   tgl_kelas: format(new Date(), "yyyy-MM-dd"),
@@ -242,7 +242,7 @@ export default function Dashboard() {
           </Stack>
         </Container>
       </Box>
-      <DashboardTeachersSummarySection date={parse(filters.tgl_kelas, "yyyy-MM-dd", new Date())} />
+      {/* <DashboardTeachersSummarySection date={parse(filters.tgl_kelas, "yyyy-MM-dd", new Date())} /> */}
       <Container maxWidth="xl" sx={{ paddingY: 4 }}>
         <ToastContainer pauseOnFocusLoss={false} />
         {!isLoadingBookings && bookings.length && !isTeacher ? (
