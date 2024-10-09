@@ -14,7 +14,7 @@ import PaymentFormModal from "./formModal";
 import { useGetPayments } from "./query";
 import { onSuccessToast, onErrorToast } from "./callback";
 
-const defaultQuery = { sort: "DESC", sort_by: "tgl_bayar" };
+const defaultQuery = { sort: "DESC", sort_by: "id" };
 
 export default function PaymentList() {
   const [id, setId] = useState("");
