@@ -45,10 +45,10 @@ export default function PeacketFilterBar() {
           </Grid>
           <Grid item xs={6} sm={3} paddingBottom={2}>
             <InputBasic
-              label="Nama Murid"
+              label="Nama Paket"
               name="packetName"
               onKeyDown={(e) => updateSearchQuery(e)}
-              defaultValue={queryParam.q || ""}
+              defaultValue={queryParam.packetName || ""}
             />
           </Grid>
         </Grid>
