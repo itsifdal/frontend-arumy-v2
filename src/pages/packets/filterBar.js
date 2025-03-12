@@ -5,10 +5,11 @@ import useResponsive from "../../hooks/useResponsive";
 import { fNumber } from "../../utils/formatNumber";
 import { urlSearchParamsToQuery } from "../../utils/urlSearchParamsToQuery";
 import { useGetPackets } from "./query";
+import InputBasic from "../../components/input/inputBasic";
 
 export default function PeacketFilterBar() {
   const isDesktop = useResponsive("up", "lg");
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const queryParam = urlSearchParamsToQuery(searchParams);
   const { data: packets } = useGetPackets({
     queryParam: { ...queryParam },
@@ -19,6 +20,12 @@ export default function PeacketFilterBar() {
         packets.pagination.total_pages
       )}; Ditemukan ${fNumber(packets.pagination.total_records)} data`
     : "";
+
+  function updateSearchQuery(e) {
+    if (e.key === "Enter") {
+      setSearchParams({ [e.target.name]: e.target.value });
+    }
+  }
 
   return (
     <Box
@@ -35,6 +42,14 @@ export default function PeacketFilterBar() {
         <Grid container alignItems={"center"} width={"100%"}>
           <Grid item xs={6} sm={9}>
             <Typography fontSize={"14px"}>{pageInfo}</Typography>
+          </Grid>
+          <Grid item xs={6} sm={3} paddingBottom={2}>
+            <InputBasic
+              label="Nama Murid"
+              name="packetName"
+              onKeyDown={(e) => updateSearchQuery(e)}
+              defaultValue={queryParam.q || ""}
+            />
           </Grid>
         </Grid>
       </Container>
